@@ -1,0 +1,602 @@
+/* Design tokens scoped to KPI page (reference: Dashboard_Panobianco_Estrategico.html) */
+.page {
+	--bg: #f7f6f3;
+	--bg-card: #ffffff;
+	--bg-elevated: #eeede8;
+	--text-primary: #1a1a18;
+	--text-secondary: #6b6a65;
+	--text-tertiary: #9c9b96;
+	--border: rgba(0, 0, 0, 0.08);
+	--border-strong: rgba(0, 0, 0, 0.14);
+	--accent: #0f6e56;
+	--accent-light: #e1f5ee;
+	--accent-dark: #085041;
+	--coral: #d85a30;
+	--coral-light: #faece7;
+	--blue: #185fa5;
+	--blue-light: #e6f1fb;
+	--red: #a32d2d;
+	--red-light: #fcebeb;
+	--amber: #854f0b;
+	--amber-light: #faeeda;
+	--purple: #534ab7;
+	--purple-light: #eeedfe;
+	--radius: 10px;
+	--radius-lg: 14px;
+	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+	--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+	--transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	--font-body: var(--font-kpi-body), system-ui, sans-serif;
+	--font-display: var(--font-kpi-display), Georgia, serif;
+
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem 2rem 3rem;
+	font-family: var(--font-body);
+	color: var(--text-primary);
+	background: var(--bg);
+}
+
+@media (max-width: 768px) {
+	.page {
+		padding: 1rem 1rem 2rem;
+	}
+}
+
+/* Header (reference .header / .brand) */
+.header {
+	padding: 0 0 1.5rem;
+	margin-bottom: 0;
+}
+
+.headerTop {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 0;
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.brandIcon {
+	width: 44px;
+	height: 44px;
+	background: var(--accent);
+	border-radius: var(--radius);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #fff;
+	font-family: var(--font-display);
+	font-size: 20px;
+	font-weight: 600;
+}
+
+.title {
+	font-family: var(--font-display);
+	font-size: 22px;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+	line-height: 1.2;
+	margin: 0;
+}
+
+.subtitle {
+	font-size: 13px;
+	color: var(--text-secondary);
+	margin-top: 2px;
+	line-height: 1.45;
+}
+
+.periodStrip {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	background: var(--bg-card);
+	border: 0.5px solid var(--border-strong);
+	border-radius: var(--radius);
+	padding: 6px 8px;
+	box-shadow: var(--shadow-sm);
+	font-size: 12px;
+	color: var(--text-secondary);
+	font-weight: 500;
+}
+
+.periodStrip strong {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--text-primary);
+}
+
+/* Theme sections */
+.themeSection {
+	margin-bottom: 2rem;
+	padding: 24px;
+	border-radius: var(--radius-lg);
+	position: relative;
+}
+
+@media (max-width: 768px) {
+	.themeSection {
+		padding: 16px;
+	}
+}
+
+.themeSectionOverview {
+	background: linear-gradient(135deg, #f0f7f4 0%, #f7f6f3 60%);
+	border: 1px solid rgba(15, 110, 86, 0.1);
+}
+
+.themeSectionVendas {
+	background: linear-gradient(135deg, #edf3fa 0%, #f7f6f3 60%);
+	border: 1px solid rgba(24, 95, 165, 0.1);
+}
+
+.themeSectionRetencao {
+	background: linear-gradient(135deg, #fdf1ec 0%, #f7f6f3 60%);
+	border: 1px solid rgba(216, 90, 48, 0.1);
+}
+
+.themeSectionFinanceiro {
+	background: linear-gradient(135deg, #f1eff8 0%, #f7f6f3 60%);
+	border: 1px solid rgba(83, 74, 183, 0.1);
+}
+
+.themeSectionRoi {
+	background: linear-gradient(135deg, #faf6ee 0%, #f7f6f3 60%);
+	border: 1px solid rgba(133, 79, 11, 0.1);
+}
+
+.themeHeader {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.themeHeader h2 {
+	font-family: var(--font-display);
+	font-size: 18px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	margin: 0;
+	flex: 1;
+	min-width: 0;
+}
+
+.themeIcon {
+	width: 32px;
+	height: 32px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 700;
+	color: #fff;
+	flex-shrink: 0;
+}
+
+.themeIconAccent {
+	background: var(--accent);
+}
+
+.themeIconBlue {
+	background: var(--blue);
+}
+
+.themeIconCoral {
+	background: var(--coral);
+}
+
+.themeIconPurple {
+	background: var(--purple);
+}
+
+.themeIconAmber {
+	background: var(--amber);
+}
+
+/* ROI header icon — tom marrom (referência “RI”) */
+.themeIconRoiBrown {
+	background: #5c3d1e;
+	color: #fff;
+}
+
+.themeBadge {
+	font-size: 10px;
+	font-weight: 600;
+	padding: 3px 10px;
+	border-radius: 20px;
+	margin-left: auto;
+	flex-shrink: 0;
+}
+
+.badgeOverview {
+	background: var(--accent-light);
+	color: var(--accent-dark);
+}
+
+.badgeVendas {
+	background: var(--blue-light);
+	color: var(--blue);
+}
+
+.badgeRetencao {
+	background: var(--red-light);
+	color: var(--red);
+}
+
+.badgeFinanceiro {
+	background: var(--purple-light);
+	color: var(--purple);
+}
+
+.badgeRoi {
+	background: var(--amber-light);
+	color: var(--amber);
+}
+
+/* KPI grid & cards */
+.kpiGrid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin-bottom: 1rem;
+}
+
+/* Keep 4 columns from tablet width; narrow phones use a fluid grid */
+@media (max-width: 640px) {
+	.kpiGrid {
+		grid-template-columns: repeat(
+			auto-fit,
+			minmax(max(148px, calc((100% - 12px) / 2)), 1fr)
+		);
+	}
+}
+
+.kpiCard {
+	background: var(--bg-card);
+	border-radius: var(--radius-lg);
+	padding: 16px 18px;
+	box-shadow: var(--shadow-card);
+	position: relative;
+	overflow: hidden;
+	transition: var(--transition);
+}
+
+.kpiCard:hover {
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-md);
+}
+
+.kpiLabel {
+	font-size: 12px;
+	color: var(--text-secondary);
+	font-weight: 500;
+	display: block;
+	margin-bottom: 6px;
+}
+
+.kpiValue {
+	font-family: var(--font-display);
+	font-size: 26px;
+	font-weight: 600;
+	letter-spacing: -0.03em;
+	line-height: 1.1;
+	margin: 0;
+}
+
+.kpiMetaLine {
+	font-size: 11px;
+	color: var(--text-secondary);
+	margin: 4px 0 0;
+	line-height: 1.4;
+}
+
+.kpiDetailLine {
+	font-size: 11px;
+	color: var(--text-secondary);
+	margin: 6px 0 0;
+	line-height: 1.4;
+}
+
+.kpiMetaMuted {
+	font-size: 11px;
+	color: var(--text-tertiary);
+	font-weight: 500;
+}
+
+.kpiMetaDanger {
+	font-size: 11px;
+	color: var(--red);
+	margin: 2px 0 0;
+	line-height: 1.4;
+}
+
+.kpiSub {
+	font-size: 11px;
+	color: var(--text-secondary);
+	margin-top: 4px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: wrap;
+}
+
+.kpiBar {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+}
+
+.kpiDelta {
+	display: inline-flex;
+	align-items: center;
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 6px;
+}
+
+.deltaUp {
+	background: var(--accent-light);
+	color: var(--accent-dark);
+}
+
+.deltaDown {
+	background: var(--red-light);
+	color: var(--red);
+}
+
+.deltaNeutral {
+	background: var(--bg-elevated);
+	color: var(--text-secondary);
+}
+
+/* Insight cards */
+.insightCard {
+	background: var(--bg-card);
+	border-radius: var(--radius-lg);
+	padding: 0;
+	margin-bottom: 0;
+	margin-top: 0;
+	box-shadow: var(--shadow-card);
+	overflow: hidden;
+}
+
+.insightCardRetention {
+	box-shadow: var(--shadow-card);
+}
+
+.insightCardRetention .insightCardBody {
+	background: rgba(250, 236, 231, 0.45);
+}
+
+.insightCardRoi .insightCardBody {
+	background: rgba(252, 248, 240, 0.65);
+}
+
+.insightHeaderCaps {
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.insightCardHeader {
+	padding: 10px 16px;
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.insightCardHeader svg {
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+}
+
+.headerOverview {
+	background: var(--accent-light);
+	color: var(--accent-dark);
+}
+
+.headerVendas {
+	background: var(--blue-light);
+	color: var(--blue);
+}
+
+.headerRetencao {
+	background: var(--coral-light);
+	color: var(--coral);
+}
+
+.headerFinanceiro {
+	background: var(--purple-light);
+	color: var(--purple);
+}
+
+.headerRoi {
+	background: var(--amber-light);
+	color: var(--amber);
+}
+
+.insightBodySingle {
+	font-size: 13px;
+	line-height: 1.45;
+	color: var(--text-primary);
+}
+
+.insightCardBody {
+	padding: 12px 16px 14px;
+}
+
+.insightItem {
+	display: flex;
+	gap: 10px;
+	padding: 8px 0;
+	border-bottom: 0.5px solid var(--border);
+	font-size: 12.5px;
+	line-height: 1.55;
+	color: var(--text-secondary);
+}
+
+.insightItem:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.insightIcon {
+	width: 22px;
+	height: 22px;
+	min-width: 22px;
+	border-radius: 6px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	margin-top: 1px;
+}
+
+.insightIconGood {
+	background: var(--accent-light);
+	color: var(--accent-dark);
+}
+
+.insightIconBad {
+	background: var(--red-light);
+	color: var(--red);
+}
+
+.insightIconWarn {
+	background: var(--amber-light);
+	color: var(--amber);
+}
+
+.insightIconInfo {
+	background: var(--blue-light);
+	color: var(--blue);
+}
+
+.insightIconNeutral {
+	background: rgba(92, 61, 30, 0.12);
+	color: #5c3d1e;
+}
+
+.insightItem strong {
+	color: var(--text-primary);
+	font-weight: 600;
+}
+
+.insightGoodMark {
+	color: var(--accent-dark);
+	font-weight: 700;
+}
+
+.insightsWrap {
+	margin-top: 0;
+}
+
+/* Analysis & feature (chart-card style) */
+.sectionLabel {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-tertiary);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	margin-bottom: 10px;
+	margin-top: 8px;
+}
+
+.sectionPlain {
+	margin-bottom: 2rem;
+	padding: 0;
+}
+
+.sectionPlain h2 {
+	font-family: var(--font-display);
+	font-size: 18px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	margin: 0 0 12px;
+}
+
+.chartCard {
+	background: var(--bg-card);
+	border-radius: var(--radius-lg);
+	padding: 20px;
+	box-shadow: var(--shadow-card);
+}
+
+.analysis {
+	display: grid;
+	gap: 12px;
+}
+
+.analysisItem strong {
+	font-size: 13px;
+	font-weight: 600;
+	display: block;
+	margin-bottom: 4px;
+}
+
+.analysisItem p {
+	font-size: 13px;
+	line-height: 1.5;
+	color: var(--text-secondary);
+	margin: 0;
+}
+
+.feature {
+	background: var(--bg-card);
+	border-radius: var(--radius-lg);
+	padding: 20px;
+	box-shadow: var(--shadow-card);
+}
+
+.feature h2 {
+	font-family: var(--font-display);
+	font-size: 16px;
+	font-weight: 600;
+	margin: 0 0 8px;
+}
+
+.feature > p {
+	font-size: 13px;
+	line-height: 1.55;
+	color: var(--text-secondary);
+	margin: 0 0 8px;
+}
+
+.featureMeta {
+	font-size: 12px;
+	color: var(--text-tertiary);
+	margin-bottom: 12px;
+}
+
+.impactList {
+	display: grid;
+	gap: 6px;
+	font-size: 13px;
+	color: var(--text-secondary);
+}
+
+.impactList span {
+	padding: 6px 10px;
+	background: var(--bg-elevated);
+	border-radius: var(--radius);
+}

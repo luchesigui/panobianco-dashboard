@@ -1,0 +1,39 @@
+{
+  "name": "kpi-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "db:start": "npx supabase --workdir infra start",
+    "db:stop": "npx supabase --workdir infra stop",
+    "db:reset": "bash scripts/supabase-db-reset.sh",
+    "db:link": "npx supabase --workdir infra link --project-ref $SUPABASE_PROJECT_REF --password $SUPABASE_DB_PASSWORD",
+    "db:push": "npx supabase --workdir infra db push",
+    "db:push:dry": "npx supabase --workdir infra db push --dry-run",
+    "db:diff": "npx supabase --workdir infra db diff",
+    "db:new": "npx supabase --workdir infra migration new",
+    "db:status": "npx supabase --workdir infra status",
+    "functions:deploy": "npx supabase --workdir infra functions deploy monthly-close --project-ref $SUPABASE_PROJECT_REF",
+    "predev": "npm run db:start",
+    "dev": "next dev",
+    "postdev": "npm run db:stop",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.101.0",
+    "chart.js": "^4.5.1",
+    "next": "16.2.1",
+    "react": "19.2.4",
+    "react-chartjs-2": "^5.3.1",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.1",
+    "typescript": "^5"
+  }
+}

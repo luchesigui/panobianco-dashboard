@@ -1,0 +1,405 @@
+.deepRoot {
+	margin-top: 1.25rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	font-family: var(--font-kpi-body), var(--font-body, system-ui, sans-serif);
+}
+
+/* Reference: .section-label */
+.sectionLabel {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-tertiary, #9c9b96);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	margin-bottom: 10px;
+	margin-top: 8px;
+}
+
+.sectionLabel:first-child {
+	margin-top: 0;
+}
+
+/* Reference: .sales-comp, .sales-comp-card */
+.salesComp {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 12px;
+	margin-bottom: 1.5rem;
+}
+
+@media (max-width: 768px) {
+	.salesComp {
+		grid-template-columns: 1fr;
+	}
+}
+
+.salesCompCard {
+	background: var(--bg-card, #ffffff);
+	border-radius: var(--radius-lg, 14px);
+	padding: 16px 18px;
+	box-shadow: var(
+		--shadow-card,
+		0 1px 3px rgba(0, 0, 0, 0.06),
+		0 0 0 0.5px rgba(0, 0, 0, 0.04)
+	);
+	display: flex;
+	align-items: center;
+	gap: 14px;
+}
+
+.salesCompStripe {
+	width: 4px;
+	height: 48px;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+.salesCompLabel {
+	font-size: 12px;
+	color: var(--text-secondary, #6b6a65);
+}
+
+.salesCompVal {
+	font-family: var(--font-kpi-display), var(--font-display, Georgia, serif);
+	font-size: 28px;
+	font-weight: 600;
+	letter-spacing: -0.03em;
+	line-height: 1.1;
+	margin: 2px 0 0;
+}
+
+.salesCompDetail {
+	font-size: 11px;
+	color: var(--text-tertiary, #9c9b96);
+	margin-top: 2px;
+	line-height: 1.35;
+}
+
+/* Reference: .funnel-row, .funnel-step */
+.funnelRow {
+	display: grid;
+	grid-template-columns: repeat(4, 1fr);
+	gap: 3px;
+	margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+	.funnelRow {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+.funnelStep {
+	text-align: center;
+	padding: 14px 8px;
+	border-radius: var(--radius, 10px);
+	position: relative;
+	box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.04));
+}
+
+.funnelLabel {
+	font-size: 11px;
+	font-weight: 500;
+	display: block;
+	margin-bottom: 4px;
+}
+
+.funnelVal {
+	font-family: var(--font-kpi-display), var(--font-display, Georgia, serif);
+	font-size: 22px;
+	font-weight: 600;
+	display: block;
+	letter-spacing: -0.03em;
+	line-height: 1.15;
+}
+
+.funnelRate {
+	font-size: 10px;
+	margin-top: 3px;
+	display: block;
+	opacity: 0.7;
+	line-height: 1.35;
+}
+
+.funnelArrow {
+	position: absolute;
+	right: -9px;
+	top: 50%;
+	transform: translateY(-50%);
+	font-size: 11px;
+	color: var(--text-tertiary, #9c9b96);
+	z-index: 1;
+	pointer-events: none;
+}
+
+/* Reference: .chart-card + weekly table */
+.chartCard {
+	background: var(--bg-card, #ffffff);
+	border-radius: var(--radius-lg, 14px);
+	padding: 20px;
+	box-shadow: var(
+		--shadow-card,
+		0 1px 3px rgba(0, 0, 0, 0.06),
+		0 0 0 0.5px rgba(0, 0, 0, 0.04)
+	);
+}
+
+.chartCardTable {
+	margin-bottom: 1.5rem;
+	overflow-x: auto;
+}
+
+.chartCardTitle {
+	font-family: var(--font-kpi-body), var(--font-body, system-ui, sans-serif);
+	font-size: 13px;
+	font-weight: 600;
+	margin: 0 0 4px;
+	color: var(--text-primary, #1a1a18);
+}
+
+.chartSub {
+	font-size: 11px;
+	color: var(--text-tertiary, #9c9b96);
+	margin: 0 0 14px;
+	line-height: 1.35;
+}
+
+/* Reference: .week-table */
+.weekTable {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.weekTable thead th {
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--text-tertiary, #9c9b96);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	padding: 8px 10px;
+	border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+	text-align: center;
+}
+
+.weekTable thead th:first-child {
+	text-align: left;
+}
+
+.weekTable tbody td {
+	padding: 8px 10px;
+	text-align: center;
+	border-bottom: 0.5px solid var(--border, rgba(0, 0, 0, 0.08));
+	font-variant-numeric: tabular-nums;
+}
+
+.weekTable tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.weekTable tbody td:first-child {
+	text-align: left;
+	color: var(--text-secondary, #6b6a65);
+	font-weight: 500;
+}
+
+.weekTable tbody td:last-child {
+	font-weight: 600;
+	background: rgba(15, 110, 86, 0.04);
+	color: var(--text-primary, #1a1a18);
+}
+
+.thLabel {
+	min-width: 140px;
+}
+
+.tdLabel {
+	text-align: left;
+}
+
+.tdNum {
+	color: var(--text-primary, #1a1a18);
+}
+
+.tdTotal {
+	font-weight: 600;
+	background: rgba(15, 110, 86, 0.04);
+	font-variant-numeric: tabular-nums;
+	color: var(--text-primary, #1a1a18);
+}
+
+/* Reference: .wk-group — band behind section titles (elevated strip; not the total-column green). */
+.weekTable tbody td.wkGroup,
+.weekTable tbody td.wkGroup:first-child,
+.weekTable tbody td.wkGroup:last-child {
+	text-align: left;
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--text-secondary, #9c9b96);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	padding: 8px 10px;
+	border-bottom: none;
+	background: rgba(15, 110, 86, 0.04);
+	font-variant-numeric: normal;
+}
+
+/* Inline note in reference: small, sentence case, tertiary */
+.wkGroupNote {
+	font-weight: 400;
+	font-size: 9px;
+	text-transform: none;
+	letter-spacing: 0;
+	color: var(--text-tertiary, #9c9b96);
+}
+
+/* Reference: .chart-row */
+.bottomGrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	align-items: stretch;
+	margin-top: 0;
+}
+
+.bottomGrid .chartCard {
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	height: 100%;
+}
+
+@media (max-width: 900px) {
+	.bottomGrid {
+		grid-template-columns: 1fr;
+	}
+}
+
+/* Reference: .team-table — Performance por recepcionista */
+.teamTableWrap {
+	margin: 0 -4px;
+	flex: 1;
+	min-height: 0;
+	overflow-x: auto;
+}
+
+.teamTable {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 13px;
+}
+
+.teamTable thead th {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-tertiary, #9c9b96);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	text-align: left;
+	padding: 8px 12px;
+	border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+}
+
+.teamTable tbody td {
+	padding: 10px 12px;
+	border-bottom: 0.5px solid var(--border, rgba(0, 0, 0, 0.08));
+	vertical-align: middle;
+}
+
+.teamTable tbody tr:last-child td {
+	border-bottom: none;
+}
+
+.teamThConv {
+	width: 40%;
+}
+
+.teamTdName {
+	font-weight: 500;
+	color: var(--text-primary, #1a1a18);
+}
+
+.teamBadge {
+	font-size: 10px;
+	font-weight: 600;
+	color: var(--blue, #185fa5);
+}
+
+.teamTdNum {
+	font-variant-numeric: tabular-nums;
+	color: var(--text-primary, #1a1a18);
+}
+
+.teamVendasSplit {
+	font-size: 10px;
+	color: var(--text-tertiary, #9c9b96);
+}
+
+.teamTdConv {
+	vertical-align: middle;
+}
+
+.barCell {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+}
+
+.miniBarTrack {
+	flex: 1;
+	min-width: 0;
+	height: 6px;
+	border-radius: 3px;
+	background: var(--bg-elevated, #eeede8);
+}
+
+.miniBarFill,
+.miniBarFillAccent {
+	height: 100%;
+	border-radius: 3px;
+	max-width: 100%;
+}
+
+.miniBarFill {
+	background: var(--accent, #0f6e56);
+}
+
+.miniBarFillAccent {
+	background: var(--blue, #185fa5);
+}
+
+.teamPct {
+	flex-shrink: 0;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text-primary, #1a1a18);
+	font-variant-numeric: tabular-nums;
+}
+
+/* Vendas mensais — Chart.js (reference: canvas + axes + grid) */
+.monthlySalesChartBlock {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	padding-top: 4px;
+}
+
+.bottomGrid .monthlySalesChartBlock {
+	min-height: 0;
+}
+
+.chartLegend {
+	font-size: 11px;
+	color: var(--text-secondary, #6b6a65);
+	margin: 8px 0 0;
+}
+
+.chartEmpty {
+	font-size: 13px;
+	color: var(--text-secondary, #6b6a65);
+	margin: 0;
+}

@@ -1,0 +1,53 @@
+.root {
+	margin-top: 1.25rem;
+	font-family: var(--font-kpi-body), var(--font-body, system-ui, sans-serif);
+}
+
+.chartRow {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+}
+
+@media (max-width: 900px) {
+	.chartRow {
+		grid-template-columns: 1fr;
+	}
+}
+
+.chartCard {
+	background: var(--bg-card, #ffffff);
+	border-radius: var(--radius-lg, 14px);
+	padding: 16px 18px 14px;
+	box-shadow: var(
+		--shadow-card,
+		0 1px 3px rgba(0, 0, 0, 0.06),
+		0 0 0 0.5px rgba(0, 0, 0, 0.04)
+	);
+}
+
+.chartTitle {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text-primary, #1a1a18);
+	margin: 0 0 2px;
+	letter-spacing: -0.02em;
+}
+
+.chartSub {
+	font-size: 11px;
+	color: var(--text-tertiary, #9c9b96);
+	margin: 0 0 12px;
+	line-height: 1.35;
+}
+
+.chartCanvas {
+	height: 280px;
+	position: relative;
+}
+
+@media (max-width: 768px) {
+	.chartCanvas {
+		height: 240px;
+	}
+}

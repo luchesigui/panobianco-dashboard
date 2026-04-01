@@ -1,0 +1,7 @@
+.kpiShell {
+  min-height: 100%;
+  font-family: var(--font-kpi-body), system-ui, sans-serif;
+  background: #f7f6f3;
+  color: #1a1a18;
+  -webkit-font-smoothing: antialiased;
+}
