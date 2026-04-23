@@ -5,7 +5,6 @@ type FinanceInsight = { type: string; title: string; body: string };
 /** Values when DB has no row yet (migration/seed not applied). */
 const FINANCE_VALUE_FALLBACK: Record<string, number> = {
   invoice_tax_nf: 25,
-  operational_result_100pct_nf: 6000,
   accumulated_operational_no_contributions: -194000,
   accumulated_with_contributions: 61367,
   royalties_validation: 18497,

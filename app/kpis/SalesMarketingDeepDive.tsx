@@ -4,6 +4,14 @@ import styles from "./SalesMarketingDeepDive.module.css";
 
 type Props = {
   dashboard: KpiPageData["salesMarketingDashboard"];
+  leadsGenerated?: number | null;
+  salesTotal?: number | null;
+  monthlyMarketing?: {
+    reach?: number | null;
+    frequency?: number | null;
+    views?: number | null;
+    followers?: number | null;
+  } | null;
 };
 
 function padWeeks<T>(arr: Array<T | null | undefined>, n: number): Array<T | null> {
@@ -29,7 +37,7 @@ function fmtCell(
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(v);
 }
 
-export function SalesMarketingDeepDive({ dashboard }: Props) {
+export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, monthlyMarketing }: Props) {
   const p = dashboard.payload;
   if (!p) return null;
 
@@ -59,25 +67,38 @@ export function SalesMarketingDeepDive({ dashboard }: Props) {
 
   const comp = p.salesComposition;
 
+  const scheduled = p.funnel.scheduled.value;
+  const present = p.funnel.present.value;
+  const closings = p.funnel.closings.value;
+
+  const presentRate =
+    scheduled > 0
+      ? `${Math.round((present / scheduled) * 100)}% dos agendados`
+      : null;
+  const closingsRate =
+    present > 0
+      ? `${Math.round((closings / present) * 100)}% dos presentes`
+      : null;
+
   const funnelSteps = [
     {
       label: "Agendadas",
-      value: String(p.funnel.scheduled.value),
-      sub: p.funnel.scheduled.subtext,
+      value: String(scheduled),
+      sub: leadsGenerated != null ? `de ${leadsGenerated.toLocaleString("pt-BR")} leads` : null,
       bg: "#EEEDFE",
       fg: "#534AB7",
     },
     {
       label: "Presentes",
-      value: String(p.funnel.present.value),
-      sub: p.funnel.present.subtext,
+      value: String(present),
+      sub: presentRate,
       bg: "#FAECE7",
       fg: "#D85A30",
     },
     {
       label: "Fechamentos",
-      value: String(p.funnel.closings.value),
-      sub: p.funnel.closings.subtext,
+      value: String(closings),
+      sub: closingsRate,
       bg: "#E1F5EE",
       fg: "#0F6E56",
     },
@@ -86,65 +107,67 @@ export function SalesMarketingDeepDive({ dashboard }: Props) {
       value: p.funnel.conversion.isPercent
         ? `${p.funnel.conversion.value}%`
         : String(p.funnel.conversion.value),
-      sub: p.funnel.conversion.subtext,
+      sub: "dos presentes",
       bg: "#EAF3DE",
       fg: "#639922",
     },
-  ] as const;
+  ];
 
   return (
     <div className={styles.deepRoot}>
+      <h3 className={styles.sectionLabel}>
+        {comp?.sectionTitle ?? "Composição das vendas"}
+      </h3>
       {comp ? (
-        <>
-          <h3 className={styles.sectionLabel}>
-            {comp.sectionTitle ?? "Composição das vendas"}
-          </h3>
-          <div className={styles.salesComp}>
-            <article className={styles.salesCompCard}>
-              <div
-                className={styles.salesCompStripe}
-                style={{ background: "var(--blue, #185fa5)" }}
-                aria-hidden
-              />
-              <div>
-                <div className={styles.salesCompLabel}>
-                  {comp.experimental.title}
-                </div>
-                <div
-                  className={styles.salesCompVal}
-                  style={{ color: "var(--blue, #185fa5)" }}
-                >
-                  {new Intl.NumberFormat("pt-BR").format(comp.experimental.value)}
-                </div>
-                <div className={styles.salesCompDetail}>
-                  {comp.experimental.subtext}
-                </div>
+        <div className={styles.salesComp}>
+          <article className={styles.salesCompCard}>
+            <div
+              className={styles.salesCompStripe}
+              style={{ background: "var(--blue, #185fa5)" }}
+              aria-hidden
+            />
+            <div>
+              <div className={styles.salesCompLabel}>
+                {comp.experimental.title}
               </div>
-            </article>
-            <article className={styles.salesCompCard}>
               <div
-                className={styles.salesCompStripe}
-                style={{ background: "var(--accent, #0f6e56)" }}
-                aria-hidden
-              />
-              <div>
-                <div className={styles.salesCompLabel}>
-                  {comp.otherChannels.title}
-                </div>
-                <div
-                  className={styles.salesCompVal}
-                  style={{ color: "var(--accent, #0f6e56)" }}
-                >
-                  {new Intl.NumberFormat("pt-BR").format(comp.otherChannels.value)}
-                </div>
-                <div className={styles.salesCompDetail}>
-                  {comp.otherChannels.subtext}
-                </div>
+                className={styles.salesCompVal}
+                style={{ color: "var(--blue, #185fa5)" }}
+              >
+                {new Intl.NumberFormat("pt-BR").format(comp.experimental.value)}
               </div>
-            </article>
-          </div>
-        </>
-      ) : null}
+              <div className={styles.salesCompDetail}>
+                {comp.experimental.subtext}
+              </div>
+            </div>
+          </article>
+          <article className={styles.salesCompCard}>
+            <div
+              className={styles.salesCompStripe}
+              style={{ background: "var(--accent, #0f6e56)" }}
+              aria-hidden
+            />
+            <div>
+              <div className={styles.salesCompLabel}>
+                {comp.otherChannels.title}
+              </div>
+              <div
+                className={styles.salesCompVal}
+                style={{ color: "var(--accent, #0f6e56)" }}
+              >
+                {new Intl.NumberFormat("pt-BR").format(comp.otherChannels.value)}
+              </div>
+              <div className={styles.salesCompDetail}>
+                {comp.otherChannels.subtext}
+              </div>
+            </div>
+          </article>
+        </div>
+      ) : (
+        <p className={styles.salesCompEmpty}>
+          Dados de composição de vendas ainda sem fonte definida — em breve.
+        </p>
+      )}
 
       <h3 className={styles.sectionLabel}>Funil de aula experimental</h3>
       <div className={styles.funnelRow}>
@@ -191,28 +214,28 @@ export function SalesMarketingDeepDive({ dashboard }: Props) {
             <WeeklyRow
               label="Alcance"
               cells={reachW}
-              total={mk.totals.reach}
+              total={monthlyMarketing?.reach ?? mk.totals.reach}
               mode="intCompact"
               weekKeys={weeks}
             />
             <WeeklyRow
               label="Frequência"
               cells={freqW}
-              total={mk.totals.frequency}
+              total={monthlyMarketing?.frequency ?? mk.totals.frequency}
               mode="decimal1"
               weekKeys={weeks}
             />
             <WeeklyRow
               label="Visualizações"
               cells={viewsW}
-              total={mk.totals.views}
+              total={monthlyMarketing?.views ?? mk.totals.views}
               mode="intCompact"
               weekKeys={weeks}
             />
             <WeeklyRow
               label="Novos seguidores"
               cells={folW}
-              total={mk.totals.followers}
+              total={monthlyMarketing?.followers ?? mk.totals.followers}
               mode="int"
               weekKeys={weeks}
             />
@@ -227,21 +250,21 @@ export function SalesMarketingDeepDive({ dashboard }: Props) {
             <WeeklyRow
               label="Agendadas"
               cells={schW}
-              total={fw.totals.scheduled}
+              total={p.funnel.scheduled.value}
               mode="int"
               weekKeys={weeks}
             />
             <WeeklyRow
               label="Presenças"
               cells={attW}
-              total={fw.totals.attendance}
+              total={p.funnel.present.value}
               mode="int"
               weekKeys={weeks}
             />
             <WeeklyRow
               label="Fechamentos"
               cells={cloW}
-              total={fw.totals.closings}
+              total={p.funnel.closings.value}
               mode="int"
               weekKeys={weeks}
             />
@@ -253,10 +276,20 @@ export function SalesMarketingDeepDive({ dashboard }: Props) {
                 ) : null}
               </td>
             </tr>
+            {(w.salesWeekly.byReceptionist ?? []).map((row, ri) => (
+              <WeeklyRow
+                key={`${row.name}-${ri}`}
+                label={row.name}
+                cells={padWeeks(row.salesByWeek, n)}
+                total={row.rowTotal}
+                mode="int"
+                weekKeys={weeks}
+              />
+            ))}
             <WeeklyRow
               label="Vendas (todos canais)"
               cells={salesW}
-              total={w.salesWeekly.grandTotal}
+              total={salesTotal ?? w.salesWeekly.grandTotal}
               mode="int"
               weekKeys={weeks}
             />

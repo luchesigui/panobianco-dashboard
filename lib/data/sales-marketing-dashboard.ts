@@ -51,6 +51,12 @@ export type SalesMarketingDashboardPayload = {
     salesWeekly: {
       totals: Array<number | null>;
       grandTotal: number;
+      /** Optional breakdown: one row per receptionist × week (dom–sáb columns). */
+      byReceptionist?: Array<{
+        name: string;
+        salesByWeek: Array<number | null>;
+        rowTotal: number;
+      }>;
     };
   };
   receptionistsPeriodLabel?: string;

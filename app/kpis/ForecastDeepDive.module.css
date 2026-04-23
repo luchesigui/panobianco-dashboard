@@ -1,0 +1,264 @@
+.root {
+	margin-top: 0.25rem;
+	font-family: var(--font-kpi-body), var(--font-body, system-ui, sans-serif);
+}
+
+.pageTitle {
+	font-family: var(--font-display), Georgia, serif;
+	font-size: 20px;
+	font-weight: 600;
+	letter-spacing: -0.02em;
+	margin: 0 0 1rem;
+	color: var(--text-primary, #1a1a18);
+	line-height: 1.25;
+}
+
+.kpiGrid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin-bottom: 1.25rem;
+}
+
+@media (max-width: 900px) {
+	.kpiGrid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 480px) {
+	.kpiGrid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.kpiCard {
+	background: var(--bg-card, #ffffff);
+	border-radius: var(--radius-lg, 14px);
+	padding: 16px 18px;
+	box-shadow: var(
+		--shadow-card,
+		0 1px 3px rgba(0, 0, 0, 0.06),
+		0 0 0 0.5px rgba(0, 0, 0, 0.04)
+	);
+	position: relative;
+	overflow: hidden;
+}
+
+.kpiLabel {
+	font-size: 12px;
+	color: var(--text-secondary, #6b6a65);
+	font-weight: 500;
+	display: block;
+	margin-bottom: 6px;
+}
+
+.kpiValue {
+	font-family: var(--font-display), Georgia, serif;
+	font-size: 26px;
+	font-weight: 600;
+	letter-spacing: -0.03em;
+	line-height: 1.1;
+	margin: 0;
+}
+
+.kpiMetaLine {
+	font-size: 11px;
+	color: var(--text-secondary, #6b6a65);
+	margin: 4px 0 0;
+	line-height: 1.4;
+}
+
+.kpiSub {
+	font-size: 11px;
+	color: var(--text-secondary, #6b6a65);
+	margin-top: 4px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: wrap;
+}
+
+.kpiBar {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+}
+
+.kpiDelta {
+	display: inline-flex;
+	align-items: center;
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 6px;
+}
+
+.deltaUp {
+	background: var(--accent-light, #e1f5ee);
+	color: var(--accent-dark, #085041);
+}
+
+.deltaDown {
+	background: var(--red-light, #fcebeb);
+	color: var(--red, #a32d2d);
+}
+
+.deltaNeutral {
+	background: var(--bg-elevated, #eeede8);
+	color: var(--text-secondary, #6b6a65);
+}
+
+.analysisWrap {
+	margin-bottom: 1.25rem;
+}
+
+.analysisCard {
+	background: var(--bg-card, #ffffff);
+	border-radius: var(--radius-lg, 14px);
+	box-shadow: var(
+		--shadow-card,
+		0 1px 3px rgba(0, 0, 0, 0.06),
+		0 0 0 0.5px rgba(0, 0, 0, 0.04)
+	);
+	overflow: hidden;
+	border: 0.5px solid var(--border, rgba(0, 0, 0, 0.08));
+}
+
+.analysisHeader {
+	background: linear-gradient(180deg, #e6f1fb 0%, #dceaf7 100%);
+	color: #1a3d5c;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	padding: 10px 16px;
+	border-bottom: 1px solid rgba(24, 95, 165, 0.12);
+}
+
+.analysisBody {
+	padding: 14px 16px 16px;
+}
+
+.analysisItem {
+	display: flex;
+	gap: 10px;
+	align-items: flex-start;
+	margin-bottom: 12px;
+}
+
+.analysisItem:last-child {
+	margin-bottom: 0;
+}
+
+.analysisIcon {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1;
+}
+
+.iconInfo {
+	background: #bee3f8;
+	color: #2c5282;
+}
+
+.iconGood {
+	background: #c6f6d5;
+	color: #065f46;
+}
+
+.iconBad {
+	background: #fed7d7;
+	color: #9b2c2c;
+}
+
+.iconWarn {
+	background: #feebc8;
+	color: #9c4221;
+}
+
+.analysisText {
+	font-size: 12px;
+	color: var(--text-secondary, #6b6a65);
+	line-height: 1.5;
+	margin: 0;
+}
+
+.chartRow {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px;
+}
+
+@media (max-width: 900px) {
+	.chartRow {
+		grid-template-columns: 1fr;
+	}
+}
+
+.chartCard {
+	background: var(--bg-card, #ffffff);
+	border-radius: var(--radius-lg, 14px);
+	padding: 16px 18px 14px;
+	box-shadow: var(
+		--shadow-card,
+		0 1px 3px rgba(0, 0, 0, 0.06),
+		0 0 0 0.5px rgba(0, 0, 0, 0.04)
+	);
+}
+
+.chartTitle {
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text-primary, #1a1a18);
+	margin: 0 0 2px;
+	letter-spacing: -0.02em;
+}
+
+.chartSub {
+	font-size: 11px;
+	color: var(--text-tertiary, #9c9b96);
+	margin: 0 0 12px;
+	line-height: 1.35;
+}
+
+.chartCanvas {
+	height: 280px;
+	position: relative;
+}
+
+.donutLegend {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin-top: 8px;
+	font-size: 10px;
+	color: var(--text-secondary, #6b6a65);
+}
+
+.legendRow {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.legendSwatch {
+	width: 10px;
+	height: 10px;
+	border-radius: 2px;
+	flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+	.chartCanvas {
+		height: 240px;
+	}
+}

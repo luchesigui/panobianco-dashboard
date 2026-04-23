@@ -41,7 +41,7 @@ const ROI_VALUE_FALLBACK: Record<string, number> = {
   total_invested: 1_020_300,
   cash_balance: 61_367,
   recovery_balance: 958_933,
-  roi_payback_months: 49,
+  // roi_payback_months is computed in kpis.ts — no fallback here
 };
 
 const ROI_META_FALLBACK: KpiMetaMap = {

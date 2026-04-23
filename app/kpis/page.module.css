@@ -115,6 +115,20 @@
 	color: var(--text-primary);
 }
 
+.entradaLink {
+	margin-left: 10px;
+	padding-left: 10px;
+	border-left: 1px solid var(--border-strong);
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--blue);
+	text-decoration: none;
+}
+
+.entradaLink:hover {
+	text-decoration: underline;
+}
+
 /* Theme sections */
 .themeSection {
 	margin-bottom: 2rem;
@@ -147,6 +161,12 @@
 .themeSectionFinanceiro {
 	background: linear-gradient(135deg, #f1eff8 0%, #f7f6f3 60%);
 	border: 1px solid rgba(83, 74, 183, 0.1);
+}
+
+/* Previsão — referência painel claro + barra azul */
+.themeSectionPrevisao {
+	background: linear-gradient(135deg, #e8f4fc 0%, #f7f6f3 55%);
+	border: 1px solid rgba(43, 108, 176, 0.12);
 }
 
 .themeSectionRoi {
@@ -210,6 +230,11 @@
 	color: #fff;
 }
 
+.themeIconPrevisao {
+	background: #2b6cb0;
+	color: #fff;
+}
+
 .themeBadge {
 	font-size: 10px;
 	font-weight: 600;
@@ -242,6 +267,16 @@
 .badgeRoi {
 	background: var(--amber-light);
 	color: var(--amber);
+}
+
+.badgePrevisao {
+	background: #bee3f8;
+	color: #2c5282;
+}
+
+.headerPrevisao {
+	background: linear-gradient(180deg, #bee3f8 0%, #90cdf4 100%);
+	color: #2c5282;
 }
 
 /* KPI grid & cards */
