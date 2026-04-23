@@ -145,7 +145,6 @@ function recepMonthFromPayload(p: SalesMarketingDashboardPayload): RecepMonthRow
         leads: "",
         sales: "",
         goal: "38",
-        conv: "",
         badge: "",
       },
     ];
