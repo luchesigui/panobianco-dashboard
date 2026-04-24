@@ -82,6 +82,8 @@ export type NextMonthForecastPayload = {
 
 export type KpiPageData = {
 	gymName: string;
+	/** True when monthly KPI data is loaded from current calendar month, false when fallback is previous month. */
+	isCurrentMonthData: boolean;
 	/** Current calendar month label, e.g. "Abr/26" — used in header and weekly section badge. */
 	currentMonthLabel: string;
 	/** Monthly KPI data period label (previous calendar month), e.g. "Mar/26". */
@@ -872,6 +874,7 @@ export async function getKpiPageData(
 
 	return {
 		gymName: gym.name,
+		isCurrentMonthData: hasCurrentMonthData,
 		currentMonthLabel: toLongLabel(smPayloadPeriod),
 		currentPeriodLabel: toLongLabel(kpiDataPeriod),
 		previousPeriodLabel: previousPeriod

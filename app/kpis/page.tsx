@@ -333,6 +333,29 @@ function renderDelta(
 	return { pill: "0%", tail, pillClass: styles.deltaNeutral };
 }
 
+function abbreviatePeriodLabel(periodLabel?: string): string | undefined {
+	if (!periodLabel) return periodLabel;
+	const monthMap: Record<string, string> = {
+		janeiro: "Jan",
+		fevereiro: "Fev",
+		marco: "Mar",
+		abril: "Abr",
+		maio: "Mai",
+		junho: "Jun",
+		julho: "Jul",
+		agosto: "Ago",
+		setembro: "Set",
+		outubro: "Out",
+		novembro: "Nov",
+		dezembro: "Dez",
+	};
+	const [monthRaw] = periodLabel.split("/");
+	if (!monthRaw) return periodLabel;
+	const month = monthRaw.trim().toLowerCase();
+	const shortMonth = monthMap[month] ?? monthRaw.trim();
+	return shortMonth;
+}
+
 function salesMarketingMetaLines(cardKey: string, meta: KpiMeta): string[] {
 	const lines: string[] = [];
 	if (
@@ -960,9 +983,14 @@ function RetentionKpiCards({ data }: { data: KpiPageData }) {
 				(data.previous.monthly_non_renewed ?? 0)
 			: exitsVal;
 
-	const exitDelta = renderDelta(exitsCurrentSum, exitsPrevSum, data.previousPeriodLabel, {
-		invertColors: true,
-	});
+	const exitDelta = renderDelta(
+		exitsCurrentSum,
+		exitsPrevSum,
+		data.previousPeriodLabel,
+		{
+			invertColors: true,
+		},
+	);
 
 	const star = baseM.partial === true ? "*" : "";
 	const baseDisplay =
@@ -1042,6 +1070,9 @@ function RetentionKpiCards({ data }: { data: KpiPageData }) {
 
 export default async function KpisPage() {
 	const data = await getKpiPageData();
+	const activeDataPeriodLabel = data.isCurrentMonthData
+		? data.currentMonthLabel
+		: data.currentPeriodLabel;
 
 	return (
 		<div className={styles.page}>
@@ -1180,7 +1211,7 @@ export default async function KpisPage() {
 									: section.id === "forecast" && data.nextMonthForecast.hasData
 										? `Próximo: ${data.nextMonthForecast.nextPeriodLabel}`
 										: section.id === "sales_marketing"
-											? data.currentMonthLabel
+											? activeDataPeriodLabel
 											: data.currentPeriodLabel}
 							</span>
 						</div>
@@ -1202,6 +1233,7 @@ export default async function KpisPage() {
 									const previous = data.previous[card.key];
 									const meta = data.currentMeta[card.key];
 									const vsLabel = data.previousPeriodLabel;
+									const shortVsLabel = abbreviatePeriodLabel(vsLabel);
 
 									if (section.id === "sales_marketing") {
 										const metaObj = meta ?? {};
@@ -1216,7 +1248,7 @@ export default async function KpisPage() {
 										const delta = renderDelta(
 											current,
 											previous,
-											vsLabel,
+											shortVsLabel,
 											deltaOpts,
 										);
 										const metaLines = salesMarketingMetaLines(
@@ -1239,11 +1271,6 @@ export default async function KpisPage() {
 											mainStr = new Intl.NumberFormat("pt-BR").format(current);
 										}
 
-										const prevRate =
-											typeof metaObj.previous_rate === "number"
-												? metaObj.previous_rate
-												: null;
-
 										return (
 											<article key={card.key} className={styles.kpiCard}>
 												<span className={styles.kpiLabel}>{card.label}</span>
@@ -1256,44 +1283,13 @@ export default async function KpisPage() {
 														{line}
 													</p>
 												))}
-												{card.key === "no_show_rate" && prevRate != null ? (
+												{delta.pill ? (
 													<div className={styles.kpiSub}>
 														<span
-															className={`${styles.kpiDelta} ${styles.deltaDown}`}
+															className={`${styles.kpiDelta} ${delta.pillClass}`}
 														>
-															era {prevRate}%
+															{`${delta.pill}${delta.tail}`}
 														</span>
-													</div>
-												) : null}
-												{card.key === "present_conversion_rate" &&
-												prevRate != null ? (
-													<div className={styles.kpiSub}>
-														<span
-															className={`${styles.kpiDelta} ${styles.deltaUp}`}
-														>
-															era {prevRate}%
-														</span>
-													</div>
-												) : null}
-												{card.key === "sales_total" ||
-												card.key === "leads_generated" ? (
-													<div className={styles.kpiSub}>
-														{delta.pill ? (
-															<>
-																<span
-																	className={`${styles.kpiDelta} ${delta.pillClass}`}
-																>
-																	{delta.pill}
-																</span>
-																{delta.tail}
-															</>
-														) : (
-															<span
-																className={`${styles.kpiDelta} ${delta.pillClass}`}
-															>
-																{delta.tail}
-															</span>
-														)}
 													</div>
 												) : null}
 												<div
@@ -1306,14 +1302,60 @@ export default async function KpisPage() {
 										);
 									}
 
-									const delta = renderDelta(current, previous, vsLabel);
+									const delta = renderDelta(
+										current,
+										previous,
+										shortVsLabel,
+									);
 
 									if (section.id === "overview") {
+										const overviewDelta = renderDelta(
+											current,
+											previous,
+											shortVsLabel,
+										);
+
+										if (card.key === "base_students_end") {
+											const goal = data.current["base_students_goal"];
+											const deltaText = overviewDelta.pill
+												? `${overviewDelta.pill}${overviewDelta.tail}`
+												: overviewDelta.tail;
+
+											return (
+												<article key={card.key} className={styles.kpiCard}>
+													<span className={styles.kpiLabel}>{card.label}</span>
+													<p className={styles.kpiValue}>
+														{overviewMainValue(card, current, meta)}
+													</p>
+													{typeof goal === "number" ? (
+														<p
+															className={styles.kpiMetaLine}
+														>{`Meta: ${goal}`}</p>
+													) : null}
+													{overviewDelta.pill ? (
+														<div className={styles.kpiSub}>
+															<span
+																className={`${styles.kpiDelta} ${overviewDelta.pillClass}`}
+															>
+																{deltaText}
+															</span>
+														</div>
+													) : null}
+													<div
+														className={styles.kpiBar}
+														style={{
+															background: overviewBarColor(
+																card.key,
+																current,
+																previous,
+															),
+														}}
+													/>
+												</article>
+											);
+										}
+
 										const metaLine = overviewMetaLine(card.key, meta);
-										const hideDeltaRow =
-											card.key === "base_students_end" &&
-											typeof meta?.pending_note === "string" &&
-											typeof meta?.goal === "number";
 
 										return (
 											<article key={card.key} className={styles.kpiCard}>
@@ -1324,24 +1366,13 @@ export default async function KpisPage() {
 												{metaLine ? (
 													<p className={styles.kpiMetaLine}>{metaLine}</p>
 												) : null}
-												{!hideDeltaRow ? (
+												{overviewDelta.pill ? (
 													<div className={styles.kpiSub}>
-														{delta.pill ? (
-															<>
-																<span
-																	className={`${styles.kpiDelta} ${delta.pillClass}`}
-																>
-																	{delta.pill}
-																</span>
-																{delta.tail}
-															</>
-														) : (
-															<span
-																className={`${styles.kpiDelta} ${delta.pillClass}`}
-															>
-																{delta.tail}
-															</span>
-														)}
+														<span
+															className={`${styles.kpiDelta} ${overviewDelta.pillClass}`}
+														>
+															{`${overviewDelta.pill}${overviewDelta.tail}`}
+														</span>
 													</div>
 												) : null}
 												<div
@@ -1364,24 +1395,15 @@ export default async function KpisPage() {
 											<p className={styles.kpiValue}>
 												{formatValue(current, card.unit)}
 											</p>
-											<div className={styles.kpiSub}>
-												{delta.pill ? (
-													<>
-														<span
-															className={`${styles.kpiDelta} ${delta.pillClass}`}
-														>
-															{delta.pill}
-														</span>
-														{delta.tail}
-													</>
-												) : (
+											{delta.pill ? (
+												<div className={styles.kpiSub}>
 													<span
 														className={`${styles.kpiDelta} ${delta.pillClass}`}
 													>
-														{delta.tail}
+														{`${delta.pill}${delta.tail}`}
 													</span>
-												)}
-											</div>
+												</div>
+											) : null}
 											<div
 												className={styles.kpiBar}
 												style={{ background: barColor(card.key) }}

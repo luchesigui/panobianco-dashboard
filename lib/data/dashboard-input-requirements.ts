@@ -32,6 +32,7 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
     title: "Visão geral",
     fields: [
       { code: "base_students_end", label: "Base de alunos (fim do mês)", unit: "count" },
+      { code: "base_students_goal", label: "Meta de base de alunos", unit: "count" },
       {
         code: "sales_total",
         label: "Vendas no mês",
