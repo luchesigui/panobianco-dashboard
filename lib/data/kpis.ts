@@ -462,10 +462,9 @@ export async function getKpiPageData(
 				.in("period_id", fetchPeriodIds),
 			supabase
 				.from("sales_marketing_dashboard_payload")
-				.select("payload")
+				.select("period_id,payload")
 				.eq("gym_id", gym.id)
-				.eq("period_id", smPayloadPeriod)
-				.maybeSingle(),
+				.in("period_id", [currentMonthPeriod, prevMonthPeriod]),
 			supabase
 				.from("kpi_values")
 				.select("period_id,kpi_definition_id,value_numeric")
@@ -481,9 +480,7 @@ export async function getKpiPageData(
 	if (valuesRes.error)
 		throw new Error(`Values load failed: ${valuesRes.error.message}`);
 	if (dashboardRes.error)
-		throw new Error(
-			`Dashboard payload load failed: ${dashboardRes.error.message}`,
-		);
+		throw new Error(`Dashboard payload load failed: ${dashboardRes.error.message}`);
 	if (salesHistoryRes.error)
 		throw new Error(
 			`Sales history load failed: ${salesHistoryRes.error.message}`,
@@ -627,7 +624,11 @@ export async function getKpiPageData(
 		});
 	}
 
-	const rawPayload = dashboardRes.data?.payload;
+	const smRows = dashboardRes.data ?? [];
+	const smRow =
+		smRows.find((r) => normalizePeriodId(r.period_id) === kpiDataPeriod) ??
+		smRows.find((r) => normalizePeriodId(r.period_id) === prevMonthPeriod);
+	const rawPayload = smRow?.payload;
 	const salesMarketingDashboard = {
 		payload:
 			rawPayload && typeof rawPayload === "object" && !Array.isArray(rawPayload)
