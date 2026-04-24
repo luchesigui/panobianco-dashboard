@@ -667,6 +667,13 @@ export async function getKpiPageData(
 			current["operational_result"] = rev - exp;
 		}
 	}
+	{
+		const rev = previous["revenue_total"];
+		const exp = previous["expenses_total"];
+		if (rev != null && exp != null) {
+			previous["operational_result"] = rev - exp;
+		}
+	}
 
 	// operational_result_100pct_nf: revenue - expenses (includes royalties) - 13.4% tax on revenue
 	{

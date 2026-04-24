@@ -225,7 +225,7 @@ function overviewMainValue(
 		const star = meta?.partial === true ? "*" : "";
 		return `${new Intl.NumberFormat("pt-BR").format(current)}${star}`;
 	}
-	if (card.key === "revenue_total" && meta?.compact_currency === true) {
+	if (card.key === "revenue_total") {
 		return formatCompactBrl(current);
 	}
 	if (card.key === "operational_result") {
