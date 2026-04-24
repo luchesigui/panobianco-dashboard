@@ -23,7 +23,7 @@ type Props = {
 
 export default async function EntradaDadosPage({ searchParams }: Props) {
   const sp = searchParams ? await searchParams : {};
-  const gymSlug = firstParam(sp.gym) ?? "panobianco-jd-satelite";
+  const gymSlug = firstParam(sp.gym) ?? "panobianco-sjc-satelite";
   const periodId = normalizeMonth(firstParam(sp.month));
 
   const data = await loadEntradaPageData(gymSlug, periodId);

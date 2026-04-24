@@ -2,7 +2,7 @@
 
 import { getServiceSupabase } from "@/lib/supabase/server";
 
-const GYM_SLUG = "panobianco-jd-satelite";
+const GYM_SLUG = "panobianco-sjc-satelite";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 

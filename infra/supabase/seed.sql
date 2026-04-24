@@ -1,7 +1,7 @@
 begin;
 
 insert into public.gyms (slug, name, city, state, opened_at)
-values ('panobianco-jd-satelite', 'Panobianco Jd. Satelite', 'Sao Jose dos Campos', 'SP', '2025-03-01')
+values ('panobianco-sjc-satelite', 'Panobianco Jd. Satelite', 'Sao Jose dos Campos', 'SP', '2025-03-01')
 on conflict (slug) do update
 set name = excluded.name,
     city = excluded.city,
@@ -74,7 +74,7 @@ set label = excluded.label,
     updated_at = now();
 
 with gym as (
-  select id as gym_id from public.gyms where slug = 'panobianco-jd-satelite'
+  select id as gym_id from public.gyms where slug = 'panobianco-sjc-satelite'
 ),
 defs as (
   select id as def_id, code from public.kpi_definitions
@@ -237,11 +237,11 @@ set value_numeric = excluded.value_numeric,
     updated_at = now();
 
 delete from public.kpi_insights
-where gym_id = (select id from public.gyms where slug = 'panobianco-jd-satelite')
+where gym_id = (select id from public.gyms where slug = 'panobianco-sjc-satelite')
   and period_id = '2026-03-01'::date;
 
 with gym as (
-  select id as gym_id from public.gyms where slug = 'panobianco-jd-satelite'
+  select id as gym_id from public.gyms where slug = 'panobianco-sjc-satelite'
 )
 insert into public.kpi_insights (gym_id, period_id, category, insight_scope, insight_type, title, body, sort_order, meta_json)
 values
@@ -339,7 +339,7 @@ select
 }
 $sm$::jsonb
 from public.gyms
-where slug = 'panobianco-jd-satelite'
+where slug = 'panobianco-sjc-satelite'
 on conflict (gym_id, period_id) do update
 set payload = excluded.payload,
     updated_at = now();
