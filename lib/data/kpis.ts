@@ -111,6 +111,8 @@ export type KpiPageData = {
 		payload: SalesMarketingDashboardPayload | null;
 		monthlySalesChart: MonthlySalesBar[];
 		salesTarget: number;
+		isCurrentMonthPayload: boolean;
+		payloadPeriodLabel: string | null;
 	};
 	financeCharts: FinanceChartPayload;
 	nextMonthForecast: NextMonthForecastPayload;
@@ -630,6 +632,11 @@ export async function getKpiPageData(
 	const smRow =
 		smRows.find((r) => normalizePeriodId(r.period_id) === kpiDataPeriod) ??
 		smRows.find((r) => normalizePeriodId(r.period_id) === prevMonthPeriod);
+	const smPayloadFromCurrentMonth =
+		smRow != null && normalizePeriodId(smRow.period_id) === smPayloadPeriod;
+	const smPayloadPeriodLabel = smRow
+		? toLongLabel(normalizePeriodId(smRow.period_id))
+		: null;
 	const rawPayload = smRow?.payload;
 	const salesMarketingDashboard = {
 		payload:
@@ -638,6 +645,8 @@ export async function getKpiPageData(
 				: null,
 		monthlySalesChart,
 		salesTarget: 150,
+		isCurrentMonthPayload: smPayloadFromCurrentMonth,
+		payloadPeriodLabel: smPayloadPeriodLabel,
 	};
 	const current: KpiMap = {};
 	const previous: KpiMap = {};
