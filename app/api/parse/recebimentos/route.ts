@@ -23,7 +23,7 @@ export async function POST(req: Request) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const workbook = XLSX.read(buffer, { type: "buffer" });
+    const workbook = XLSX.read(buffer, { type: "buffer", cellDates: true });
     const firstSheetName = workbook.SheetNames[0];
     if (!firstSheetName) {
       return NextResponse.json({ error: "Planilha sem abas." }, { status: 400 });
@@ -32,7 +32,6 @@ export async function POST(req: Request) {
     const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
       defval: "",
       raw: true,
-      cellDates: true,
     });
     if (rows.length === 0) {
       return NextResponse.json({ error: "Planilha sem linhas de dados." }, { status: 400 });
