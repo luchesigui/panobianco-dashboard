@@ -630,7 +630,7 @@ export async function getKpiPageData(
 
 	const smRows = dashboardRes.data ?? [];
 	const smRow =
-		smRows.find((r) => normalizePeriodId(r.period_id) === kpiDataPeriod) ??
+		smRows.find((r) => normalizePeriodId(r.period_id) === currentMonthPeriod) ??
 		smRows.find((r) => normalizePeriodId(r.period_id) === prevMonthPeriod);
 	const smPayloadFromCurrentMonth =
 		smRow != null && normalizePeriodId(smRow.period_id) === smPayloadPeriod;
