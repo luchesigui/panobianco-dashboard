@@ -8,9 +8,20 @@ function parseCurrency(value: unknown): number {
     .trim()
     .replace("R$", "")
     .replace(/\s/g, "")
-    .replace(/\./g, "")
-    .replace(",", ".");
-  const parsed = Number(cleaned);
+    .replace(/[^\d.,-]/g, "");
+
+  const hasComma = cleaned.includes(",");
+  const hasDot = cleaned.includes(".");
+  const dotAsThousandsOnly = /^\d{1,3}(\.\d{3})+$/.test(cleaned);
+
+  let normalized = cleaned;
+  if (hasComma) {
+    normalized = cleaned.replace(/\./g, "").replace(",", ".");
+  } else if (hasDot && dotAsThousandsOnly) {
+    normalized = cleaned.replace(/\./g, "");
+  }
+
+  const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : 0;
 }
 

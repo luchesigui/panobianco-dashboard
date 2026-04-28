@@ -31,23 +31,27 @@ export async function POST(req: Request) {
     const sheet = workbook.Sheets[firstSheetName];
     const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
       defval: "",
-      raw: false,
+      raw: true,
+      cellDates: true,
     });
     if (rows.length === 0) {
       return NextResponse.json({ error: "Planilha sem linhas de dados." }, { status: 400 });
     }
 
     const groups: Record<string, number> = {};
+    let matchedRows = 0;
     for (const row of rows) {
       const centerRaw = row["Centro de receita"];
-      const valueRaw = row["Valor"];
+      const valueRawBaixa = row["Valor baixa"];
       const center = typeof centerRaw === "string" ? centerRaw.trim() : "";
       if (!center) continue;
-      groups[center] = (groups[center] ?? 0) + parseCurrency(valueRaw);
+      const parsedValorBaixa = parseCurrency(valueRawBaixa);
+      groups[center] = (groups[center] ?? 0) + parsedValorBaixa;
+      matchedRows += 1;
     }
 
     const total = Object.values(groups).reduce((acc, value) => acc + value, 0);
-    return NextResponse.json({ groups, total });
+    return NextResponse.json({ groups, total, matchedRows });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erro ao processar arquivo.";
     return NextResponse.json({ error: message }, { status: 500 });

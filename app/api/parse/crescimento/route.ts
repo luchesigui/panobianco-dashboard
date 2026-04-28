@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       base_students_end: parseNumeric(lastRow["Ativos fim"]),
       sales_total: parseNumeric(lastRow["Novos"]),
       monthly_cancellations: parseNumeric(lastRow["Cancelados"]),
-      monthly_non_renewed: parseNumeric(lastRow["Vencidos"]),
+      monthly_non_renewed: parseNumeric(lastRow["Desistências"]),
     };
 
     return NextResponse.json(response);

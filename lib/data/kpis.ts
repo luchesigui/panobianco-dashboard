@@ -714,9 +714,9 @@ export async function getKpiPageData(
 		}
 	}
 
-	// meta_ads_investment = marketing_cost_traffic (same field, different label)
-	if (current["marketing_cost_traffic"] != null) {
-		current["meta_ads_investment"] = current["marketing_cost_traffic"];
+	// meta_ads_investment = Propaganda E Marketing (cost center from expense breakdown)
+	if (current["expense_propaganda_e_marketing"] != null) {
+		current["meta_ads_investment"] = current["expense_propaganda_e_marketing"];
 	}
 
 	// instagram_total_reach = monthly reach field
@@ -724,12 +724,9 @@ export async function getKpiPageData(
 		current["instagram_total_reach"] = current["marketing_reach"];
 	}
 
-	// cac_per_sale = total marketing spend / sales_total
+	// cac_per_sale = Propaganda E Marketing spend / sales_total
 	{
-		const totalMarketing =
-			(current["marketing_cost_traffic"] ?? 0) +
-			(current["marketing_cost_labor"] ?? 0) +
-			(current["marketing_cost_production"] ?? 0);
+		const totalMarketing = current["expense_propaganda_e_marketing"] ?? 0;
 		const sales = current["sales_total"];
 		if (totalMarketing > 0 && sales != null && sales > 0) {
 			current["cac_per_sale"] = Math.round(totalMarketing / sales);

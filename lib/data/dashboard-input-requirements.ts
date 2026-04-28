@@ -50,24 +50,6 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
       { code: "marketing_frequency", label: "Frequência", unit: "count" },
       { code: "marketing_views", label: "Visualizações", unit: "count" },
       { code: "marketing_followers", label: "Novos seguidores", unit: "count" },
-      {
-        code: "marketing_cost_traffic",
-        label: "Custo com tráfego",
-        unit: "currency",
-        hint: "Tráfego pago (Meta Ads e outros canais)",
-      },
-      {
-        code: "marketing_cost_labor",
-        label: "Custo com mão de obra",
-        unit: "currency",
-        hint: "Gestores de tráfego, closers, SDRs",
-      },
-      {
-        code: "marketing_cost_production",
-        label: "Custo de produção",
-        unit: "currency",
-        hint: "Fotografia, vídeo, design e conteúdo",
-      },
     ],
   },
   {
@@ -87,28 +69,14 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
     description: "Receita total calculada automaticamente.",
     fields: [
       {
-        code: "matriculated_revenue",
-        label: "Receita matriculados",
-        unit: "currency",
-        hint: "Gráfico de receita empilhada",
-      },
-      {
         code: "wellhub_revenue",
         label: "Receita Wellhub",
         unit: "currency",
-        hint: "Gráfico de receita empilhada",
       },
       {
         code: "totalpass_revenue",
         label: "Receita Totalpass",
         unit: "currency",
-        hint: "Gráfico de receita empilhada",
-      },
-      {
-        code: "products_revenue",
-        label: "Receita produtos",
-        unit: "currency",
-        hint: "Gráfico de receita empilhada",
       },
     ],
   },
