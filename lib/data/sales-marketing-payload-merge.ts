@@ -39,7 +39,37 @@ export function recomputeWeeklyTotals(weekly: SalesMarketingDashboardPayload["we
 }
 
 const W = 5;
+const WEEK_LABELS = ["S1", "S2", "S3", "S4", "S5"] as const;
 const z = (): Array<number | null> => Array.from({ length: W }, () => null);
+
+function padNullable(arr: Array<number | null | undefined>, n: number): Array<number | null> {
+  const out: Array<number | null> = arr.slice(0, n).map((v) => v ?? null);
+  while (out.length < n) out.push(null);
+  return out;
+}
+
+/** Ensure a loaded payload always has exactly W (5) week columns. Safe to call on any payload. */
+export function normalizeSmPayloadWeeks(
+  payload: SalesMarketingDashboardPayload,
+): SalesMarketingDashboardPayload {
+  const w = payload.weekly;
+  w.weekHeaders = WEEK_LABELS.slice(0, W) as unknown as string[];
+  const mk = w.marketing;
+  mk.reach = padNullable(mk.reach, W);
+  mk.frequency = padNullable(mk.frequency, W);
+  mk.views = padNullable(mk.views, W);
+  mk.followers = padNullable(mk.followers, W);
+  const fw = w.funnelWeekly;
+  fw.scheduled = padNullable(fw.scheduled, W);
+  fw.attendance = padNullable(fw.attendance, W);
+  fw.closings = padNullable(fw.closings, W);
+  const sw = w.salesWeekly;
+  sw.totals = padNullable(sw.totals, W);
+  for (const row of sw.byReceptionist ?? []) {
+    row.salesByWeek = padNullable(row.salesByWeek, W);
+  }
+  return payload;
+}
 
 /** Default payload for a month when none exists yet (valid shape for UI + DB). */
 export function createDefaultSmPayload(periodLabel: string): SalesMarketingDashboardPayload {

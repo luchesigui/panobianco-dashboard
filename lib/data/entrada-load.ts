@@ -1,6 +1,6 @@
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
-import { createDefaultSmPayload } from "@/lib/data/sales-marketing-payload-merge";
+import { createDefaultSmPayload, normalizeSmPayloadWeeks } from "@/lib/data/sales-marketing-payload-merge";
 export type GymOption = { slug: string; name: string };
 export type DefOption = { code: string; id: string };
 
@@ -85,7 +85,7 @@ export async function loadEntradaPageData(gymSlug: string, periodId: string): Pr
   let smPayload: SalesMarketingDashboardPayload;
   const raw = dashRow?.payload;
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    smPayload = raw as SalesMarketingDashboardPayload;
+    smPayload = normalizeSmPayloadWeeks(raw as SalesMarketingDashboardPayload);
   } else {
     smPayload = createDefaultSmPayload(monthLabel(periodId));
   }

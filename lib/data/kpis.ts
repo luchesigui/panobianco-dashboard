@@ -3,6 +3,7 @@ import {
 	applyRoiPageFallbacks,
 	type RoiChartPayload,
 } from "@/lib/data/roi-fallbacks";
+import { normalizeSmPayloadWeeks } from "@/lib/data/sales-marketing-payload-merge";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type {
 	MonthlySalesBar,
@@ -641,7 +642,7 @@ export async function getKpiPageData(
 	const salesMarketingDashboard = {
 		payload:
 			rawPayload && typeof rawPayload === "object" && !Array.isArray(rawPayload)
-				? (rawPayload as SalesMarketingDashboardPayload)
+				? normalizeSmPayloadWeeks(rawPayload as SalesMarketingDashboardPayload)
 				: null,
 		monthlySalesChart,
 		salesTarget: 150,
