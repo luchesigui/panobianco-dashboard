@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   KPI_FORM_GROUPS,
-  REFERENCE_DOC_HINT,
   type KpiFormField,
 } from "@/lib/data/dashboard-input-requirements";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
@@ -18,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Lock, LockOpen, Upload } from "lucide-react";
 
 function parsePtBrNumber(raw: string): number | undefined {
   const t = raw.trim();
@@ -55,6 +55,53 @@ function formatMonthPtBr(yyyyMm: string): string {
   const d = new Date(`${yyyyMm}-01T12:00:00`);
   const month = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(d);
   return `${month.charAt(0).toUpperCase() + month.slice(1)}/${d.getFullYear()}`;
+}
+
+function slugifyExpenseCode(label: string): string {
+  const normalized = label
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+  return `expense_${normalized}`;
+}
+
+function titleFromExpenseCode(code: string): string {
+  const raw = code.replace(/^expense_/, "").replace(/_/g, " ").trim();
+  if (!raw) return code;
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+function mapRevenueGroupsToCodes(groups: Record<string, number>): Record<string, number> {
+  let matriculated = 0;
+  let wellhub = 0;
+  let totalpass = 0;
+  let products = 0;
+
+  for (const [name, value] of Object.entries(groups)) {
+    const lower = name.toLowerCase();
+    if (lower.startsWith("matriculado")) {
+      matriculated += value;
+      continue;
+    }
+    if (lower.includes("wellhub")) {
+      wellhub += value;
+      continue;
+    }
+    if (lower.includes("totalpass")) {
+      totalpass += value;
+      continue;
+    }
+    products += value;
+  }
+
+  return {
+    matriculated_revenue: matriculated,
+    wellhub_revenue: wellhub,
+    totalpass_revenue: totalpass,
+    products_revenue: products,
+  };
 }
 
 type WeeklyStrings = {
@@ -302,6 +349,16 @@ export function EntradaDadosForm({
   const [kpiSaving, setKpiSaving] = useState(false);
   const [smSaving, setSmSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [uploadingFile, setUploadingFile] = useState({
+    crescimento: false,
+    recebimentos: false,
+    custos: false,
+  });
+  const [crescimentoLocked, setCrescimentoLocked] = useState(false);
+  const [recebimentosLocked, setRecebimentosLocked] = useState(() => {
+    const raw = initialMetaByCode["revenue_total"]?.breakdown;
+    return !!raw && typeof raw === "object" && !Array.isArray(raw);
+  });
 
   const gymSlug = initialGymSlug;
   const monthValue = initialPeriodId.slice(0, 7);
@@ -323,19 +380,38 @@ export function EntradaDadosForm({
     return o;
   });
 
-  const [metaJson, setMetaJson] = useState(() =>
-    Object.keys(initialMetaByCode).length
-      ? JSON.stringify(initialMetaByCode, null, 2)
-      : "",
+  const metaJson = useMemo(
+    () =>
+      Object.keys(initialMetaByCode).length
+        ? JSON.stringify(initialMetaByCode, null, 2)
+        : "",
+    [initialMetaByCode],
+  );
+  const [recebimentosBreakdown, setRecebimentosBreakdown] = useState<Record<string, number>>(() => {
+    const raw = initialMetaByCode["revenue_total"]?.breakdown;
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) return {};
+    return Object.fromEntries(
+      Object.entries(raw).map(([k, v]) => [k, typeof v === "number" ? v : 0]),
+    );
+  });
+  const [custosBreakdown, setCustosBreakdown] = useState<Record<string, number>>(() => {
+    return Object.fromEntries(
+      Object.entries(initialKpiValues)
+        .filter(([code]) => code.startsWith("expense_"))
+        .map(([code, value]) => [code, value]),
+    );
+  });
+  const [custosLocked, setCustosLocked] = useState(() =>
+    Object.keys(initialKpiValues).some((code) => code.startsWith("expense_")),
   );
 
   const [smPayload] = useState<SalesMarketingDashboardPayload>(() =>
     structuredClone(initialSmPayload),
   );
   const [funnel, setFunnel] = useState(() => funnelToState(initialSmPayload));
-  const [comp, setComp] = useState(() => compFromPayload(initialSmPayload));
+  const [comp] = useState(() => compFromPayload(initialSmPayload));
   const [recepMonth, setRecepMonth] = useState(() => recepMonthFromPayload(initialSmPayload));
-  const [recLabel, setRecLabel] = useState(
+  const [recLabel] = useState(
     () => initialSmPayload.receptionistsPeriodLabel ?? "",
   );
   const [weeklyStr, setWeeklyStr] = useState(() => buildWeeklyStrings(initialSmPayload));
@@ -348,6 +424,109 @@ export function EntradaDadosForm({
     () => weekMismatchMessages(weeklyStr, recepWeekRows, nWeeks),
     [weeklyStr, recepWeekRows, nWeeks],
   );
+
+  const mappedRevenueCodes = useMemo(
+    () => mapRevenueGroupsToCodes(recebimentosBreakdown),
+    [recebimentosBreakdown],
+  );
+  const expenseEntries = useMemo(
+    () =>
+      Object.entries(custosBreakdown)
+        .map(([code, value]) => ({ code, label: titleFromExpenseCode(code), value }))
+        .sort((a, b) => a.label.localeCompare(b.label, "pt-BR")),
+    [custosBreakdown],
+  );
+
+  const handleUploadCrescimento = async (file: File) => {
+    setMessage(null);
+    setUploadingFile((prev) => ({ ...prev, crescimento: true }));
+    try {
+      const data = new FormData();
+      data.set("file", file);
+      const res = await fetch("/api/parse/crescimento", { method: "POST", body: data });
+      const json = (await res.json()) as Record<string, unknown>;
+      if (!res.ok) {
+        throw new Error(typeof json.error === "string" ? json.error : "Falha ao processar crescimento.");
+      }
+      const updates: Record<string, string> = {
+        base_students_end: String(Number(json.base_students_end ?? 0)),
+        sales_total: String(Number(json.sales_total ?? 0)),
+        monthly_cancellations: String(Number(json.monthly_cancellations ?? 0)),
+        monthly_non_renewed: String(Number(json.monthly_non_renewed ?? 0)),
+      };
+      setKpiInputs((prev) => ({ ...prev, ...updates }));
+      setCrescimentoLocked(true);
+      setMessage({ type: "ok", text: "Arquivo de crescimento processado." });
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Erro ao processar arquivo de crescimento.";
+      setMessage({ type: "err", text });
+    } finally {
+      setUploadingFile((prev) => ({ ...prev, crescimento: false }));
+    }
+  };
+
+  const handleUploadRecebimentos = async (file: File) => {
+    setMessage(null);
+    setUploadingFile((prev) => ({ ...prev, recebimentos: true }));
+    try {
+      const data = new FormData();
+      data.set("file", file);
+      const res = await fetch("/api/parse/recebimentos", { method: "POST", body: data });
+      const json = (await res.json()) as Record<string, unknown>;
+      if (!res.ok) {
+        throw new Error(typeof json.error === "string" ? json.error : "Falha ao processar recebimentos.");
+      }
+      const groups =
+        json.groups && typeof json.groups === "object" && !Array.isArray(json.groups)
+          ? (json.groups as Record<string, number>)
+          : {};
+      setRecebimentosBreakdown(groups);
+      const mapped = mapRevenueGroupsToCodes(groups);
+      setKpiInputs((prev) => ({
+        ...prev,
+        matriculated_revenue: String(mapped.matriculated_revenue),
+        wellhub_revenue: String(mapped.wellhub_revenue),
+        totalpass_revenue: String(mapped.totalpass_revenue),
+        products_revenue: String(mapped.products_revenue),
+      }));
+      setRecebimentosLocked(true);
+      setMessage({ type: "ok", text: "Arquivo de recebimentos processado." });
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Erro ao processar arquivo de recebimentos.";
+      setMessage({ type: "err", text });
+    } finally {
+      setUploadingFile((prev) => ({ ...prev, recebimentos: false }));
+    }
+  };
+
+  const handleUploadCustos = async (file: File) => {
+    setMessage(null);
+    setUploadingFile((prev) => ({ ...prev, custos: true }));
+    try {
+      const data = new FormData();
+      data.set("file", file);
+      const res = await fetch("/api/parse/custos", { method: "POST", body: data });
+      const json = (await res.json()) as Record<string, unknown>;
+      if (!res.ok) {
+        throw new Error(typeof json.error === "string" ? json.error : "Falha ao processar custos.");
+      }
+      const items =
+        json.items && typeof json.items === "object" && !Array.isArray(json.items)
+          ? (json.items as Record<string, number>)
+          : {};
+      const parsed = Object.fromEntries(
+        Object.entries(items).map(([label, value]) => [slugifyExpenseCode(label), Number(value ?? 0)]),
+      );
+      setCustosBreakdown(parsed);
+      setCustosLocked(true);
+      setMessage({ type: "ok", text: "Arquivo de custos processado." });
+    } catch (error) {
+      const text = error instanceof Error ? error.message : "Erro ao processar arquivo de custos.";
+      setMessage({ type: "err", text });
+    } finally {
+      setUploadingFile((prev) => ({ ...prev, custos: false }));
+    }
+  };
 
   const handleSaveKpis = async () => {
     setMessage(null);
@@ -362,17 +541,21 @@ export function EntradaDadosForm({
         }
       }
       // expenses_total = sum of expense breakdown fields (calculated, not entered)
+      const expenseItems = structuredClone(custosBreakdown);
       const expensesTotal =
-        (values["expenses_products"] ?? 0) +
-        (values["expenses_taxes"] ?? 0) +
-        (values["expenses_payroll"] ?? 0) +
-        (values["expenses_property"] ?? 0) +
-        (values["expenses_other"] ?? 0) +
-        (values["expenses_financing"] ?? 0) +
-        (values["royalties_validation"] ?? 0);
+        Object.keys(expenseItems).length > 0
+          ? Object.values(expenseItems).reduce((acc, v) => acc + (Number.isFinite(v) ? v : 0), 0)
+          : (values["expenses_total"] ?? 0);
       values["expenses_total"] = expensesTotal;
 
       // revenue_total = sum of the four revenue streams (calculated, not entered)
+      const revenueFromGroups = mapRevenueGroupsToCodes(recebimentosBreakdown);
+      if (Object.keys(recebimentosBreakdown).length > 0) {
+        values["matriculated_revenue"] = revenueFromGroups.matriculated_revenue;
+        values["wellhub_revenue"] = revenueFromGroups.wellhub_revenue;
+        values["totalpass_revenue"] = revenueFromGroups.totalpass_revenue;
+        values["products_revenue"] = revenueFromGroups.products_revenue;
+      }
       const revenueTotal =
         (values["matriculated_revenue"] ?? 0) +
         (values["wellhub_revenue"] ?? 0) +
@@ -393,10 +576,15 @@ export function EntradaDadosForm({
           return;
         }
       }
+      metaByCode = metaByCode ?? {};
+      if (Object.keys(recebimentosBreakdown).length > 0) {
+        metaByCode["revenue_total"] = { breakdown: recebimentosBreakdown };
+      }
       const res = await saveMonthlyKpisAction({
         gymSlug: initialGymSlug,
         periodId: initialPeriodId,
         values,
+        expenseItems: Object.keys(expenseItems).length > 0 ? expenseItems : undefined,
         metaByCode,
       });
       if (res.ok) {
@@ -465,6 +653,41 @@ export function EntradaDadosForm({
       return { ...prev, [key]: row };
     });
   };
+
+  const isGroupLocked = (groupId: string): boolean => {
+    if (groupId === "overview" || groupId === "retention") return crescimentoLocked;
+    if (groupId === "finance_revenues") return recebimentosLocked;
+    return false;
+  };
+
+  const FileUploadArea = ({
+    label,
+    onFile,
+    loading,
+  }: {
+    label: string;
+    onFile: (file: File) => void;
+    loading: boolean;
+  }) => (
+    <label className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+      <span>{label}</span>
+      <span className="inline-flex items-center gap-2">
+        <Upload className="h-3.5 w-3.5" />
+        {loading ? "Processando..." : "Importar .xlsx"}
+      </span>
+      <input
+        type="file"
+        accept=".xlsx"
+        className="hidden"
+        disabled={loading}
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) onFile(file);
+          e.currentTarget.value = "";
+        }}
+      />
+    </label>
+  );
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -564,15 +787,65 @@ export function EntradaDadosForm({
 
         {/* ── Tab Mensal ── */}
         <TabsContent value="mensal" className="space-y-5">
+          <Card className="shadow-sm border-slate-200">
+            <CardContent className="pt-5">
+              <FileUploadArea
+                label="Importe o arquivo de crescimento para preencher Visão geral + Retenção."
+                onFile={(file) => void handleUploadCrescimento(file)}
+                loading={uploadingFile.crescimento}
+              />
+            </CardContent>
+          </Card>
+
           {KPI_FORM_GROUPS.map((group) => (
             <Card key={group.id} className="shadow-sm border-slate-200">
               <CardHeader className="pb-4 border-b border-slate-100">
-                <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{group.title}</CardTitle>
-                {group.description ? (
-                  <CardDescription className="text-xs text-slate-400 mt-0.5">{group.description}</CardDescription>
-                ) : null}
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{group.title}</CardTitle>
+                    {group.description ? (
+                      <CardDescription className="text-xs text-slate-400 mt-0.5">{group.description}</CardDescription>
+                    ) : null}
+                  </div>
+                  {(group.id === "overview" || group.id === "retention" || group.id === "finance_revenues") ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8 border-slate-200"
+                      onClick={() => {
+                        if (group.id === "finance_revenues") {
+                          setRecebimentosLocked((prev) => !prev);
+                        } else {
+                          setCrescimentoLocked((prev) => !prev);
+                        }
+                      }}
+                      title="Bloquear/desbloquear edição manual"
+                    >
+                      {isGroupLocked(group.id) ? (
+                        <Lock className="h-4 w-4 text-slate-500" />
+                      ) : (
+                        <LockOpen className="h-4 w-4 text-slate-500" />
+                      )}
+                    </Button>
+                  ) : null}
+                </div>
               </CardHeader>
               <CardContent className="pt-3">
+                {group.id === "finance_revenues" ? (
+                  <div className="mb-4 space-y-3">
+                    <FileUploadArea
+                      label="Importe o arquivo de recebimentos para preencher receitas."
+                      onFile={(file) => void handleUploadRecebimentos(file)}
+                      loading={uploadingFile.recebimentos}
+                    />
+                    {Object.keys(recebimentosBreakdown).length > 0 ? (
+                      <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                        Mapeamento automático: Matriculado / Wellhub / Totalpass / Produtos.
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-x-4 gap-y-5">
                   {group.fields.map((f) => {
                     const k = fieldToInputKey(f);
@@ -599,12 +872,13 @@ export function EntradaDadosForm({
                           id={k}
                           inputMode="decimal"
                           value={displayVal}
+                          disabled={isGroupLocked(group.id)}
                           onFocus={() => setFocusedInput(k)}
                           onBlur={() => setFocusedInput(null)}
                           onChange={(e) =>
                             setKpiInputs((prev) => ({ ...prev, [k]: e.target.value }))
                           }
-                          className="h-10 bg-white border-slate-200 focus:border-slate-400"
+                          className="h-10 bg-white border-slate-200 focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-500"
                           placeholder={
                             f.unit === "currency" ? "R$ 0" : f.unit === "percent" ? "ex: 77" : ""
                           }
@@ -612,24 +886,6 @@ export function EntradaDadosForm({
                       </div>
                     );
                   })}
-                  {group.id === "finance_expenses" && (() => {
-                    const total =
-                      (parsePtBrNumber(kpiInputs["expenses_products"] ?? "") ?? 0) +
-                      (parsePtBrNumber(kpiInputs["expenses_taxes"] ?? "") ?? 0) +
-                      (parsePtBrNumber(kpiInputs["expenses_payroll"] ?? "") ?? 0) +
-                      (parsePtBrNumber(kpiInputs["expenses_property"] ?? "") ?? 0) +
-                      (parsePtBrNumber(kpiInputs["expenses_other"] ?? "") ?? 0) +
-                      (parsePtBrNumber(kpiInputs["expenses_financing"] ?? "") ?? 0) +
-                      (parsePtBrNumber(kpiInputs["royalties_validation"] ?? "") ?? 0);
-                    return (
-                      <div className="flex flex-col gap-2">
-                        <Label className="text-xs font-medium text-slate-600">Despesas totais</Label>
-                        <div className="h-10 flex items-center px-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-500 select-none">
-                          {total > 0 ? formatCurrency(String(total)) : "—"}
-                        </div>
-                      </div>
-                    );
-                  })()}
                   {group.id === "finance_revenues" && (() => {
                     const total =
                       (parsePtBrNumber(kpiInputs["matriculated_revenue"] ?? "") ?? 0) +
@@ -637,18 +893,98 @@ export function EntradaDadosForm({
                       (parsePtBrNumber(kpiInputs["totalpass_revenue"] ?? "") ?? 0) +
                       (parsePtBrNumber(kpiInputs["products_revenue"] ?? "") ?? 0);
                     return (
-                      <div className="flex flex-col gap-2">
-                        <Label className="text-xs font-medium text-slate-600">Receita total</Label>
-                        <div className="h-10 flex items-center px-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-500 select-none">
-                          {total > 0 ? formatCurrency(String(total)) : "—"}
+                      <>
+                        <div className="flex flex-col gap-2">
+                          <Label className="text-xs font-medium text-slate-600">Receita total</Label>
+                          <div className="h-10 flex items-center px-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-500 select-none">
+                            {total > 0 ? formatCurrency(String(total)) : "—"}
+                          </div>
                         </div>
-                      </div>
+                        {Object.keys(recebimentosBreakdown).length > 0 ? (
+                          <div className="col-span-full rounded-md border border-slate-200 p-3">
+                            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">Centros de receita importados</p>
+                            <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-3">
+                              {Object.entries(recebimentosBreakdown)
+                                .sort(([a], [b]) => a.localeCompare(b, "pt-BR"))
+                                .map(([name, value]) => (
+                                  <div key={name} className="flex flex-col gap-1">
+                                    <Label className="text-xs font-medium text-slate-600">{name}</Label>
+                                    <Input disabled value={formatCurrency(String(value))} className="h-9 bg-slate-50 border-slate-200 text-slate-500" />
+                                  </div>
+                                ))}
+                            </div>
+                            <div className="mt-3 text-xs text-slate-500">
+                              Mapeado para: Matriculados {formatCurrency(String(mappedRevenueCodes.matriculated_revenue))} · Wellhub {formatCurrency(String(mappedRevenueCodes.wellhub_revenue))} · Totalpass {formatCurrency(String(mappedRevenueCodes.totalpass_revenue))} · Produtos {formatCurrency(String(mappedRevenueCodes.products_revenue))}
+                            </div>
+                          </div>
+                        ) : null}
+                      </>
                     );
                   })()}
                 </div>
               </CardContent>
             </Card>
           ))}
+
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader className="pb-4 border-b border-slate-100">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Financeiro — Despesas</CardTitle>
+                  <CardDescription className="text-xs text-slate-400 mt-0.5">Despesas totais calculadas automaticamente.</CardDescription>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 border-slate-200"
+                  onClick={() => setCustosLocked((prev) => !prev)}
+                  title="Bloquear/desbloquear edição manual"
+                >
+                  {custosLocked ? (
+                    <Lock className="h-4 w-4 text-slate-500" />
+                  ) : (
+                    <LockOpen className="h-4 w-4 text-slate-500" />
+                  )}
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-3 space-y-4">
+              <FileUploadArea
+                label="Importe o arquivo de custos para preencher despesas detalhadas."
+                onFile={(file) => void handleUploadCustos(file)}
+                loading={uploadingFile.custos}
+              />
+              {expenseEntries.length > 0 ? (
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-x-4 gap-y-5">
+                  {expenseEntries.map((item) => (
+                    <div key={item.code} className="flex flex-col gap-2">
+                      <Label className="text-xs font-medium text-slate-600">{item.label}</Label>
+                      <Input
+                        disabled={custosLocked}
+                        value={custosLocked ? formatCurrency(String(item.value)) : String(item.value)}
+                        onChange={(e) => {
+                          const parsed = parsePtBrNumber(e.target.value) ?? 0;
+                          setCustosBreakdown((prev) => ({ ...prev, [item.code]: parsed }));
+                        }}
+                        className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
+                      />
+                    </div>
+                  ))}
+                  <div className="flex flex-col gap-2">
+                    <Label className="text-xs font-medium text-slate-600">Despesas totais</Label>
+                    <div className="h-10 flex items-center px-3 rounded-md border border-slate-200 bg-slate-50 text-sm text-slate-500 select-none">
+                      {formatCurrency(
+                        String(expenseEntries.reduce((acc, item) => acc + item.value, 0)),
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-slate-500">Importe o arquivo de custos para carregar as despesas granulares.</p>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Funil + Recepcionistas */}
           <Card className="shadow-sm border-slate-200">

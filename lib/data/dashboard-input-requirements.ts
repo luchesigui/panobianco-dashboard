@@ -82,20 +82,6 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
     ],
   },
   {
-    id: "finance_expenses",
-    title: "Financeiro — Despesas",
-    description: "Despesas totais calculadas automaticamente.",
-    fields: [
-      { code: "expenses_products", label: "Despesas de produtos", unit: "currency" },
-      { code: "expenses_taxes", label: "Despesas de impostos", unit: "currency" },
-      { code: "expenses_payroll", label: "Despesas de folha", unit: "currency" },
-      { code: "expenses_property", label: "Despesa de imóvel", unit: "currency" },
-      { code: "expenses_other", label: "Outras despesas", unit: "currency" },
-      { code: "expenses_financing", label: "Despesas com financiamento", unit: "currency" },
-      { code: "royalties_validation", label: "Royalties (validação)", unit: "currency" },
-    ],
-  },
-  {
     id: "finance_revenues",
     title: "Financeiro — Receitas",
     description: "Receita total calculada automaticamente.",
