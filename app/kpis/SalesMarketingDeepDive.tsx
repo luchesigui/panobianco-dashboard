@@ -43,6 +43,10 @@ export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, 
 
   const isCurrentMonthPayload = dashboard.isCurrentMonthPayload;
   const payloadPeriodLabel = dashboard.payloadPeriodLabel;
+  const weekMonthSuffix =
+    !isCurrentMonthPayload && payloadPeriodLabel
+      ? payloadPeriodLabel.slice(0, 3).toLowerCase()
+      : null;
 
   const w = p.weekly;
   const weeks = w.weekHeaders;
@@ -196,11 +200,6 @@ export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, 
 
       <h3 className={styles.sectionLabel}>
         Visão semanal — vendas e marketing (dom a sáb)
-        {!isCurrentMonthPayload && payloadPeriodLabel ? (
-          <span className={styles.prevMonthBadge}>
-            Ref.: {payloadPeriodLabel}
-          </span>
-        ) : null}
       </h3>
       <div className={`${styles.chartCard} ${styles.chartCardTable}`}>
         <table className={styles.weekTable}>
@@ -208,7 +207,12 @@ export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, 
             <tr>
               <th className={styles.thLabel} />
               {weeks.map((h) => (
-                <th key={h}>{h}</th>
+                <th key={h}>
+                  {h}
+                  {weekMonthSuffix ? (
+                    <span className={styles.weekMonthSuffix}> ({weekMonthSuffix})</span>
+                  ) : null}
+                </th>
               ))}
               <th>Total</th>
             </tr>
