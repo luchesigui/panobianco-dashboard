@@ -38,7 +38,7 @@ export function recomputeWeeklyTotals(weekly: SalesMarketingDashboardPayload["we
   }
 }
 
-const W = 4;
+const W = 5;
 const z = (): Array<number | null> => Array.from({ length: W }, () => null);
 
 /** Default payload for a month when none exists yet (valid shape for UI + DB). */
@@ -51,7 +51,7 @@ export function createDefaultSmPayload(periodLabel: string): SalesMarketingDashb
       conversion: { value: 0, subtext: "—", isPercent: true },
     },
     weekly: {
-      weekHeaders: ["S1", "S2", "S3", "S4"],
+      weekHeaders: ["S1", "S2", "S3", "S4", "S5"],
       marketingTitle: "MARKETING — META ADS / INSTAGRAM",
       marketing: {
         reach: z(),
