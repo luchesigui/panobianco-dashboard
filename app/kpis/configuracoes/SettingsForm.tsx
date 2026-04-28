@@ -1,12 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { saveGymNameAction, saveGymSettingsAction } from "./actions";
+import { Pencil, Trash2, Plus } from "lucide-react";
+import {
+  saveGymNameAction,
+  saveGymSettingsAction,
+  saveStudentBaseGoalsAction,
+  saveConsultorasAction,
+  type Consultora,
+} from "./actions";
 
 type Settings = {
   gymName: string;
@@ -14,13 +21,51 @@ type Settings = {
   claudeApiKey: string;
 };
 
-export function SettingsForm({ initialSettings }: { initialSettings: Settings }) {
+type ConsultoraRow = {
+  id?: string;
+  name: string;
+  monthly_goal: string;
+  sort_order: number;
+};
+
+const MONTHS_PT = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+export function SettingsForm({
+  initialSettings,
+  initialStudentBaseGoals,
+  initialConsultoras,
+}: {
+  initialSettings: Settings;
+  initialStudentBaseGoals: Record<number, number>;
+  initialConsultoras: Consultora[];
+}) {
   const router = useRouter();
   const [gymName, setGymName] = useState(initialSettings.gymName);
-  const [salesTarget, setSalesTarget] = useState(initialSettings.salesTarget);
   const [claudeApiKey, setClaudeApiKey] = useState(initialSettings.claudeApiKey);
+  const [studentBaseGoals, setStudentBaseGoals] = useState<Record<number, string>>(() => {
+    const init: Record<number, string> = {};
+    for (let m = 1; m <= 12; m++) {
+      init[m] = initialStudentBaseGoals[m] != null ? String(initialStudentBaseGoals[m]) : "";
+    }
+    return init;
+  });
+  const [consultoras, setConsultoras] = useState<ConsultoraRow[]>(() =>
+    initialConsultoras.map((c) => ({
+      id: c.id,
+      name: c.name,
+      monthly_goal: c.monthly_goal != null ? String(c.monthly_goal) : "",
+      sort_order: c.sort_order,
+    })),
+  );
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+
+  const nameInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const consultorasTotal = consultoras.reduce((sum, c) => {
+    const v = Number(c.monthly_goal);
+    return sum + (Number.isFinite(v) && v > 0 ? v : 0);
+  }, 0);
 
   const handleSaveGymName = async () => {
     setSaving(true);
@@ -29,20 +74,6 @@ export function SettingsForm({ initialSettings }: { initialSettings: Settings })
     if (res.ok) {
       setMessage({ type: "ok", text: "Nome da academia atualizado." });
       router.refresh();
-    } else {
-      setMessage({ type: "err", text: res.error });
-    }
-    setSaving(false);
-  };
-
-  const handleSaveGoals = async () => {
-    setSaving(true);
-    setMessage(null);
-    const res = await saveGymSettingsAction({
-      salesTarget: salesTarget ? Number(salesTarget) : undefined,
-    });
-    if (res.ok) {
-      setMessage({ type: "ok", text: "Metas salvas." });
     } else {
       setMessage({ type: "err", text: res.error });
     }
@@ -61,6 +92,66 @@ export function SettingsForm({ initialSettings }: { initialSettings: Settings })
       setMessage({ type: "err", text: res.error });
     }
     setSaving(false);
+  };
+
+  const handleSaveStudentBaseGoals = async () => {
+    setSaving(true);
+    setMessage(null);
+    const goals: Record<number, number> = {};
+    for (let m = 1; m <= 12; m++) {
+      const v = Number(studentBaseGoals[m]);
+      if (studentBaseGoals[m] !== "" && Number.isFinite(v) && v > 0) {
+        goals[m] = v;
+      }
+    }
+    const res = await saveStudentBaseGoalsAction(goals);
+    if (res.ok) {
+      setMessage({ type: "ok", text: "Metas de base de alunos salvas." });
+    } else {
+      setMessage({ type: "err", text: res.error });
+    }
+    setSaving(false);
+  };
+
+  const handleSaveConsultoras = async () => {
+    setSaving(true);
+    setMessage(null);
+    const validRows = consultoras
+      .filter((c) => c.name.trim())
+      .map((c, i) => ({
+        id: c.id,
+        name: c.name.trim(),
+        monthly_goal: c.monthly_goal !== "" ? Number(c.monthly_goal) : null,
+        sort_order: i,
+      }));
+    const res = await saveConsultorasAction(validRows);
+    if (res.ok) {
+      setMessage({ type: "ok", text: "Consultoras salvas." });
+      router.refresh();
+    } else {
+      setMessage({ type: "err", text: res.error });
+    }
+    setSaving(false);
+  };
+
+  const addConsultora = () => {
+    setConsultoras((prev) => [
+      ...prev,
+      { name: "", monthly_goal: "", sort_order: prev.length },
+    ]);
+    setTimeout(() => {
+      nameInputRefs.current[consultoras.length]?.focus();
+    }, 0);
+  };
+
+  const removeConsultora = (index: number) => {
+    setConsultoras((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updateConsultora = (index: number, field: keyof ConsultoraRow, value: string) => {
+    setConsultoras((prev) =>
+      prev.map((c, i) => (i === index ? { ...c, [field]: value } : c)),
+    );
   };
 
   return (
@@ -126,6 +217,66 @@ export function SettingsForm({ initialSettings }: { initialSettings: Settings })
             </CardContent>
           </Card>
 
+          {/* Consultoras */}
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader className="pb-4 border-b border-slate-100">
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                Consultoras
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400 mt-0.5">
+                Equipe de vendas. Usada para atribuição de metas e recepções.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-3 space-y-4">
+              <div className="space-y-2">
+                {consultoras.map((c, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      ref={(el) => { nameInputRefs.current[i] = el; }}
+                      value={c.name}
+                      onChange={(e) => updateConsultora(i, "name", e.target.value)}
+                      className="h-9 bg-white border-slate-200 text-sm"
+                      placeholder="Nome da consultora"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => nameInputRefs.current[i]?.focus()}
+                      className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+                      tabIndex={-1}
+                      aria-label="Editar"
+                    >
+                      <Pencil size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeConsultora(i)}
+                      className="p-1.5 text-slate-400 hover:text-red-500 transition-colors shrink-0"
+                      aria-label="Remover"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={addConsultora}
+                className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                <Plus size={13} />
+                Adicionar consultora
+              </button>
+              <Button
+                onClick={() => void handleSaveConsultoras()}
+                disabled={saving}
+                variant="outline"
+                className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                {saving ? "Salvando…" : "Salvar consultoras"}
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Goals */}
           <Card className="shadow-sm border-slate-200">
             <CardHeader className="pb-4 border-b border-slate-100">
@@ -133,30 +284,91 @@ export function SettingsForm({ initialSettings }: { initialSettings: Settings })
                 Metas
               </CardTitle>
               <CardDescription className="text-xs text-slate-400 mt-0.5">
-                Referências usadas nos gráficos e cards do dashboard.
+                Meta de vendas mensais por consultora.
               </CardDescription>
             </CardHeader>
             <CardContent className="pt-3 space-y-4">
-              <div className="flex flex-col gap-1.5 max-w-48">
-                <Label htmlFor="sales-target" className="text-xs font-medium text-slate-600">
-                  Meta de vendas mensais
-                </Label>
-                <Input
-                  id="sales-target"
-                  inputMode="numeric"
-                  value={salesTarget}
-                  onChange={(e) => setSalesTarget(e.target.value)}
-                  className="h-10 bg-white border-slate-200"
-                  placeholder="ex: 150"
-                />
+              {consultoras.filter((c) => c.name.trim()).length === 0 ? (
+                <p className="text-xs text-slate-400">
+                  Cadastre consultoras acima para definir metas individuais.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {consultoras
+                    .filter((c) => c.name.trim())
+                    .map((c, i) => {
+                      const globalIndex = consultoras.indexOf(c);
+                      return (
+                        <div key={i} className="flex items-center gap-3">
+                          <span className="text-sm text-slate-600 w-48 truncate">{c.name}</span>
+                          <Input
+                            inputMode="numeric"
+                            value={c.monthly_goal}
+                            onChange={(e) => updateConsultora(globalIndex, "monthly_goal", e.target.value)}
+                            className="h-9 bg-white border-slate-200 text-sm w-28"
+                            placeholder="0"
+                          />
+                        </div>
+                      );
+                    })}
+                  <div className="flex items-center gap-3 pt-1 border-t border-slate-100">
+                    <span className="text-xs font-medium text-slate-500 w-48">Total</span>
+                    <span className="text-sm font-semibold text-slate-700 w-28 pl-3">
+                      {consultorasTotal > 0 ? consultorasTotal : "—"}
+                    </span>
+                  </div>
+                </div>
+              )}
+              {consultoras.filter((c) => c.name.trim()).length > 0 && (
+                <Button
+                  onClick={() => void handleSaveConsultoras()}
+                  disabled={saving}
+                  variant="outline"
+                  className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+                >
+                  {saving ? "Salvando…" : "Salvar metas"}
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Student base goals */}
+          <Card className="shadow-sm border-slate-200">
+            <CardHeader className="pb-4 border-b border-slate-100">
+              <CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                Meta de Base de Alunos
+              </CardTitle>
+              <CardDescription className="text-xs text-slate-400 mt-0.5">
+                Meta de alunos ativos ao final de cada mês.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pt-3 space-y-4">
+              <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+                {MONTHS_PT.map((label, i) => {
+                  const month = i + 1;
+                  return (
+                    <div key={month} className="flex flex-col gap-1">
+                      <Label className="text-xs font-medium text-slate-500">{label}</Label>
+                      <Input
+                        inputMode="numeric"
+                        value={studentBaseGoals[month] ?? ""}
+                        onChange={(e) =>
+                          setStudentBaseGoals((prev) => ({ ...prev, [month]: e.target.value }))
+                        }
+                        className="h-9 bg-white border-slate-200 text-sm"
+                        placeholder="0"
+                      />
+                    </div>
+                  );
+                })}
               </div>
               <Button
-                onClick={() => void handleSaveGoals()}
+                onClick={() => void handleSaveStudentBaseGoals()}
                 disabled={saving}
                 variant="outline"
                 className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                {saving ? "Salvando…" : "Salvar metas"}
+                {saving ? "Salvando…" : "Salvar metas de base"}
               </Button>
             </CardContent>
           </Card>

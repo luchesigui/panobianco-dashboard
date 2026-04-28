@@ -13,6 +13,7 @@ const saveMonthSchema = z.object({
   gymSlug: z.string().min(1),
   periodId: periodSchema,
   values: z.record(z.string(), z.number().finite()),
+  expenseItems: z.record(z.string(), z.number().finite()).optional(),
   metaByCode: z.record(z.string(), z.record(z.string(), z.unknown())).optional(),
 });
 
@@ -30,9 +31,29 @@ export async function saveMonthlyKpisAction(raw: z.infer<typeof saveMonthSchema>
       .single();
     if (gErr || !gym) return { ok: false, error: "Academia não encontrada." };
 
+    const normalizeExpenseLabel = (code: string): string => {
+      const base = code.replace(/^expense_/, "").replace(/_/g, " ").trim();
+      if (!base) return code;
+      return base.charAt(0).toUpperCase() + base.slice(1);
+    };
+
+    const expenseItems = input.expenseItems ?? {};
+    const expenseCodes = Object.keys(expenseItems).filter((code) => code.startsWith("expense_"));
+    if (expenseCodes.length > 0) {
+      const upsertDefs = expenseCodes.map((code) => ({
+        code,
+        label: normalizeExpenseLabel(code),
+        unit: "currency_brl",
+        category: "finance",
+      }));
+      const { error: newDefsErr } = await supabase.from("kpi_definitions").upsert(upsertDefs, {
+        onConflict: "code",
+      });
+      if (newDefsErr) return { ok: false, error: newDefsErr.message };
+    }
+
     const { data: defs, error: dErr } = await supabase.from("kpi_definitions").select("id,code");
     if (dErr || !defs?.length) return { ok: false, error: "Definições de KPI não encontradas." };
-
     const idByCode = new Map(defs.map((d) => [d.code, d.id]));
     const meta = input.metaByCode ?? {};
     const rows: Array<{
@@ -53,6 +74,18 @@ export async function saveMonthlyKpisAction(raw: z.infer<typeof saveMonthSchema>
         period_id: input.periodId,
         kpi_definition_id: defId,
         value_numeric: v,
+        meta_json: meta[code] ?? {},
+      });
+    }
+
+    for (const code of expenseCodes) {
+      const defId = idByCode.get(code);
+      if (!defId) continue;
+      rows.push({
+        gym_id: gym.id,
+        period_id: input.periodId,
+        kpi_definition_id: defId,
+        value_numeric: expenseItems[code] ?? 0,
         meta_json: meta[code] ?? {},
       });
     }

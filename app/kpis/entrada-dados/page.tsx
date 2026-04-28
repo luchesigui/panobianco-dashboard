@@ -1,4 +1,5 @@
 import { loadEntradaPageData } from "@/lib/data/entrada-load";
+import { loadConsultorasAction } from "@/app/kpis/configuracoes/actions";
 import { EntradaDadosForm } from "./entrada-dados-form";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +27,10 @@ export default async function EntradaDadosPage({ searchParams }: Props) {
   const gymSlug = firstParam(sp.gym) ?? "panobianco-sjc-satelite";
   const periodId = normalizeMonth(firstParam(sp.month));
 
-  const data = await loadEntradaPageData(gymSlug, periodId);
+  const [data, consultoras] = await Promise.all([
+    loadEntradaPageData(gymSlug, periodId),
+    loadConsultorasAction(),
+  ]);
 
   return (
     <EntradaDadosForm
@@ -37,6 +41,7 @@ export default async function EntradaDadosPage({ searchParams }: Props) {
       initialKpiValues={data.kpiValues}
       initialMetaByCode={data.metaByCode}
       initialSmPayload={data.smPayload}
+      initialConsultoras={consultoras}
     />
   );
 }

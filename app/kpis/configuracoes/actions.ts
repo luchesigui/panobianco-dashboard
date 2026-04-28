@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { getServiceSupabase } from "@/lib/supabase/server";
 
 const GYM_SLUG = "panobianco-sjc-satelite";
@@ -57,6 +58,165 @@ export async function saveGymSettingsAction(settings: {
     }
     return { ok: false, error: error.message };
   }
+  return { ok: true };
+}
+
+export async function loadStudentBaseGoalsAction(year?: number): Promise<Record<number, number>> {
+  const y = year ?? new Date().getFullYear();
+  const supabase = getServiceSupabase();
+
+  const gymRow = await supabase.from("gyms").select("id").eq("slug", GYM_SLUG).maybeSingle();
+  if (!gymRow.data?.id) return {};
+
+  const gymId = gymRow.data.id as string;
+
+  const defRow = await supabase
+    .from("kpi_definitions")
+    .select("id")
+    .eq("code", "base_students_goal")
+    .maybeSingle();
+  if (!defRow.data?.id) return {};
+
+  const defId = defRow.data.id as string;
+
+  const { data: rows } = await supabase
+    .from("kpi_values")
+    .select("period_id,value_numeric")
+    .eq("gym_id", gymId)
+    .eq("kpi_definition_id", defId)
+    .gte("period_id", `${y}-01-01`)
+    .lte("period_id", `${y}-12-01`);
+
+  const result: Record<number, number> = {};
+  for (const row of rows ?? []) {
+    const month = parseInt((row.period_id as string).slice(5, 7), 10);
+    if (month >= 1 && month <= 12 && typeof row.value_numeric === "number") {
+      result[month] = row.value_numeric;
+    }
+  }
+  return result;
+}
+
+export async function saveStudentBaseGoalsAction(
+  goals: Record<number, number>,
+  year?: number,
+): Promise<ActionResult> {
+  const y = year ?? new Date().getFullYear();
+  const supabase = getServiceSupabase();
+
+  const gymRow = await supabase.from("gyms").select("id").eq("slug", GYM_SLUG).maybeSingle();
+  if (gymRow.error || !gymRow.data) return { ok: false, error: "Academia não encontrada." };
+  const gymId = gymRow.data.id as string;
+
+  const defRow = await supabase
+    .from("kpi_definitions")
+    .select("id")
+    .eq("code", "base_students_goal")
+    .maybeSingle();
+  if (defRow.error || !defRow.data) {
+    return { ok: false, error: "Definição 'base_students_goal' não encontrada." };
+  }
+  const defId = defRow.data.id as string;
+
+  const rows = Object.entries(goals)
+    .map(([month, value]) => ({ month: Number(month), value }))
+    .filter(({ month, value }) => month >= 1 && month <= 12 && Number.isFinite(value) && value > 0)
+    .map(({ month, value }) => ({
+      gym_id: gymId,
+      period_id: `${y}-${String(month).padStart(2, "0")}-01`,
+      kpi_definition_id: defId,
+      value_numeric: value,
+      meta_json: {},
+    }));
+
+  if (rows.length === 0) return { ok: true };
+
+  const { error } = await supabase
+    .from("kpi_values")
+    .upsert(rows, { onConflict: "gym_id,period_id,kpi_definition_id" });
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/kpis");
+  return { ok: true };
+}
+
+export type Consultora = {
+  id: string;
+  name: string;
+  monthly_goal: number | null;
+  sort_order: number;
+};
+
+export async function loadConsultorasAction(): Promise<Consultora[]> {
+  const supabase = getServiceSupabase();
+  const gymRow = await supabase.from("gyms").select("id").eq("slug", GYM_SLUG).maybeSingle();
+  if (!gymRow.data?.id) return [];
+
+  const { data } = await supabase
+    .from("consultoras")
+    .select("id,name,monthly_goal,sort_order")
+    .eq("gym_id", gymRow.data.id as string)
+    .is("deleted_at", null)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    name: r.name as string,
+    monthly_goal: r.monthly_goal != null ? Number(r.monthly_goal) : null,
+    sort_order: Number(r.sort_order),
+  }));
+}
+
+export async function saveConsultorasAction(
+  rows: { id?: string; name: string; monthly_goal?: number | null; sort_order: number }[],
+): Promise<ActionResult> {
+  const supabase = getServiceSupabase();
+  const gymRow = await supabase.from("gyms").select("id").eq("slug", GYM_SLUG).maybeSingle();
+  if (gymRow.error || !gymRow.data) return { ok: false, error: "Academia não encontrada." };
+  const gymId = gymRow.data.id as string;
+
+  const existingRes = await supabase
+    .from("consultoras")
+    .select("id")
+    .eq("gym_id", gymId)
+    .is("deleted_at", null);
+  const existingIds = new Set((existingRes.data ?? []).map((r) => r.id as string));
+
+  const incomingIds = new Set(rows.filter((r) => r.id).map((r) => r.id as string));
+  const toSoftDelete = [...existingIds].filter((id) => !incomingIds.has(id));
+
+  if (toSoftDelete.length > 0) {
+    const { error } = await supabase
+      .from("consultoras")
+      .update({ deleted_at: new Date().toISOString() })
+      .in("id", toSoftDelete);
+    if (error) return { ok: false, error: error.message };
+  }
+
+  for (const row of rows) {
+    const payload = {
+      gym_id: gymId,
+      name: row.name.trim(),
+      monthly_goal: row.monthly_goal ?? null,
+      sort_order: row.sort_order,
+      updated_at: new Date().toISOString(),
+    };
+    if (row.id) {
+      const { error } = await supabase
+        .from("consultoras")
+        .update(payload)
+        .eq("id", row.id)
+        .eq("gym_id", gymId);
+      if (error) return { ok: false, error: error.message };
+    } else {
+      const { error } = await supabase.from("consultoras").insert({ ...payload, deleted_at: null });
+      if (error) return { ok: false, error: error.message };
+    }
+  }
+
+  revalidatePath("/kpis/configuracoes");
   return { ok: true };
 }
 
