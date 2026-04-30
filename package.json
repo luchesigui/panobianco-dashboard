@@ -22,11 +22,13 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
+    "@date-io/dayjs": "^3.2.0",
     "@supabase/supabase-js": "^2.101.0",
     "@tailwindcss/postcss": "^4.2.4",
     "chart.js": "^4.5.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.20",
     "lucide-react": "^1.8.0",
     "next": "16.2.1",
     "postcss": "^8.5.10",

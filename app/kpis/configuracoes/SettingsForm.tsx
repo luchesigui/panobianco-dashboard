@@ -19,6 +19,7 @@ type Settings = {
   gymName: string;
   salesTarget: string;
   claudeApiKey: string;
+  evoApiToken: string;
 };
 
 type ConsultoraRow = {
@@ -44,6 +45,7 @@ export function SettingsForm({
   const router = useRouter();
   const [gymName, setGymName] = useState(initialSettings.gymName);
   const [claudeApiKey, setClaudeApiKey] = useState(initialSettings.claudeApiKey);
+  const [evoApiToken, setEvoApiToken] = useState(initialSettings.evoApiToken);
   const [studentBaseGoals, setStudentBaseGoals] = useState<Record<number, string>>(() => {
     const init: Record<number, string> = {};
     for (let m = 1; m <= 12; m++) {
@@ -97,6 +99,7 @@ export function SettingsForm({
     setMessage(null);
     const res = await saveGymSettingsAction({
       claudeApiKey: claudeApiKey || undefined,
+      evoApiToken: evoApiToken || undefined,
     });
     if (res.ok) {
       setMessage({ type: "ok", text: "Chaves salvas." });
@@ -411,6 +414,23 @@ export function SettingsForm({
                 />
                 <p className="text-xs text-slate-400">
                   Chave da API Anthropic para geração automática de insights e análises do dashboard.
+                </p>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="evo-api-token" className="text-xs font-medium text-slate-600">
+                  EVO API Token
+                </Label>
+                <Input
+                  id="evo-api-token"
+                  type="password"
+                  autoComplete="off"
+                  value={evoApiToken}
+                  onChange={(e) => setEvoApiToken(e.target.value)}
+                  className="h-10 bg-white border-slate-200"
+                  placeholder="Token da academia no sistema EVO"
+                />
+                <p className="text-xs text-slate-400">
+                  Token de autenticação para buscar recebimentos e centros de receita da EVO.
                 </p>
               </div>
               <Button

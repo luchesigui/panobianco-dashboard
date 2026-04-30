@@ -37,6 +37,7 @@ export async function saveGymNameAction(name: string): Promise<ActionResult> {
 export async function saveGymSettingsAction(settings: {
   salesTarget?: number;
   claudeApiKey?: string;
+  evoApiToken?: string;
 }): Promise<ActionResult> {
   const supabase = getServiceSupabase();
 
@@ -268,6 +269,7 @@ export async function loadSettingsAction(): Promise<{
   gymName: string;
   salesTarget: string;
   claudeApiKey: string;
+  evoApiToken: string;
 }> {
   const supabase = getServiceSupabase();
 
@@ -280,7 +282,7 @@ export async function loadSettingsAction(): Promise<{
   const gymId = gymRow.data?.id as string | undefined;
   const gymName = (gymRow.data?.name as string) ?? GYM_SLUG;
 
-  const defaults = { gymName, salesTarget: "150", claudeApiKey: "" };
+  const defaults = { gymName, salesTarget: "150", claudeApiKey: "", evoApiToken: "" };
   if (!gymId) return defaults;
 
   const { data: settingsRows } = await supabase
@@ -293,5 +295,6 @@ export async function loadSettingsAction(): Promise<{
     gymName,
     salesTarget: map.get("salesTarget") ?? "150",
     claudeApiKey: map.get("claudeApiKey") ?? "",
+    evoApiToken: map.get("evoApiToken") ?? "",
   };
 }
