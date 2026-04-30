@@ -28,6 +28,8 @@ type ConsultoraRow = {
   sort_order: number;
 };
 
+type SaveSection = "gymName" | "consultoras" | "consultorasGoals" | "studentBaseGoals" | "apiKeys";
+
 const MONTHS_PT = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
 
 export function SettingsForm({
@@ -57,7 +59,13 @@ export function SettingsForm({
       sort_order: c.sort_order,
     })),
   );
-  const [saving, setSaving] = useState(false);
+  const [savingSections, setSavingSections] = useState<Record<SaveSection, boolean>>({
+    gymName: false,
+    consultoras: false,
+    consultorasGoals: false,
+    studentBaseGoals: false,
+    apiKeys: false,
+  });
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
 
   const nameInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -67,8 +75,12 @@ export function SettingsForm({
     return sum + (Number.isFinite(v) && v > 0 ? v : 0);
   }, 0);
 
+  const setSectionSaving = (section: SaveSection, isSaving: boolean) => {
+    setSavingSections((prev) => ({ ...prev, [section]: isSaving }));
+  };
+
   const handleSaveGymName = async () => {
-    setSaving(true);
+    setSectionSaving("gymName", true);
     setMessage(null);
     const res = await saveGymNameAction(gymName);
     if (res.ok) {
@@ -77,11 +89,11 @@ export function SettingsForm({
     } else {
       setMessage({ type: "err", text: res.error });
     }
-    setSaving(false);
+    setSectionSaving("gymName", false);
   };
 
   const handleSaveApiKeys = async () => {
-    setSaving(true);
+    setSectionSaving("apiKeys", true);
     setMessage(null);
     const res = await saveGymSettingsAction({
       claudeApiKey: claudeApiKey || undefined,
@@ -91,11 +103,11 @@ export function SettingsForm({
     } else {
       setMessage({ type: "err", text: res.error });
     }
-    setSaving(false);
+    setSectionSaving("apiKeys", false);
   };
 
   const handleSaveStudentBaseGoals = async () => {
-    setSaving(true);
+    setSectionSaving("studentBaseGoals", true);
     setMessage(null);
     const goals: Record<number, number> = {};
     for (let m = 1; m <= 12; m++) {
@@ -110,11 +122,11 @@ export function SettingsForm({
     } else {
       setMessage({ type: "err", text: res.error });
     }
-    setSaving(false);
+    setSectionSaving("studentBaseGoals", false);
   };
 
-  const handleSaveConsultoras = async () => {
-    setSaving(true);
+  const handleSaveConsultoras = async (section: "consultoras" | "consultorasGoals") => {
+    setSectionSaving(section, true);
     setMessage(null);
     const validRows = consultoras
       .filter((c) => c.name.trim())
@@ -131,7 +143,7 @@ export function SettingsForm({
     } else {
       setMessage({ type: "err", text: res.error });
     }
-    setSaving(false);
+    setSectionSaving(section, false);
   };
 
   const addConsultora = () => {
@@ -208,11 +220,11 @@ export function SettingsForm({
               </div>
               <Button
                 onClick={() => void handleSaveGymName()}
-                disabled={saving}
+                disabled={savingSections.gymName}
                 variant="outline"
                 className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                {saving ? "Salvando…" : "Salvar nome"}
+                {savingSections.gymName ? "Salvando…" : "Salvar nome"}
               </Button>
             </CardContent>
           </Card>
@@ -267,12 +279,12 @@ export function SettingsForm({
                 Adicionar consultora
               </button>
               <Button
-                onClick={() => void handleSaveConsultoras()}
-                disabled={saving}
+                onClick={() => void handleSaveConsultoras("consultoras")}
+                disabled={savingSections.consultoras}
                 variant="outline"
                 className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                {saving ? "Salvando…" : "Salvar consultoras"}
+                {savingSections.consultoras ? "Salvando…" : "Salvar consultoras"}
               </Button>
             </CardContent>
           </Card>
@@ -321,12 +333,12 @@ export function SettingsForm({
               )}
               {consultoras.filter((c) => c.name.trim()).length > 0 && (
                 <Button
-                  onClick={() => void handleSaveConsultoras()}
-                  disabled={saving}
+                  onClick={() => void handleSaveConsultoras("consultorasGoals")}
+                  disabled={savingSections.consultorasGoals}
                   variant="outline"
                   className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
                 >
-                  {saving ? "Salvando…" : "Salvar metas"}
+                  {savingSections.consultorasGoals ? "Salvando…" : "Salvar metas"}
                 </Button>
               )}
             </CardContent>
@@ -364,11 +376,11 @@ export function SettingsForm({
               </div>
               <Button
                 onClick={() => void handleSaveStudentBaseGoals()}
-                disabled={saving}
+                disabled={savingSections.studentBaseGoals}
                 variant="outline"
                 className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                {saving ? "Salvando…" : "Salvar metas de base"}
+                {savingSections.studentBaseGoals ? "Salvando…" : "Salvar metas de base"}
               </Button>
             </CardContent>
           </Card>
@@ -403,11 +415,11 @@ export function SettingsForm({
               </div>
               <Button
                 onClick={() => void handleSaveApiKeys()}
-                disabled={saving}
+                disabled={savingSections.apiKeys}
                 variant="outline"
                 className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
               >
-                {saving ? "Salvando…" : "Salvar chaves"}
+                {savingSections.apiKeys ? "Salvando…" : "Salvar chaves"}
               </Button>
             </CardContent>
           </Card>

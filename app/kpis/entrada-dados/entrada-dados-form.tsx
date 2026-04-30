@@ -489,6 +489,8 @@ export function EntradaDadosForm({
 
   const nWeeks = smPayload.weekly.weekHeaders.length;
   const weekHeaders = smPayload.weekly.weekHeaders;
+  // rows: 4 SM + 3 funil + N recep + 1 salesTot — used for column-major tabIndex
+  const smGridTotalRows = 8 + recepWeekRows.length;
 
   const mismatch = useMemo(
     () => weekMismatchMessages(weeklyStr, recepWeekRows, nWeeks),
@@ -1494,7 +1496,7 @@ export function EntradaDadosForm({
                           ["Visualizações", "views"],
                           ["Novos seguidores", "followers"],
                         ] as const
-                      ).map(([label, key]) => (
+                      ).map(([label, key], ri) => (
                         <tr key={key} className="hover:bg-slate-50/50">
                           <td className="text-xs font-medium text-slate-600 border border-slate-200 px-3 py-1.5 bg-slate-50/70">
                             {label}
@@ -1509,6 +1511,7 @@ export function EntradaDadosForm({
                                 onChange={(e) =>
                                   updateMatrix(key, wi, e.target.value)
                                 }
+                                tabIndex={wi * smGridTotalRows + ri + 1}
                                 className="w-20 h-8 text-right text-sm bg-white border-slate-200"
                               />
                             </td>
@@ -1529,7 +1532,7 @@ export function EntradaDadosForm({
                           ["Presenças", "att"],
                           ["Fechamentos", "clo"],
                         ] as const
-                      ).map(([label, key]) => (
+                      ).map(([label, key], ri) => (
                         <tr key={key} className="hover:bg-slate-50/50">
                           <td className="text-xs font-medium text-slate-600 border border-slate-200 px-3 py-1.5 bg-slate-50/70">
                             {label}
@@ -1548,6 +1551,7 @@ export function EntradaDadosForm({
                                     e.target.value,
                                   )
                                 }
+                                tabIndex={wi * smGridTotalRows + (ri + 4) + 1}
                                 className="w-20 h-8 text-right text-sm bg-white border-slate-200"
                               />
                             </td>
@@ -1562,7 +1566,7 @@ export function EntradaDadosForm({
                           Vendas — por recepcionista
                         </td>
                       </tr>
-                      {recepWeekRows.map((row) => (
+                      {recepWeekRows.map((row, ri) => (
                         <tr key={row.id} className="hover:bg-slate-50/50">
                           <td className="border border-slate-200 px-3 py-1.5 bg-slate-50/70 text-xs font-medium text-slate-600 min-w-36">
                             {row.name}
@@ -1584,6 +1588,7 @@ export function EntradaDadosForm({
                                     }),
                                   )
                                 }
+                                tabIndex={wi * smGridTotalRows + (ri + 7) + 1}
                                 className="w-20 h-8 text-right text-sm bg-white border-slate-200"
                               />
                             </td>
@@ -1612,6 +1617,7 @@ export function EntradaDadosForm({
                               onChange={(e) =>
                                 updateMatrix("salesTot", wi, e.target.value)
                               }
+                              tabIndex={wi * smGridTotalRows + (7 + recepWeekRows.length) + 1}
                               className="w-20 h-8 text-right text-sm bg-white border-slate-200"
                             />
                           </td>

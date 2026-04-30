@@ -7,6 +7,22 @@ const GYM_SLUG = "panobianco-sjc-satelite";
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
+function isMissingTableError(
+  error: { code?: string | null; message?: string | null } | null,
+  tableName: string,
+): boolean {
+  if (!error) return false;
+  const message = error.message?.toLowerCase() ?? "";
+  return (
+    error.code === "42P01" ||
+    error.code === "PGRST205" ||
+    message.includes(`public.${tableName}`) ||
+    message.includes(`relation "${tableName}" does not exist`) ||
+    message.includes(`table '${tableName}'`) ||
+    message.includes("schema cache")
+  );
+}
+
 export async function saveGymNameAction(name: string): Promise<ActionResult> {
   if (!name.trim()) return { ok: false, error: "Nome não pode ser vazio." };
   const supabase = getServiceSupabase();
@@ -182,6 +198,13 @@ export async function saveConsultorasAction(
     .select("id")
     .eq("gym_id", gymId)
     .is("deleted_at", null);
+  if (isMissingTableError(existingRes.error, "consultoras")) {
+    return {
+      ok: false,
+      error:
+        "Tabela consultoras não encontrada no projeto Supabase atual. Aplique as migrações da pasta infra/supabase/migrations no mesmo projeto configurado em NEXT_PUBLIC_SUPABASE_URL.",
+    };
+  }
   const existingIds = new Set((existingRes.data ?? []).map((r) => r.id as string));
 
   const incomingIds = new Set(rows.filter((r) => r.id).map((r) => r.id as string));
@@ -192,6 +215,13 @@ export async function saveConsultorasAction(
       .from("consultoras")
       .update({ deleted_at: new Date().toISOString() })
       .in("id", toSoftDelete);
+    if (isMissingTableError(error, "consultoras")) {
+      return {
+        ok: false,
+        error:
+          "Tabela consultoras não encontrada no projeto Supabase atual. Aplique as migrações da pasta infra/supabase/migrations no mesmo projeto configurado em NEXT_PUBLIC_SUPABASE_URL.",
+      };
+    }
     if (error) return { ok: false, error: error.message };
   }
 
@@ -209,9 +239,23 @@ export async function saveConsultorasAction(
         .update(payload)
         .eq("id", row.id)
         .eq("gym_id", gymId);
+      if (isMissingTableError(error, "consultoras")) {
+        return {
+          ok: false,
+          error:
+            "Tabela consultoras não encontrada no projeto Supabase atual. Aplique as migrações da pasta infra/supabase/migrations no mesmo projeto configurado em NEXT_PUBLIC_SUPABASE_URL.",
+        };
+      }
       if (error) return { ok: false, error: error.message };
     } else {
       const { error } = await supabase.from("consultoras").insert({ ...payload, deleted_at: null });
+      if (isMissingTableError(error, "consultoras")) {
+        return {
+          ok: false,
+          error:
+            "Tabela consultoras não encontrada no projeto Supabase atual. Aplique as migrações da pasta infra/supabase/migrations no mesmo projeto configurado em NEXT_PUBLIC_SUPABASE_URL.",
+        };
+      }
       if (error) return { ok: false, error: error.message };
     }
   }
