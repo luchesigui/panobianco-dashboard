@@ -29,6 +29,24 @@ export interface ReceivableItem {
 	cancellationDate: string | null;
 }
 
+export interface PayableItem {
+	idPayable: number;
+	description: string;
+	recipient: string;
+	costCenter: { id: number; name: string } | null;
+	dueDate: string;
+	paymentDate: string | null;
+	cancellationDate: string | null;
+	ammount: number;
+	ammountPaid: number | null;
+	status: { id: number; name: string };
+	destination: { id: number; name: string };
+	bankAccount: { id: number; name: string };
+	beneficiary: string;
+	categories: null;
+	observation: string;
+}
+
 export class CRMService {
 	private readonly authHeader: string;
 
@@ -95,6 +113,35 @@ export class CRMService {
 		}
 
 		return res.json() as Promise<ReceivableItem[]>;
+	}
+
+	async getPayablesPage(params: {
+		dueDateStart: string;
+		dueDateEnd: string;
+		skip: number;
+		take?: number;
+	}): Promise<PayableItem[]> {
+		const take = params.take ?? 50;
+		const url = new URL(`${EVO_API_URL}payables`);
+		url.searchParams.set("dueDateStart", params.dueDateStart);
+		url.searchParams.set("dueDateEnd", params.dueDateEnd);
+		url.searchParams.set("skip", String(params.skip));
+		url.searchParams.set("take", String(take));
+
+		const res = await fetch(url.toString(), {
+			headers: { Authorization: this.authHeader },
+		});
+
+		if (res.status === 429) {
+			throw new Error(`429: EVO API rate limit atingido`);
+		}
+		if (!res.ok) {
+			throw new Error(
+				`EVO getPayables falhou: ${res.status} ${res.statusText}`,
+			);
+		}
+
+		return res.json() as Promise<PayableItem[]>;
 	}
 
 	async getReceivables(params?: {

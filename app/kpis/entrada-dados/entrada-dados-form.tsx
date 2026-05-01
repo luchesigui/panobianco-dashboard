@@ -25,6 +25,7 @@ import type { GymOption } from "@/lib/data/entrada-load";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import { recomputeWeeklyTotals } from "@/lib/data/sales-marketing-payload-merge";
 import { mapRevenueGroupsToCodes } from "@/lib/data/revenue-mapping";
+import { slugifyExpenseCode } from "@/lib/data/expense-mapping";
 import { Lock, LockOpen, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Fragment, useMemo, useState } from "react";
@@ -81,15 +82,6 @@ function formatMonthPtBr(yyyyMm: string): string {
   return `${month.charAt(0).toUpperCase() + month.slice(1)}/${d.getFullYear()}`;
 }
 
-function slugifyExpenseCode(label: string): string {
-  const normalized = label
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_+|_+$/g, "");
-  return `expense_${normalized}`;
-}
 
 const EXPENSE_LABEL_MAP: Record<string, string> = {
   expense_fgts: "FGTS",
