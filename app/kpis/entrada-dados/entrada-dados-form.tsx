@@ -636,11 +636,10 @@ export function EntradaDadosForm({
       values["expenses_total"] = expensesTotal;
 
       // revenue_total = sum of the four revenue streams (calculated, not entered)
-      const revenueFromGroups = mapRevenueGroupsToCodes(recebimentosBreakdown);
+      // wellhub_revenue and totalpass_revenue are manually editable — preserve kpiInputs values
       if (Object.keys(recebimentosBreakdown).length > 0) {
+        const revenueFromGroups = mapRevenueGroupsToCodes(recebimentosBreakdown);
         values["matriculated_revenue"] = revenueFromGroups.matriculated_revenue;
-        values["wellhub_revenue"] = revenueFromGroups.wellhub_revenue;
-        values["totalpass_revenue"] = revenueFromGroups.totalpass_revenue;
         values["products_revenue"] = revenueFromGroups.products_revenue;
       }
       const revenueTotal =
@@ -1119,19 +1118,12 @@ export function EntradaDadosForm({
                       ) : null}
                       {group.id === "finance_revenues" &&
                         (() => {
+                          const revenueGroups = mapRevenueGroupsToCodes(recebimentosBreakdown);
                           const total =
-                            (parsePtBrNumber(
-                              kpiInputs["matriculated_revenue"] ?? "",
-                            ) ?? 0) +
-                            (parsePtBrNumber(
-                              kpiInputs["wellhub_revenue"] ?? "",
-                            ) ?? 0) +
-                            (parsePtBrNumber(
-                              kpiInputs["totalpass_revenue"] ?? "",
-                            ) ?? 0) +
-                            (parsePtBrNumber(
-                              kpiInputs["products_revenue"] ?? "",
-                            ) ?? 0);
+                            revenueGroups.matriculated_revenue +
+                            (parsePtBrNumber(kpiInputs["wellhub_revenue"] ?? "") ?? 0) +
+                            (parsePtBrNumber(kpiInputs["totalpass_revenue"] ?? "") ?? 0) +
+                            revenueGroups.products_revenue;
                           return (
                             <>
                               {hasRecebimentosBreakdown ? (
