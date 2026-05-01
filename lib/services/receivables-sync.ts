@@ -39,7 +39,11 @@ export async function runSyncJob(jobId: string): Promise<void> {
 	if (!evoApiToken) {
 		await supabase
 			.from("crm_sync_jobs")
-			.update({ status: "failed", error: "Token EVO não configurado.", updated_at: new Date().toISOString() })
+			.update({
+				status: "failed",
+				error: "Token EVO não configurado.",
+				updated_at: new Date().toISOString(),
+			})
 			.eq("id", jobId);
 		return;
 	}
@@ -49,8 +53,8 @@ export async function runSyncJob(jobId: string): Promise<void> {
 	const dueDateEnd = job.due_date_end as string;
 	const revenueCenters = job.revenue_centers as Record<string, string>;
 
+	const partialGroups = { ...(job.partial_groups as Record<string, number>) };
 	let skipPosition = job.skip_position as number;
-	let partialGroups = { ...(job.partial_groups as Record<string, number>) };
 	let totalFetched = job.total_fetched as number;
 	let retryDelay = BASE_RETRY_MS;
 
@@ -76,12 +80,26 @@ export async function runSyncJob(jobId: string): Promise<void> {
 				throw err;
 			}
 
-			for (const r of page) {
-				if (!INCLUDED_STATUSES.has(r.status.id) || r.cancellationDate !== null)
+			for (const receivable of page) {
+				if (
+					!INCLUDED_STATUSES.has(receivable.status.id) ||
+					receivable.cancellationDate !== null
+				) {
 					continue;
-				const centerName = revenueCenters[String(r.idRevenueCenter)] ?? "Outros";
+				}
+
+				if (receivable.idRevenueCenter === null) {
+					if (receivable.description.toLowerCase().includes("wellhub")) continue;
+					partialGroups["Outros"] =
+						(partialGroups["Outros"] ?? 0) + receivable.ammountPaid;
+					totalFetched++;
+					continue;
+				}
+
+				const centerName =
+					revenueCenters[String(receivable.idRevenueCenter)] ?? "Outros";
 				partialGroups[centerName] =
-					(partialGroups[centerName] ?? 0) + r.ammountPaid;
+					(partialGroups[centerName] ?? 0) + receivable.ammountPaid;
 				totalFetched++;
 			}
 
@@ -130,7 +148,10 @@ async function saveRevenueKpis(
 
 	const mapped = mapRevenueGroupsToCodes(groups);
 	const revenueTotal = Object.values(mapped).reduce((a, v) => a + v, 0);
-	const values: Record<string, number> = { ...mapped, revenue_total: revenueTotal };
+	const values: Record<string, number> = {
+		...mapped,
+		revenue_total: revenueTotal,
+	};
 
 	const { data: defs } = await supabase
 		.from("kpi_definitions")

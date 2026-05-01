@@ -21,10 +21,11 @@ export interface RevenueCenterItem {
 
 export interface ReceivableItem {
 	idReceivable: number;
+	description: string;
 	ammount: number;
 	ammountPaid: number;
 	status: { id: AccountStatus; name: string };
-	idRevenueCenter: number;
+	idRevenueCenter: number | null;
 	cancellationDate: string | null;
 }
 
@@ -39,17 +40,32 @@ export class CRMService {
 	}
 
 	async getRevenueCenter(): Promise<RevenueCenterItem[]> {
-		const res = await fetch(`${EVO_API_URL}revenuecenter`, {
-			headers: { Authorization: this.authHeader },
-		});
+		const PAGE_SIZE = 50;
+		const all: RevenueCenterItem[] = [];
+		let skip = 0;
 
-		if (!res.ok) {
-			throw new Error(
-				`EVO getRevenueCenter falhou: ${res.status} ${res.statusText}`,
-			);
+		while (true) {
+			const url = new URL(`${EVO_API_URL}revenuecenter`);
+			url.searchParams.set("skip", String(skip));
+			url.searchParams.set("take", String(PAGE_SIZE));
+
+			const res = await fetch(url.toString(), {
+				headers: { Authorization: this.authHeader },
+			});
+
+			if (!res.ok) {
+				throw new Error(
+					`EVO getRevenueCenter falhou: ${res.status} ${res.statusText}`,
+				);
+			}
+
+			const page = (await res.json()) as RevenueCenterItem[];
+			all.push(...page);
+			if (page.length < PAGE_SIZE) break;
+			skip += PAGE_SIZE;
 		}
 
-		return res.json() as Promise<RevenueCenterItem[]>;
+		return all;
 	}
 
 	async getReceivablesPage(params: {
