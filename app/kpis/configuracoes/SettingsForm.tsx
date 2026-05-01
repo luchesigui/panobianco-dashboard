@@ -20,6 +20,7 @@ type Settings = {
   salesTarget: string;
   claudeApiKey: string;
   evoApiToken: string;
+  totalInvested: string;
 };
 
 type ConsultoraRow = {
@@ -29,9 +30,31 @@ type ConsultoraRow = {
   sort_order: number;
 };
 
-type SaveSection = "gymName" | "consultoras" | "consultorasGoals" | "studentBaseGoals" | "apiKeys";
+type SaveSection =
+  | "gymName"
+  | "totalInvested"
+  | "consultoras"
+  | "consultorasGoals"
+  | "studentBaseGoals"
+  | "apiKeys";
 
 const MONTHS_PT = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+
+function formatBrlIntegerMask(raw: string): string {
+  const digits = raw.replace(/\D/g, "");
+  if (!digits) return "";
+  const value = Number(digits);
+  if (!Number.isFinite(value)) return "";
+  return `R$ ${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(value)}`;
+}
+
+function parseBrlIntegerMask(masked: string): number | null {
+  const digits = masked.replace(/\D/g, "");
+  if (!digits) return null;
+  const value = Number(digits);
+  if (!Number.isFinite(value)) return null;
+  return value;
+}
 
 export function SettingsForm({
   initialSettings,
@@ -46,6 +69,9 @@ export function SettingsForm({
   const [gymName, setGymName] = useState(initialSettings.gymName);
   const [claudeApiKey, setClaudeApiKey] = useState(initialSettings.claudeApiKey);
   const [evoApiToken, setEvoApiToken] = useState(initialSettings.evoApiToken);
+  const [totalInvested, setTotalInvested] = useState(() =>
+    formatBrlIntegerMask(initialSettings.totalInvested),
+  );
   const [studentBaseGoals, setStudentBaseGoals] = useState<Record<number, string>>(() => {
     const init: Record<number, string> = {};
     for (let m = 1; m <= 12; m++) {
@@ -63,6 +89,7 @@ export function SettingsForm({
   );
   const [savingSections, setSavingSections] = useState<Record<SaveSection, boolean>>({
     gymName: false,
+    totalInvested: false,
     consultoras: false,
     consultorasGoals: false,
     studentBaseGoals: false,
@@ -107,6 +134,27 @@ export function SettingsForm({
       setMessage({ type: "err", text: res.error });
     }
     setSectionSaving("apiKeys", false);
+  };
+
+  const handleSaveTotalInvested = async () => {
+    setSectionSaving("totalInvested", true);
+    setMessage(null);
+    const parsed = parseBrlIntegerMask(totalInvested);
+    if (totalInvested.trim() !== "" && (parsed == null || parsed < 0)) {
+      setMessage({ type: "err", text: "Informe um valor numérico válido para investimento total." });
+      setSectionSaving("totalInvested", false);
+      return;
+    }
+    const res = await saveGymSettingsAction({
+      totalInvested: totalInvested.trim() === "" ? "" : parsed,
+    });
+    if (res.ok) {
+      setMessage({ type: "ok", text: "Investimento total salvo." });
+      router.refresh();
+    } else {
+      setMessage({ type: "err", text: res.error });
+    }
+    setSectionSaving("totalInvested", false);
   };
 
   const handleSaveStudentBaseGoals = async () => {
@@ -228,6 +276,31 @@ export function SettingsForm({
                 className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
               >
                 {savingSections.gymName ? "Salvando…" : "Salvar nome"}
+              </Button>
+
+              <div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+                <Label htmlFor="total-invested" className="text-xs font-medium text-slate-600">
+                  Investimento total
+                </Label>
+                <Input
+                  id="total-invested"
+                  inputMode="numeric"
+                  value={totalInvested}
+                  onChange={(e) => setTotalInvested(formatBrlIntegerMask(e.target.value))}
+                  className="h-10 bg-white border-slate-200"
+                  placeholder="R$ 1.020.300"
+                />
+                <p className="text-xs text-slate-400">
+                  Substitui o número do card "Total investido" na seção ROI do dashboard.
+                </p>
+              </div>
+              <Button
+                onClick={() => void handleSaveTotalInvested()}
+                disabled={savingSections.totalInvested}
+                variant="outline"
+                className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+              >
+                {savingSections.totalInvested ? "Salvando…" : "Salvar investimento total"}
               </Button>
             </CardContent>
           </Card>

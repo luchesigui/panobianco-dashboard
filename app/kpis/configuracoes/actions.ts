@@ -38,6 +38,7 @@ export async function saveGymSettingsAction(settings: {
   salesTarget?: number;
   claudeApiKey?: string;
   evoApiToken?: string;
+  totalInvested?: number | string;
 }): Promise<ActionResult> {
   const supabase = getServiceSupabase();
 
@@ -51,29 +52,50 @@ export async function saveGymSettingsAction(settings: {
   }
   const gymId = gymRow.data.id as string;
 
-  const rows = Object.entries(settings)
-    .filter(([, v]) => v !== undefined && v !== "")
+  const entries = Object.entries(settings).filter(([, v]) => v !== undefined);
+  const rows = entries
+    .filter(([, v]) => v !== "")
     .map(([key, value]) => ({
       gym_id: gymId,
       key,
       value: String(value),
     }));
+  const deleteKeys = entries.filter(([, v]) => v === "").map(([key]) => key);
 
-  if (rows.length === 0) return { ok: true };
+  if (rows.length === 0 && deleteKeys.length === 0) return { ok: true };
 
-  const { error } = await supabase.from("gym_settings").upsert(rows, {
-    onConflict: "gym_id,key",
-  });
-
-  if (error) {
-    if (error.message.includes("does not exist") || error.code === "42P01") {
-      return {
-        ok: false,
-        error:
-          "Tabela gym_settings não encontrada. Execute a migração:\n\nCREATE TABLE gym_settings (\n  gym_id uuid NOT NULL REFERENCES gyms(id) ON DELETE CASCADE,\n  key text NOT NULL,\n  value text NOT NULL,\n  updated_at timestamptz DEFAULT now(),\n  PRIMARY KEY (gym_id, key)\n);",
-      };
+  if (deleteKeys.length > 0) {
+    const { error } = await supabase
+      .from("gym_settings")
+      .delete()
+      .eq("gym_id", gymId)
+      .in("key", deleteKeys);
+    if (error) {
+      if (error.message.includes("does not exist") || error.code === "42P01") {
+        return {
+          ok: false,
+          error:
+            "Tabela gym_settings não encontrada. Execute a migração:\n\nCREATE TABLE gym_settings (\n  gym_id uuid NOT NULL REFERENCES gyms(id) ON DELETE CASCADE,\n  key text NOT NULL,\n  value text NOT NULL,\n  updated_at timestamptz DEFAULT now(),\n  PRIMARY KEY (gym_id, key)\n);",
+        };
+      }
+      return { ok: false, error: error.message };
     }
-    return { ok: false, error: error.message };
+  }
+
+  if (rows.length > 0) {
+    const { error } = await supabase.from("gym_settings").upsert(rows, {
+      onConflict: "gym_id,key",
+    });
+    if (error) {
+      if (error.message.includes("does not exist") || error.code === "42P01") {
+        return {
+          ok: false,
+          error:
+            "Tabela gym_settings não encontrada. Execute a migração:\n\nCREATE TABLE gym_settings (\n  gym_id uuid NOT NULL REFERENCES gyms(id) ON DELETE CASCADE,\n  key text NOT NULL,\n  value text NOT NULL,\n  updated_at timestamptz DEFAULT now(),\n  PRIMARY KEY (gym_id, key)\n);",
+        };
+      }
+      return { ok: false, error: error.message };
+    }
   }
   return { ok: true };
 }
@@ -270,6 +292,7 @@ export async function loadSettingsAction(): Promise<{
   salesTarget: string;
   claudeApiKey: string;
   evoApiToken: string;
+  totalInvested: string;
 }> {
   const supabase = getServiceSupabase();
 
@@ -282,7 +305,13 @@ export async function loadSettingsAction(): Promise<{
   const gymId = gymRow.data?.id as string | undefined;
   const gymName = (gymRow.data?.name as string) ?? GYM_SLUG;
 
-  const defaults = { gymName, salesTarget: "150", claudeApiKey: "", evoApiToken: "" };
+  const defaults = {
+    gymName,
+    salesTarget: "150",
+    claudeApiKey: "",
+    evoApiToken: "",
+    totalInvested: "",
+  };
   if (!gymId) return defaults;
 
   const { data: settingsRows } = await supabase
@@ -296,5 +325,6 @@ export async function loadSettingsAction(): Promise<{
     salesTarget: map.get("salesTarget") ?? "150",
     claudeApiKey: map.get("claudeApiKey") ?? "",
     evoApiToken: map.get("evoApiToken") ?? "",
+    totalInvested: map.get("totalInvested") ?? "",
   };
 }

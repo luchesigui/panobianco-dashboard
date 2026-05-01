@@ -457,7 +457,8 @@ export async function getKpiPageData(
 		prev3MonthPeriod,
 	];
 
-	const [defsRes, valuesRes, dashboardRes, salesHistoryRes] = await Promise.all(
+	const [defsRes, valuesRes, dashboardRes, salesHistoryRes, settingsRes] =
+		await Promise.all(
 		[
 			supabase.from("kpi_definitions").select("id,code"),
 			supabase
@@ -477,6 +478,11 @@ export async function getKpiPageData(
 				.gte("period_id", "2025-04-01")
 				.lte("period_id", prevMonthPeriod)
 				.order("period_id", { ascending: true }),
+			supabase
+				.from("gym_settings")
+				.select("key,value")
+				.eq("gym_id", gym.id)
+				.eq("key", "totalInvested"),
 		],
 	);
 
@@ -490,6 +496,8 @@ export async function getKpiPageData(
 		throw new Error(
 			`Sales history load failed: ${salesHistoryRes.error.message}`,
 		);
+	if (settingsRes.error)
+		throw new Error(`Gym settings load failed: ${settingsRes.error.message}`);
 
 	// Resolve kpiDataPeriod: use current month if it has data, otherwise fall back to previous month
 	const hasCurrentMonthData = (valuesRes.data ?? []).some(
@@ -639,6 +647,14 @@ export async function getKpiPageData(
 		? toLongLabel(normalizePeriodId(smRow.period_id))
 		: null;
 	const rawPayload = smRow?.payload;
+	const settingsMap = new Map(
+		(settingsRes.data ?? []).map((r) => [r.key as string, r.value as string]),
+	);
+	const configuredTotalInvestedRaw = settingsMap.get("totalInvested");
+	const configuredTotalInvested =
+		configuredTotalInvestedRaw != null
+			? Number(configuredTotalInvestedRaw)
+			: Number.NaN;
 	const salesMarketingDashboard = {
 		payload:
 			rawPayload && typeof rawPayload === "object" && !Array.isArray(rawPayload)
@@ -669,6 +685,13 @@ export async function getKpiPageData(
 		if (previousPeriod && rowPeriod === previousPeriod) previous[code] = value;
 		if (thirdPeriod && rowPeriod === thirdPeriod)
 			previousPrevious[code] = value;
+	}
+
+	if (
+		Number.isFinite(configuredTotalInvested) &&
+		configuredTotalInvested >= 0
+	) {
+		current["total_invested"] = configuredTotalInvested;
 	}
 
 	// operational_result: always computed from revenue_total - expenses_total
