@@ -103,6 +103,12 @@ export function applyFinancePageFallbacks(
 	}
 	for (const [code, defMeta] of Object.entries(FINANCE_META_FALLBACK)) {
 		if (current[code] == null) continue;
+		if (
+			code === "royalties_validation" &&
+			currentMeta[code]?.source === "finance_expenses_breakdown"
+		) {
+			continue;
+		}
 		currentMeta[code] = { ...defMeta, ...(currentMeta[code] ?? {}) };
 	}
 

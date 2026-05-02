@@ -221,6 +221,20 @@ function clampForecast(n: number, lo: number, hi: number): number {
 	return Math.max(lo, Math.min(hi, n));
 }
 
+function getRoyaltiesExpenseValue(kpis: KpiMap): number | undefined {
+	const exact = kpis["expense_royalties"];
+	if (typeof exact === "number") return exact;
+
+	const fuzzyKey = Object.keys(kpis).find(
+		(code) =>
+			code.startsWith("expense_") &&
+			(code.includes("royalties") || code.includes("royalty")),
+	);
+	if (!fuzzyKey) return undefined;
+	const value = kpis[fuzzyKey];
+	return typeof value === "number" ? value : undefined;
+}
+
 /** MoM ratio capped to avoid extreme projections. */
 function monthOverMonthGrowth(
 	curr: number,
@@ -738,6 +752,26 @@ export async function getKpiPageData(
 		configuredTotalInvested >= 0
 	) {
 		current["total_invested"] = configuredTotalInvested;
+	}
+
+	// royalties_validation: prefer value from finance expense breakdown when available.
+	{
+		const royaltiesCurrent = getRoyaltiesExpenseValue(current);
+		if (royaltiesCurrent != null) {
+			current["royalties_validation"] = royaltiesCurrent;
+			currentMeta["royalties_validation"] = {
+				...(currentMeta["royalties_validation"] ?? {}),
+				source: "finance_expenses_breakdown",
+			};
+		}
+		const royaltiesPrevious = getRoyaltiesExpenseValue(previous);
+		if (royaltiesPrevious != null) {
+			previous["royalties_validation"] = royaltiesPrevious;
+		}
+		const royaltiesThird = getRoyaltiesExpenseValue(previousPrevious);
+		if (royaltiesThird != null) {
+			previousPrevious["royalties_validation"] = royaltiesThird;
+		}
 	}
 
 	// operational_result: always computed from revenue_total - expenses_total

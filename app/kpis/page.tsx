@@ -482,6 +482,7 @@ const FINANCE_CARDS: KpiCard[] = [
 		unit: "currency",
 	},
 	{ key: "wellhub_revenue", label: "Receita Wellhub", unit: "currency" },
+	{ key: "totalpass_revenue", label: "Receita Totalpass", unit: "currency" },
 	{
 		key: "royalties_validation",
 		label: "Royalties (validação)",
@@ -502,7 +503,8 @@ function financeMainDisplay(
 	if (
 		cardKey === "expenses_total" ||
 		cardKey === "matriculated_revenue" ||
-		cardKey === "wellhub_revenue"
+		cardKey === "wellhub_revenue" ||
+		cardKey === "totalpass_revenue"
 	) {
 		return formatCompactBrl(current);
 	}
@@ -532,7 +534,7 @@ function financeMainDisplay(
 }
 
 function FinanceKpiCards({ data }: { data: KpiPageData }) {
-	const vsLabel = data.previousPeriodLabel;
+	const vsLabel = abbreviatePeriodLabel(data.previousPeriodLabel);
 	const revenueTotal = data.current.revenue_total;
 
 	const renderCard = (card: KpiCard) => {
@@ -557,12 +559,9 @@ function FinanceKpiCards({ data }: { data: KpiPageData }) {
 			deltaBlock = (
 				<div className={styles.kpiSub}>
 					{delta.pill ? (
-						<>
-							<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
-								{delta.pill}
-							</span>
-							{delta.tail}
-						</>
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
 					) : (
 						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
 							{delta.tail}
@@ -578,12 +577,9 @@ function FinanceKpiCards({ data }: { data: KpiPageData }) {
 			deltaBlock = (
 				<div className={styles.kpiSub}>
 					{delta.pill ? (
-						<>
-							<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
-								{delta.pill}
-							</span>
-							{delta.tail}
-						</>
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
 					) : (
 						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
 							{delta.tail}
@@ -614,12 +610,9 @@ function FinanceKpiCards({ data }: { data: KpiPageData }) {
 			deltaBlock = (
 				<div className={styles.kpiSub}>
 					{delta.pill ? (
-						<>
-							<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
-								{delta.pill}
-							</span>
-							{delta.tail}
-						</>
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
 					) : (
 						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
 							{delta.tail}
@@ -734,12 +727,9 @@ function FinanceKpiCards({ data }: { data: KpiPageData }) {
 			deltaBlock = (
 				<div className={styles.kpiSub}>
 					{delta.pill ? (
-						<>
-							<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
-								{delta.pill}
-							</span>
-							{delta.tail}
-						</>
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
 					) : (
 						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
 							{delta.tail}
@@ -760,7 +750,7 @@ function FinanceKpiCards({ data }: { data: KpiPageData }) {
 					</p>
 				);
 			}
-		} else if (key === "wellhub_revenue") {
+		} else if (key === "wellhub_revenue" || key === "totalpass_revenue") {
 			if (revenueTotal != null && revenueTotal > 0 && current != null) {
 				const pct = ((current / revenueTotal) * 100)
 					.toFixed(1)
@@ -782,12 +772,9 @@ function FinanceKpiCards({ data }: { data: KpiPageData }) {
 			deltaBlock = (
 				<div className={styles.kpiSub}>
 					{delta.pill ? (
-						<>
-							<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
-								{delta.pill}
-							</span>
-							{delta.tail}
-						</>
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
 					) : (
 						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
 							{delta.tail}
