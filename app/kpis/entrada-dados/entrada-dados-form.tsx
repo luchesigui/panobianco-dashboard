@@ -26,6 +26,7 @@ import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-
 import { recomputeWeeklyTotals } from "@/lib/data/sales-marketing-payload-merge";
 import { mapRevenueGroupsToCodes } from "@/lib/data/revenue-mapping";
 import { slugifyExpenseCode } from "@/lib/data/expense-mapping";
+import { useKpiPeriodStore } from "@/lib/stores/kpi-period-store";
 import { Lock, LockOpen, Upload } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Fragment, useMemo, useState } from "react";
@@ -95,7 +96,7 @@ const EXPENSE_LABEL_MAP: Record<string, string> = {
 };
 
 function titleFromExpenseCode(code: string): string {
-  if (code in EXPENSE_LABEL_MAP) return EXPENSE_LABEL_MAP[code]!;
+  if (code in EXPENSE_LABEL_MAP) return EXPENSE_LABEL_MAP[code] ?? code;
   const raw = code
     .replace(/^expense_/, "")
     .replace(/_/g, " ")
@@ -246,7 +247,8 @@ function assembleSmPayload(
   const sch = parsePtBrNumber(funnel.scheduled.value) ?? 0;
   const pres = parsePtBrNumber(funnel.present.value) ?? 0;
   const clo = parsePtBrNumber(funnel.closings.value) ?? 0;
-  const conv = pres > 0 ? Math.round((clo / pres) * 100 * 10) / 10 : 0;
+  const conv =
+    sch > 0 ? Math.round((clo / sch) * 100 * 10) / 10 : 0;
   out.funnel.scheduled = { value: sch, subtext: "—" };
   out.funnel.present = { value: pres, subtext: "—" };
   out.funnel.closings = { value: clo, subtext: "—" };
@@ -365,6 +367,7 @@ export function EntradaDadosForm({
   initialConsultoras,
 }: Props) {
   const router = useRouter();
+  const setSelectedMonth = useKpiPeriodStore((s) => s.setSelectedMonth);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const [kpiSaving, setKpiSaving] = useState(false);
   const [smSaving, setSmSaving] = useState(false);
@@ -383,11 +386,9 @@ export function EntradaDadosForm({
   const gymSlug = initialGymSlug;
   const monthValue = initialPeriodId.slice(0, 7);
 
-  const navigateTo = (gym: string, month: string) => {
+  const navigateTo = (_gym: string, month: string) => {
     const p = month.length === 7 ? `${month}-01` : month;
-    router.push(
-      `/kpis/entrada-dados?gym=${encodeURIComponent(gym)}&month=${encodeURIComponent(p)}`,
-    );
+    setSelectedMonth(p.slice(0, 7));
   };
 
   const [kpiInputs, setKpiInputs] = useState<Record<string, string>>(() => {

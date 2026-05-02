@@ -1,6 +1,6 @@
 import { loadEntradaPageData } from "@/lib/data/entrada-load";
 import { loadConsultorasAction } from "@/app/kpis/configuracoes/actions";
-import { EntradaDadosForm } from "./entrada-dados-form";
+import { EntradaDadosClient } from "./entrada-dados-client";
 
 export const dynamic = "force-dynamic";
 
@@ -9,13 +9,9 @@ function firstParam(v: string | string[] | undefined): string | undefined {
   return Array.isArray(v) ? v[0] : v;
 }
 
-function normalizeMonth(m: string | undefined): string {
+function currentMonthPeriodId(): string {
   const now = new Date();
-  const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
-  if (!m) return currentMonth;
-  if (/^\d{4}-\d{2}$/.test(m)) return `${m}-01`;
-  if (/^\d{4}-\d{2}-\d{2}$/.test(m)) return m;
-  return currentMonth;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
 }
 
 type Props = {
@@ -25,7 +21,7 @@ type Props = {
 export default async function EntradaDadosPage({ searchParams }: Props) {
   const sp = searchParams ? await searchParams : {};
   const gymSlug = firstParam(sp.gym) ?? "panobianco-sjc-satelite";
-  const periodId = normalizeMonth(firstParam(sp.month));
+  const periodId = currentMonthPeriodId();
 
   const [data, consultoras] = await Promise.all([
     loadEntradaPageData(gymSlug, periodId),
@@ -33,15 +29,14 @@ export default async function EntradaDadosPage({ searchParams }: Props) {
   ]);
 
   return (
-    <EntradaDadosForm
-      key={`${gymSlug}-${periodId}`}
+    <EntradaDadosClient
       gyms={data.gyms}
-      initialGymSlug={gymSlug}
-      initialPeriodId={periodId}
-      initialKpiValues={data.kpiValues}
-      initialMetaByCode={data.metaByCode}
-      initialSmPayload={data.smPayload}
-      initialConsultoras={consultoras}
+      gymSlug={gymSlug}
+      serverPeriodId={periodId}
+      serverKpiValues={data.kpiValues}
+      serverMetaByCode={data.metaByCode}
+      serverSmPayload={data.smPayload}
+      consultoras={consultoras}
     />
   );
 }

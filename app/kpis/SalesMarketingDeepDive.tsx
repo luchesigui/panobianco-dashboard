@@ -23,6 +23,12 @@ function padWeeks<T>(arr: Array<T | null | undefined>, n: number): Array<T | nul
   return out;
 }
 
+function padWeekSourceLabels(labels: string[], n: number, fallback: string): string[] {
+  const out = labels.slice();
+  while (out.length < n) out.push(fallback);
+  return out.slice(0, n);
+}
+
 function fmtCell(
   v: number | null | undefined,
   mode: "int" | "decimal1" | "intCompact",
@@ -41,16 +47,16 @@ export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, 
   const p = dashboard.payload;
   if (!p) return null;
 
-  const isCurrentMonthPayload = dashboard.isCurrentMonthPayload;
-  const payloadPeriodLabel = dashboard.payloadPeriodLabel;
-  const weekMonthSuffix =
-    !isCurrentMonthPayload && payloadPeriodLabel
-      ? payloadPeriodLabel.slice(0, 3).toLowerCase()
-      : null;
+  const calendarCurrentShort = dashboard.calendarCurrentMonthLabel;
 
   const w = p.weekly;
   const weeks = w.weekHeaders;
   const n = weeks.length;
+  const weekSources = padWeekSourceLabels(
+    dashboard.weekSourcePeriod,
+    n,
+    calendarCurrentShort,
+  );
 
   const mk = w.marketing;
   const reachW = padWeeks(mk.reach, n);
@@ -87,6 +93,9 @@ export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, 
       ? `${Math.round((closings / present) * 100)}% dos presentes`
       : null;
 
+  const globalConversionPct =
+    scheduled > 0 ? Math.round((closings / scheduled) * 100) : null;
+
   const funnelSteps = [
     {
       label: "Agendadas",
@@ -111,10 +120,12 @@ export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, 
     },
     {
       label: "Conversão",
-      value: p.funnel.conversion.isPercent
-        ? `${p.funnel.conversion.value}%`
-        : String(p.funnel.conversion.value),
-      sub: "dos presentes",
+      value:
+        globalConversionPct != null ? `${globalConversionPct}%` : "—",
+      sub:
+        scheduled > 0
+          ? `${closings.toLocaleString("pt-BR")} de ${scheduled.toLocaleString("pt-BR")} agendados`
+          : null,
       bg: "#EAF3DE",
       fg: "#639922",
     },
@@ -201,19 +212,30 @@ export function SalesMarketingDeepDive({ dashboard, leadsGenerated, salesTotal, 
       <h3 className={styles.sectionLabel}>
         Visão semanal — vendas e marketing (dom a sáb)
       </h3>
+      <p className={styles.weekPeriodHint}>
+        O sufixo entre parênteses no cabeçalho marca colunas cujos valores vêm do{" "}
+        <strong>mês anterior ao atual no calendário</strong> (não do mês atual).
+      </p>
       <div className={`${styles.chartCard} ${styles.chartCardTable}`}>
         <table className={styles.weekTable}>
           <thead>
             <tr>
               <th className={styles.thLabel} />
-              {weeks.map((h) => (
-                <th key={h}>
-                  {h}
-                  {weekMonthSuffix ? (
-                    <span className={styles.weekMonthSuffix}> ({weekMonthSuffix})</span>
-                  ) : null}
-                </th>
-              ))}
+              {weeks.map((h, i) => {
+                const colPeriod = weekSources[i] ?? calendarCurrentShort;
+                const suffix =
+                  colPeriod !== calendarCurrentShort
+                    ? colPeriod.slice(0, 3).toLowerCase()
+                    : null;
+                return (
+                  <th key={h}>
+                    {h}
+                    {suffix ? (
+                      <span className={styles.weekMonthSuffix}> ({suffix})</span>
+                    ) : null}
+                  </th>
+                );
+              })}
               <th>Total</th>
             </tr>
           </thead>

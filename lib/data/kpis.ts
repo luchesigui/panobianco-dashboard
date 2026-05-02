@@ -3,7 +3,11 @@ import {
 	applyRoiPageFallbacks,
 	type RoiChartPayload,
 } from "@/lib/data/roi-fallbacks";
-import { normalizeSmPayloadWeeks } from "@/lib/data/sales-marketing-payload-merge";
+import {
+	isExperimentalFunnelEmpty,
+	mergeSmWeeklyWithPeriodSource,
+	normalizeSmPayloadWeeks,
+} from "@/lib/data/sales-marketing-payload-merge";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type {
 	MonthlySalesBar,
@@ -112,8 +116,14 @@ export type KpiPageData = {
 		payload: SalesMarketingDashboardPayload | null;
 		monthlySalesChart: MonthlySalesBar[];
 		salesTarget: number;
-		isCurrentMonthPayload: boolean;
-		payloadPeriodLabel: string | null;
+		/** Short label for the primary SM month, e.g. "Mai/26". */
+		primaryPeriodLabel: string;
+		/** Comparison month for deltas (previous calendar month in the chosen window), e.g. "Abr/26". */
+		comparisonPeriodLabel: string | null;
+		/** Per-week source label (same format as primaryPeriodLabel). */
+		weekSourcePeriod: string[];
+		/** Rótulo curto do mês corrente no calendário — colunas semanais sem sufixo são deste mês. */
+		calendarCurrentMonthLabel: string;
 	};
 	financeCharts: FinanceChartPayload;
 	nextMonthForecast: NextMonthForecastPayload;
@@ -430,7 +440,6 @@ export async function getKpiPageData(
 		.eq("slug", gymSlug)
 		.single();
 
-	console.log("gym", gym);
 	if (gymError || !gym)
 		throw new Error(`Gym load failed: ${gymError?.message}`);
 
@@ -470,7 +479,7 @@ export async function getKpiPageData(
 				.from("sales_marketing_dashboard_payload")
 				.select("period_id,payload")
 				.eq("gym_id", gym.id)
-				.in("period_id", [currentMonthPeriod, prevMonthPeriod]),
+				.in("period_id", fetchPeriodIds),
 			supabase
 				.from("kpi_values")
 				.select("period_id,kpi_definition_id,value_numeric")
@@ -499,16 +508,26 @@ export async function getKpiPageData(
 	if (settingsRes.error)
 		throw new Error(`Gym settings load failed: ${settingsRes.error.message}`);
 
-	// Resolve kpiDataPeriod: use current month if it has data, otherwise fall back to previous month
-	const hasCurrentMonthData = (valuesRes.data ?? []).some(
-		(r) => normalizePeriodId(r.period_id) === currentMonthPeriod,
+	const smRows = dashboardRes.data ?? [];
+	const smByPeriod = new Map(
+		smRows.map((r) => [normalizePeriodId(r.period_id), r] as const),
 	);
-	const kpiDataPeriod = hasCurrentMonthData
-		? currentMonthPeriod
-		: prevMonthPeriod;
-	const previousPeriod = hasCurrentMonthData
-		? prevMonthPeriod
-		: prev2MonthPeriod;
+
+	const toSmPayload = (raw: unknown): SalesMarketingDashboardPayload | null =>
+		raw && typeof raw === "object" && !Array.isArray(raw)
+			? (raw as SalesMarketingDashboardPayload)
+			: null;
+
+	const smCurrentPayload = toSmPayload(smByPeriod.get(currentMonthPeriod)?.payload);
+	const smPrevPayload = toSmPayload(smByPeriod.get(prevMonthPeriod)?.payload);
+	const smPrev2Payload = toSmPayload(smByPeriod.get(prev2MonthPeriod)?.payload);
+
+	const hasCurrentMonthData =
+		smCurrentPayload != null &&
+		!isExperimentalFunnelEmpty(smCurrentPayload.funnel);
+
+	const kpiDataPeriod = hasCurrentMonthData ? currentMonthPeriod : prevMonthPeriod;
+	const previousPeriod = hasCurrentMonthData ? prevMonthPeriod : prev2MonthPeriod;
 	const thirdPeriod = hasCurrentMonthData ? prev2MonthPeriod : prev3MonthPeriod;
 
 	// Load insights for the resolved period (separate query after resolution)
@@ -637,16 +656,6 @@ export async function getKpiPageData(
 		});
 	}
 
-	const smRows = dashboardRes.data ?? [];
-	const smRow =
-		smRows.find((r) => normalizePeriodId(r.period_id) === currentMonthPeriod) ??
-		smRows.find((r) => normalizePeriodId(r.period_id) === prevMonthPeriod);
-	const smPayloadFromCurrentMonth =
-		smRow != null && normalizePeriodId(smRow.period_id) === smPayloadPeriod;
-	const smPayloadPeriodLabel = smRow
-		? toLongLabel(normalizePeriodId(smRow.period_id))
-		: null;
-	const rawPayload = smRow?.payload;
 	const settingsMap = new Map(
 		(settingsRes.data ?? []).map((r) => [r.key as string, r.value as string]),
 	);
@@ -655,15 +664,52 @@ export async function getKpiPageData(
 		configuredTotalInvestedRaw != null
 			? Number(configuredTotalInvestedRaw)
 			: Number.NaN;
+
+	/** Janela mensal (KPIs / funil / recepção): atual+anterior ou anterior+M−2. */
+	const smMonthlyPayload = hasCurrentMonthData ? smCurrentPayload : smPrevPayload;
+	const smComparisonPayload = hasCurrentMonthData ? smPrevPayload : smPrev2Payload;
+	const smPrimaryPeriod = hasCurrentMonthData ? currentMonthPeriod : prevMonthPeriod;
+	const smComparisonPeriod = hasCurrentMonthData ? prevMonthPeriod : prev2MonthPeriod;
+
+	/** Grade semanal: sempre calendário mês corrente × mês anterior (parcial por coluna). */
+	let smDashboardPayload: SalesMarketingDashboardPayload | null = null;
+	let weekSourcePeriod: string[] = [];
+
+	if (smCurrentPayload || smPrevPayload) {
+		const { merged, weekSourcePeriodId } = mergeSmWeeklyWithPeriodSource(
+			smCurrentPayload,
+			smPrevPayload,
+			currentMonthPeriod,
+			smPrevPayload ? prevMonthPeriod : null,
+		);
+		smDashboardPayload = merged;
+		weekSourcePeriod = weekSourcePeriodId.map((id) => toLabel(id));
+	}
+
+	if (smDashboardPayload && smMonthlyPayload) {
+		const monthly = normalizeSmPayloadWeeks(structuredClone(smMonthlyPayload));
+		smDashboardPayload.funnel = structuredClone(monthly.funnel);
+		if (monthly.salesComposition) {
+			smDashboardPayload.salesComposition = structuredClone(monthly.salesComposition);
+		} else {
+			delete smDashboardPayload.salesComposition;
+		}
+		smDashboardPayload.receptionists = structuredClone(monthly.receptionists);
+		smDashboardPayload.receptionistsPeriodLabel = monthly.receptionistsPeriodLabel;
+	}
+
+	const primaryPeriodLabel = toLabel(smPrimaryPeriod);
+	const comparisonPeriodLabel =
+		smComparisonPayload != null ? toLabel(smComparisonPeriod) : null;
+
 	const salesMarketingDashboard = {
-		payload:
-			rawPayload && typeof rawPayload === "object" && !Array.isArray(rawPayload)
-				? normalizeSmPayloadWeeks(rawPayload as SalesMarketingDashboardPayload)
-				: null,
+		payload: smDashboardPayload,
 		monthlySalesChart,
 		salesTarget: 150,
-		isCurrentMonthPayload: smPayloadFromCurrentMonth,
-		payloadPeriodLabel: smPayloadPeriodLabel,
+		primaryPeriodLabel,
+		comparisonPeriodLabel,
+		weekSourcePeriod,
+		calendarCurrentMonthLabel: toLabel(currentMonthPeriod),
 	};
 	const current: KpiMap = {};
 	const previous: KpiMap = {};

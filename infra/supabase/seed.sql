@@ -308,7 +308,7 @@ select
     "scheduled": { "value": 93, "subtext": "de 339 leads" },
     "present": { "value": 22, "subtext": "24%" },
     "closings": { "value": 17, "subtext": "77%" },
-    "conversion": { "value": 77, "subtext": "dos presentes", "isPercent": true }
+    "conversion": { "value": 18.3, "subtext": "dos agendados", "isPercent": true }
   },
   "weekly": {
     "weekHeaders": ["S1", "S2", "S3", "S4"],

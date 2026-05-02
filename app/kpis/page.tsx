@@ -1070,9 +1070,9 @@ function RetentionKpiCards({ data }: { data: KpiPageData }) {
 
 export default async function KpisPage() {
 	const data = await getKpiPageData();
-	const activeDataPeriodLabel = data.isCurrentMonthData
-		? data.currentMonthLabel
-		: data.currentPeriodLabel;
+	const smPrimaryShort = data.salesMarketingDashboard.primaryPeriodLabel;
+	const smComparisonShort =
+		data.salesMarketingDashboard.comparisonPeriodLabel;
 
 	return (
 		<div className={styles.page}>
@@ -1211,7 +1211,7 @@ export default async function KpisPage() {
 									: section.id === "forecast" && data.nextMonthForecast.hasData
 										? `Próximo: ${data.nextMonthForecast.nextPeriodLabel}`
 										: section.id === "sales_marketing"
-											? activeDataPeriodLabel
+											? smPrimaryShort
 											: data.currentPeriodLabel}
 							</span>
 						</div>
@@ -1236,6 +1236,9 @@ export default async function KpisPage() {
 									const shortVsLabel = abbreviatePeriodLabel(vsLabel);
 
 									if (section.id === "sales_marketing") {
+										const deltaVsLabel =
+											smComparisonShort ??
+											abbreviatePeriodLabel(vsLabel);
 										const metaObj = meta ?? {};
 										const deltaOpts =
 											card.key === "sales_total" &&
@@ -1248,7 +1251,7 @@ export default async function KpisPage() {
 										const delta = renderDelta(
 											current,
 											previous,
-											shortVsLabel,
+											deltaVsLabel,
 											deltaOpts,
 										);
 										const metaLines = salesMarketingMetaLines(

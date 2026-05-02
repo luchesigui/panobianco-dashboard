@@ -48,6 +48,23 @@ function padNullable(arr: Array<number | null | undefined>, n: number): Array<nu
   return out;
 }
 
+function funnelMetric(v: unknown): number {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+/** True when agendadas/presentes/fechamentos são todos zero (ou ausentes / não numéricos). */
+export function isExperimentalFunnelEmpty(
+  funnel: SalesMarketingDashboardPayload["funnel"] | null | undefined,
+): boolean {
+  if (!funnel?.scheduled || !funnel.present || !funnel.closings) return true;
+  return (
+    funnelMetric(funnel.scheduled.value) === 0 &&
+    funnelMetric(funnel.present.value) === 0 &&
+    funnelMetric(funnel.closings.value) === 0
+  );
+}
+
 /** Ensure a loaded payload always has exactly W (5) week columns. Safe to call on any payload. */
 export function normalizeSmPayloadWeeks(
   payload: SalesMarketingDashboardPayload,
@@ -69,6 +86,104 @@ export function normalizeSmPayloadWeeks(
     row.salesByWeek = padNullable(row.salesByWeek, W);
   }
   return payload;
+}
+
+function columnHasWeeklyData(
+  cw: SalesMarketingDashboardPayload["weekly"],
+  i: number,
+): boolean {
+  return (
+    cw.marketing.reach[i] != null ||
+    cw.marketing.frequency[i] != null ||
+    cw.marketing.views[i] != null ||
+    cw.marketing.followers[i] != null ||
+    cw.funnelWeekly.scheduled[i] != null ||
+    cw.funnelWeekly.attendance[i] != null ||
+    cw.funnelWeekly.closings[i] != null ||
+    cw.salesWeekly.totals[i] != null
+  );
+}
+
+/**
+ * Merge `primary` weekly columns with `fallback` where primary has no data in that week.
+ * Only touches weekly arrays; funnel/composition/receptionists are applied by the caller.
+ * Returns which calendar period id each week column came from (for UI pills).
+ */
+export function mergeSmWeeklyWithPeriodSource(
+  primary: SalesMarketingDashboardPayload | null | undefined,
+  fallback: SalesMarketingDashboardPayload | null | undefined,
+  primaryPeriodId: string,
+  fallbackPeriodId: string | null,
+): {
+  merged: SalesMarketingDashboardPayload;
+  weekSourcePeriodId: string[];
+} {
+  const fbId = fallbackPeriodId ?? primaryPeriodId;
+
+  if (!primary && !fallback) {
+    return {
+      merged: createDefaultSmPayload(""),
+      weekSourcePeriodId: Array.from({ length: W }, () => primaryPeriodId),
+    };
+  }
+  if (!primary && fallback) {
+    const merged = normalizeSmPayloadWeeks(structuredClone(fallback));
+    return {
+      merged,
+      weekSourcePeriodId: Array.from({ length: W }, () => fbId),
+    };
+  }
+  if (primary && !fallback) {
+    const merged = normalizeSmPayloadWeeks(structuredClone(primary));
+    return {
+      merged,
+      weekSourcePeriodId: Array.from({ length: W }, () => primaryPeriodId),
+    };
+  }
+
+  const c = normalizeSmPayloadWeeks(structuredClone(primary as SalesMarketingDashboardPayload));
+  const p = normalizeSmPayloadWeeks(structuredClone(fallback as SalesMarketingDashboardPayload));
+  const weekSourcePeriodId: string[] = [];
+
+  const cw = c.weekly;
+  const pw = p.weekly;
+
+  for (let i = 0; i < W; i++) {
+    const hasData = columnHasWeeklyData(cw, i);
+    weekSourcePeriodId.push(hasData ? primaryPeriodId : fbId);
+
+    if (!hasData) {
+      cw.marketing.reach[i] = pw.marketing.reach[i];
+      cw.marketing.frequency[i] = pw.marketing.frequency[i];
+      cw.marketing.views[i] = pw.marketing.views[i];
+      cw.marketing.followers[i] = pw.marketing.followers[i];
+      cw.funnelWeekly.scheduled[i] = pw.funnelWeekly.scheduled[i];
+      cw.funnelWeekly.attendance[i] = pw.funnelWeekly.attendance[i];
+      cw.funnelWeekly.closings[i] = pw.funnelWeekly.closings[i];
+      cw.salesWeekly.totals[i] = pw.salesWeekly.totals[i];
+
+      if (cw.salesWeekly.byReceptionist?.length) {
+        for (const row of cw.salesWeekly.byReceptionist) {
+          const prevRow = pw.salesWeekly.byReceptionist?.find((r) => r.name === row.name);
+          row.salesByWeek[i] = prevRow?.salesByWeek[i] ?? null;
+        }
+      } else if (pw.salesWeekly.byReceptionist?.length) {
+        cw.salesWeekly.byReceptionist = cw.salesWeekly.byReceptionist ?? [];
+        for (const prevRow of pw.salesWeekly.byReceptionist) {
+          let row = cw.salesWeekly.byReceptionist.find((r) => r.name === prevRow.name);
+          if (!row) {
+            row = { name: prevRow.name, salesByWeek: Array(W).fill(null), rowTotal: 0 };
+            cw.salesWeekly.byReceptionist.push(row);
+          }
+          row.salesByWeek[i] = prevRow.salesByWeek[i];
+        }
+      }
+    }
+  }
+
+  recomputeWeeklyTotals(cw);
+
+  return { merged: c, weekSourcePeriodId };
 }
 
 /** Default payload for a month when none exists yet (valid shape for UI + DB). */

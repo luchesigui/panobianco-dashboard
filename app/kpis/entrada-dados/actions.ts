@@ -2,12 +2,19 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { loadEntradaPageData } from "@/lib/data/entrada-load";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import { ALL_KPI_CODES_FOR_MONTH } from "@/lib/data/dashboard-input-requirements";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import { recomputeWeeklyTotals } from "@/lib/data/sales-marketing-payload-merge";
 
 const periodSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
+
+export async function loadEntradaPageDataAction(gymSlug: string, periodId: string) {
+  const parsed = periodSchema.safeParse(periodId);
+  if (!parsed.success) throw new Error("Período inválido.");
+  return loadEntradaPageData(gymSlug, parsed.data);
+}
 
 const saveMonthSchema = z.object({
   gymSlug: z.string().min(1),
