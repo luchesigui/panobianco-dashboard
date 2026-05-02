@@ -1,560 +1,3036 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Panobianco Jd. Satélite — Dashboard Estratégico</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#F7F6F3;--bg-card:#FFFFFF;--bg-elevated:#EEEDE8;--text-primary:#1A1A18;--text-secondary:#6B6A65;--text-tertiary:#9C9B96;--border:rgba(0,0,0,0.08);--border-strong:rgba(0,0,0,0.14);--accent:#0F6E56;--accent-light:#E1F5EE;--accent-dark:#085041;--coral:#D85A30;--coral-light:#FAECE7;--blue:#185FA5;--blue-light:#E6F1FB;--red:#A32D2D;--red-light:#FCEBEB;--amber:#854F0B;--amber-light:#FAEEDA;--purple:#534AB7;--purple-light:#EEEDFE;--radius:10px;--radius-lg:14px;--shadow-sm:0 1px 2px rgba(0,0,0,0.04);--shadow-card:0 1px 3px rgba(0,0,0,0.06),0 0 0 0.5px rgba(0,0,0,0.04);--shadow-md:0 4px 12px rgba(0,0,0,0.08);--font-body:'DM Sans',system-ui,sans-serif;--font-display:'Fraunces',Georgia,serif;--transition:0.2s cubic-bezier(0.4,0,0.2,1)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:var(--font-body);background:var(--bg);color:var(--text-primary);-webkit-font-smoothing:antialiased;min-height:100vh}
-.header{padding:2rem 2rem 0;max-width:1200px;margin:0 auto}
-.header-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:1.5rem}
-.brand{display:flex;align-items:center;gap:14px}
-.brand-icon{width:44px;height:44px;background:var(--accent);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:white;font-family:var(--font-display);font-size:20px;font-weight:600}
-.brand h1{font-family:var(--font-display);font-size:22px;font-weight:600;letter-spacing:-0.02em}
-.brand p{font-size:13px;color:var(--text-secondary);margin-top:2px}
-.month-selector{display:flex;align-items:center;gap:6px;background:var(--bg-card);border:0.5px solid var(--border-strong);border-radius:var(--radius);padding:6px 8px;box-shadow:var(--shadow-sm)}
-.month-selector label{font-size:12px;color:var(--text-secondary);font-weight:500}
-.month-selector select{font-family:var(--font-body);font-size:13px;font-weight:600;border:none;background:transparent;color:var(--text-primary);cursor:pointer;outline:none}
-.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);max-width:1200px;margin:0 auto;padding:0 2rem;overflow-x:auto}
-.tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition);user-select:none;white-space:nowrap}
-.tab:hover{color:var(--text-primary)}.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
-.tab-content{display:none}.tab-content.active{display:block}
-.content{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem}
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Panobianco Jd. Satélite — Dashboard Estratégico</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f7f6f3;
+        --bg-card: #ffffff;
+        --bg-elevated: #eeede8;
+        --text-primary: #1a1a18;
+        --text-secondary: #6b6a65;
+        --text-tertiary: #9c9b96;
+        --border: rgba(0, 0, 0, 0.08);
+        --border-strong: rgba(0, 0, 0, 0.14);
+        --accent: #0f6e56;
+        --accent-light: #e1f5ee;
+        --accent-dark: #085041;
+        --coral: #d85a30;
+        --coral-light: #faece7;
+        --blue: #185fa5;
+        --blue-light: #e6f1fb;
+        --red: #a32d2d;
+        --red-light: #fcebeb;
+        --amber: #854f0b;
+        --amber-light: #faeeda;
+        --purple: #534ab7;
+        --purple-light: #eeedfe;
+        --radius: 10px;
+        --radius-lg: 14px;
+        --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+        --shadow-card:
+          0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+        --font-body: "DM Sans", system-ui, sans-serif;
+        --font-display: "Fraunces", Georgia, serif;
+        --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: var(--font-body);
+        background: var(--bg);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        min-height: 100vh;
+      }
+      .header {
+        padding: 2rem 2rem 0;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      .header-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .brand-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--accent);
+        border-radius: var(--radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-family: var(--font-display);
+        font-size: 20px;
+        font-weight: 600;
+      }
+      .brand h1 {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .brand p {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+      }
+      .month-selector {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--bg-card);
+        border: 0.5px solid var(--border-strong);
+        border-radius: var(--radius);
+        padding: 6px 8px;
+        box-shadow: var(--shadow-sm);
+      }
+      .month-selector label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+      .month-selector select {
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+        background: transparent;
+        color: var(--text-primary);
+        cursor: pointer;
+        outline: none;
+      }
+      .tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid var(--border);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 2rem;
+        overflow-x: auto;
+      }
+      .tab {
+        padding: 10px 20px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        transition: var(--transition);
+        user-select: none;
+        white-space: nowrap;
+      }
+      .tab:hover {
+        color: var(--text-primary);
+      }
+      .tab.active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        font-weight: 600;
+      }
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+      }
+      .content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem 2rem 3rem;
+      }
 
-/* ===== THEME SECTIONS — visually distinct ===== */
-.theme-section{margin-bottom:2rem;padding:24px;border-radius:var(--radius-lg);position:relative}
-.theme-section--overview{background:linear-gradient(135deg,#f0f7f4 0%,#f7f6f3 60%);border:1px solid rgba(15,110,86,0.1)}
-.theme-section--vendas{background:linear-gradient(135deg,#edf3fa 0%,#f7f6f3 60%);border:1px solid rgba(24,95,165,0.1)}
-.theme-section--retencao{background:linear-gradient(135deg,#fdf1ec 0%,#f7f6f3 60%);border:1px solid rgba(216,90,48,0.1)}
-.theme-section--financeiro{background:linear-gradient(135deg,#f1eff8 0%,#f7f6f3 60%);border:1px solid rgba(83,74,183,0.1)}
+      /* ===== THEME SECTIONS — visually distinct ===== */
+      .theme-section {
+        margin-bottom: 2rem;
+        padding: 24px;
+        border-radius: var(--radius-lg);
+        position: relative;
+      }
+      .theme-section--overview {
+        background: linear-gradient(135deg, #f0f7f4 0%, #f7f6f3 60%);
+        border: 1px solid rgba(15, 110, 86, 0.1);
+      }
+      .theme-section--vendas {
+        background: linear-gradient(135deg, #edf3fa 0%, #f7f6f3 60%);
+        border: 1px solid rgba(24, 95, 165, 0.1);
+      }
+      .theme-section--retencao {
+        background: linear-gradient(135deg, #fdf1ec 0%, #f7f6f3 60%);
+        border: 1px solid rgba(216, 90, 48, 0.1);
+      }
+      .theme-section--financeiro {
+        background: linear-gradient(135deg, #f1eff8 0%, #f7f6f3 60%);
+        border: 1px solid rgba(83, 74, 183, 0.1);
+      }
 
-.theme-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.theme-header h2{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-0.01em}
-.theme-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white}
-.theme-badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;margin-left:auto}
+      .theme-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 16px;
+      }
+      .theme-header h2 {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+      .theme-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        color: white;
+      }
+      .theme-badge {
+        font-size: 10px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        margin-left: auto;
+      }
 
-.section-label{font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;margin-top:8px}
+      .section-label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 10px;
+        margin-top: 8px;
+      }
 
-/* ===== KPI CARDS ===== */
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:12px;margin-bottom:1rem}
-.kpi-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow-card);position:relative;overflow:hidden;transition:var(--transition)}
-.kpi-card:hover{transform:translateY(-1px);box-shadow:var(--shadow-md)}
-.kpi-label{font-size:12px;color:var(--text-secondary);font-weight:500;display:block;margin-bottom:6px}
-.kpi-value{font-family:var(--font-display);font-size:26px;font-weight:600;letter-spacing:-0.03em;line-height:1.1}
-.kpi-sub{font-size:11px;color:var(--text-secondary);margin-top:4px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.kpi-bar{position:absolute;bottom:0;left:0;right:0;height:3px}
-.kpi-delta{display:inline-flex;align-items:center;font-size:10px;font-weight:600;padding:2px 6px;border-radius:6px}
-.delta-up{background:var(--accent-light);color:var(--accent-dark)}.delta-down{background:var(--red-light);color:var(--red)}.delta-neutral{background:var(--bg-elevated);color:var(--text-secondary)}.delta-warn{background:var(--amber-light);color:var(--amber)}
-.sub-detail{font-size:11px;color:var(--text-tertiary);margin-top:3px;line-height:1.4}
+      /* ===== KPI CARDS ===== */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(165px, 1fr));
+        gap: 12px;
+        margin-bottom: 1rem;
+      }
+      .kpi-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 16px 18px;
+        box-shadow: var(--shadow-card);
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition);
+      }
+      .kpi-card:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+      }
+      .kpi-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+        font-weight: 500;
+        display: block;
+        margin-bottom: 6px;
+      }
+      .kpi-value {
+        font-family: var(--font-display);
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+      }
+      .kpi-sub {
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-top: 4px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+      }
+      .kpi-bar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
+      .kpi-delta {
+        display: inline-flex;
+        align-items: center;
+        font-size: 10px;
+        font-weight: 600;
+        padding: 2px 6px;
+        border-radius: 6px;
+      }
+      .delta-up {
+        background: var(--accent-light);
+        color: var(--accent-dark);
+      }
+      .delta-down {
+        background: var(--red-light);
+        color: var(--red);
+      }
+      .delta-neutral {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+      }
+      .delta-warn {
+        background: var(--amber-light);
+        color: var(--amber);
+      }
+      .sub-detail {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-top: 3px;
+        line-height: 1.4;
+      }
 
-/* ===== INSIGHT CARDS — prominent ===== */
-.insight-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:0;margin-bottom:1.5rem;box-shadow:var(--shadow-card);overflow:hidden}
-.insight-card-header{padding:10px 16px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;display:flex;align-items:center;gap:6px}
-.insight-card-header svg{width:14px;height:14px}
-.insight-card-body{padding:12px 16px 14px}
-.insight-item{display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12.5px;line-height:1.55;color:var(--text-secondary)}
-.insight-item:last-child{border-bottom:none;padding-bottom:0}
-.insight-icon{width:22px;height:22px;min-width:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px}
-.insight-icon--good{background:var(--accent-light);color:var(--accent-dark)}
-.insight-icon--bad{background:var(--red-light);color:var(--red)}
-.insight-icon--warn{background:var(--amber-light);color:var(--amber)}
-.insight-icon--info{background:var(--blue-light);color:var(--blue)}
-.insight-item strong{color:var(--text-primary);font-weight:600}
-.i-bad{color:var(--red);font-weight:600}.i-good{color:var(--accent);font-weight:600}.i-warn{color:var(--amber);font-weight:600}
+      /* ===== INSIGHT CARDS — prominent ===== */
+      .insight-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 0;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--shadow-card);
+        overflow: hidden;
+      }
+      .insight-card-header {
+        padding: 10px 16px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .insight-card-header svg {
+        width: 14px;
+        height: 14px;
+      }
+      .insight-card-body {
+        padding: 12px 16px 14px;
+      }
+      .insight-item {
+        display: flex;
+        gap: 10px;
+        padding: 8px 0;
+        border-bottom: 0.5px solid var(--border);
+        font-size: 12.5px;
+        line-height: 1.55;
+        color: var(--text-secondary);
+      }
+      .insight-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+      }
+      .insight-icon {
+        width: 22px;
+        height: 22px;
+        min-width: 22px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        margin-top: 1px;
+      }
+      .insight-icon--good {
+        background: var(--accent-light);
+        color: var(--accent-dark);
+      }
+      .insight-icon--bad {
+        background: var(--red-light);
+        color: var(--red);
+      }
+      .insight-icon--warn {
+        background: var(--amber-light);
+        color: var(--amber);
+      }
+      .insight-icon--info {
+        background: var(--blue-light);
+        color: var(--blue);
+      }
+      .insight-item strong {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .i-bad {
+        color: var(--red);
+        font-weight: 600;
+      }
+      .i-good {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .i-warn {
+        color: var(--amber);
+        font-weight: 600;
+      }
 
-/* ===== CHARTS & TABLES ===== */
-.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem}
-.chart-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-card)}
-.chart-card h3{font-size:13px;font-weight:600;margin-bottom:4px}
-.chart-sub{font-size:11px;color:var(--text-tertiary);margin-bottom:14px}
-.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--text-secondary);margin-bottom:10px}
-.legend-item{display:flex;align-items:center;gap:5px}.legend-dot{width:8px;height:8px;border-radius:2px}
+      /* ===== CHARTS & TABLES ===== */
+      .chart-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 1.5rem;
+      }
+      .chart-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        box-shadow: var(--shadow-card);
+      }
+      .chart-card h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .chart-sub {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 14px;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 11px;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 2px;
+      }
 
-/* Funnel */
-.funnel-row{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-bottom:1rem}
-.funnel-step{text-align:center;padding:14px 8px;border-radius:var(--radius);position:relative}
-.funnel-val{font-family:var(--font-display);font-size:22px;font-weight:600;display:block}
-.funnel-label{font-size:11px;font-weight:500;display:block;margin-bottom:4px}
-.funnel-rate{font-size:10px;margin-top:3px;display:block;opacity:0.7}
-.funnel-arrow{position:absolute;right:-9px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--text-tertiary);z-index:1}
+      /* Funnel */
+      .funnel-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 3px;
+        margin-bottom: 1rem;
+      }
+      .funnel-step {
+        text-align: center;
+        padding: 14px 8px;
+        border-radius: var(--radius);
+        position: relative;
+      }
+      .funnel-val {
+        font-family: var(--font-display);
+        font-size: 22px;
+        font-weight: 600;
+        display: block;
+      }
+      .funnel-label {
+        font-size: 11px;
+        font-weight: 500;
+        display: block;
+        margin-bottom: 4px;
+      }
+      .funnel-rate {
+        font-size: 10px;
+        margin-top: 3px;
+        display: block;
+        opacity: 0.7;
+      }
+      .funnel-arrow {
+        position: absolute;
+        right: -9px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 11px;
+        color: var(--text-tertiary);
+        z-index: 1;
+      }
 
-/* Sales composition */
-.sales-comp{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:1.5rem}
-.sales-comp-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow-card);display:flex;align-items:center;gap:14px}
-.sales-comp-val{font-family:var(--font-display);font-size:28px;font-weight:600;letter-spacing:-0.03em}
-.sales-comp-label{font-size:12px;color:var(--text-secondary)}
-.sales-comp-detail{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+      /* Sales composition */
+      .sales-comp {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 1.5rem;
+      }
+      .sales-comp-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 16px 18px;
+        box-shadow: var(--shadow-card);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .sales-comp-val {
+        font-family: var(--font-display);
+        font-size: 28px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      .sales-comp-label {
+        font-size: 12px;
+        color: var(--text-secondary);
+      }
+      .sales-comp-detail {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-top: 2px;
+      }
 
-.team-table{width:100%;border-collapse:collapse;font-size:13px}
-.team-table th{font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.06em;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border)}
-.team-table td{padding:10px 12px;border-bottom:0.5px solid var(--border)}.team-table tr:last-child td{border-bottom:none}
-.bar-cell{display:flex;align-items:center;gap:8px}.mini-bar{height:6px;border-radius:3px}
+      .team-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      .team-table th {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        text-align: left;
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .team-table td {
+        padding: 10px 12px;
+        border-bottom: 0.5px solid var(--border);
+      }
+      .team-table tr:last-child td {
+        border-bottom: none;
+      }
+      .bar-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .mini-bar {
+        height: 6px;
+        border-radius: 3px;
+      }
 
-/* Weekly table */
-.week-table{width:100%;border-collapse:collapse;font-size:12px}
-.week-table th{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.06em;padding:8px 10px;border-bottom:1px solid var(--border);text-align:center}
-.week-table th:first-child{text-align:left}
-.week-table td{padding:8px 10px;text-align:center;border-bottom:0.5px solid var(--border);font-variant-numeric:tabular-nums}
-.week-table td:first-child{text-align:left;color:var(--text-secondary);font-weight:500}
-.week-table td:last-child{font-weight:600;background:rgba(15,110,86,0.04)}
-.week-table tr:last-child td{border-bottom:none}
-.wk-group{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.08em;padding:12px 10px 4px;border-bottom:none}
+      /* Weekly table */
+      .week-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .week-table th {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 8px 10px;
+        border-bottom: 1px solid var(--border);
+        text-align: center;
+      }
+      .week-table th:first-child {
+        text-align: left;
+      }
+      .week-table td {
+        padding: 8px 10px;
+        text-align: center;
+        border-bottom: 0.5px solid var(--border);
+        font-variant-numeric: tabular-nums;
+      }
+      .week-table td:first-child {
+        text-align: left;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+      .week-table td:last-child {
+        font-weight: 600;
+        background: rgba(15, 110, 86, 0.04);
+      }
+      .week-table tr:last-child td {
+        border-bottom: none;
+      }
+      .wk-group {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 12px 10px 4px;
+        border-bottom: none;
+      }
 
-/* Other shared */
-.area-group{margin-bottom:1.5rem}.area-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.area-header h3{font-size:14px;font-weight:600}.area-count{font-size:11px;color:var(--text-tertiary);background:var(--bg-elevated);padding:2px 8px;border-radius:10px}
-.action-row{display:grid;grid-template-columns:40px 1fr 100px 90px;align-items:center;gap:8px;padding:8px 12px;border-radius:var(--radius);transition:var(--transition);font-size:13px}
-.action-row:hover{background:var(--bg-elevated)}.action-id{font-size:12px;font-weight:600;color:var(--text-tertiary)}.action-owner{font-size:11px;color:var(--text-secondary);text-align:right}
-.status-badge{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;text-align:center;white-space:nowrap}
-.status-done{background:var(--accent-light);color:var(--accent-dark)}.status-progress{background:var(--blue-light);color:var(--blue)}.status-blocked{background:var(--amber-light);color:var(--amber)}.status-pending{background:var(--bg-elevated);color:var(--text-secondary)}
-.summary-strip{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:1.5rem;padding:14px 18px;background:var(--bg-card);border-radius:var(--radius-lg);box-shadow:var(--shadow-card)}
-.summary-item{display:flex;flex-direction:column;gap:2px}.s-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-tertiary)}.s-value{font-family:var(--font-display);font-size:18px;font-weight:600;letter-spacing:-0.02em}
-.proj-highlight{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:2rem}
-.proj-card{border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-card)}.proj-card h4{font-size:12px;font-weight:600;margin-bottom:4px}.proj-val{font-family:var(--font-display);font-size:32px;font-weight:600;letter-spacing:-0.03em}.proj-sub{font-size:12px;margin-top:2px}
-.evo-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:2rem}
-.evo-card{background:var(--bg-card);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-card)}.evo-card-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}.evo-card-header h3{font-size:14px;font-weight:600}.evo-current{text-align:right}.evo-val{font-family:var(--font-display);font-size:24px;font-weight:600;letter-spacing:-0.02em}.evo-sub-text{font-size:11px;color:var(--text-tertiary)}.evo-meta{font-size:11px;color:var(--text-tertiary);margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}.evo-target{display:inline-flex;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:600}
-.hist-table{width:100%;border-collapse:collapse;font-size:12px}.hist-table th{font-size:10px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.06em;text-align:right;padding:6px 8px;border-bottom:1px solid var(--border)}.hist-table th:first-child{text-align:left}.hist-table td{padding:6px 8px;text-align:right;border-bottom:0.5px solid var(--border);font-variant-numeric:tabular-nums}.hist-table td:first-child{text-align:left;color:var(--text-secondary);font-weight:500}.hist-table tr:last-child td{font-weight:600;border-bottom:none}
-.cell-pos{color:var(--accent)}.cell-neg{color:var(--red)}.cell-warn{color:var(--amber)}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.animate-in{animation:fadeUp 0.4s ease both}
-.animate-in:nth-child(1){animation-delay:.04s}.animate-in:nth-child(2){animation-delay:.08s}.animate-in:nth-child(3){animation-delay:.12s}.animate-in:nth-child(4){animation-delay:.16s}.animate-in:nth-child(5){animation-delay:.2s}.animate-in:nth-child(6){animation-delay:.24s}
-@media(max-width:768px){.chart-row,.evo-row,.proj-highlight,.sales-comp{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}.header,.tabs,.content{padding-left:1rem;padding-right:1rem}.funnel-row{grid-template-columns:repeat(2,1fr)}.action-row{grid-template-columns:36px 1fr 80px}.action-owner{display:none}.theme-section{padding:16px}}
-</style>
-</head>
-<body>
-<div class="header"><div class="header-top"><div class="brand"><div class="brand-icon">P</div><div><h1>Dashboard estratégico</h1><p>Panobianco Jd. Satélite &mdash; São José dos Campos</p></div></div><div class="month-selector"><label>Período:</label><select id="monthSelect"><option value="feb">Fev/26 (baseline)</option><option value="mar" selected>Mar/26 — mês 1</option></select></div></div></div>
-<div class="tabs"><div class="tab active" data-tab="kpis">KPIs</div><div class="tab" data-tab="evolucao">Evolução</div><div class="tab" data-tab="acoes">Ações</div><div class="tab" data-tab="projecao">Projeção</div></div>
-<div class="content">
-
-<!-- ================================================================ -->
-<!-- TAB KPIs                                                         -->
-<!-- ================================================================ -->
-<div class="tab-content active" id="tab-kpis">
-
-  <!-- ===== VISÃO GERAL ===== -->
-  <div class="theme-section theme-section--overview">
-    <div class="theme-header"><div class="theme-icon" style="background:var(--accent);">VG</div><h2>Visão geral</h2><span class="theme-badge" style="background:var(--accent-light);color:var(--accent-dark);">Mar/26</span></div>
-    <div class="kpi-grid" id="kpiOverview"></div>
-    <div class="insight-card" id="insightOverview"></div>
-  </div>
-
-  <!-- ===== VENDAS E MARKETING ===== -->
-  <div class="theme-section theme-section--vendas">
-    <div class="theme-header"><div class="theme-icon" style="background:var(--blue);">VM</div><h2>Vendas e marketing</h2><span class="theme-badge" style="background:var(--blue-light);color:var(--blue);">Mar/26</span></div>
-    <div class="kpi-grid" id="kpiVendas"></div>
-    <div class="insight-card" id="insightVendas"></div>
-
-    <div class="section-label">Composição das vendas</div>
-    <div class="sales-comp" id="salesComp"></div>
-
-    <div class="section-label">Funil de aula experimental</div>
-    <div class="funnel-row" id="funnelRow"></div>
-
-    <div class="section-label">Visão semanal — vendas e marketing (dom a sáb)</div>
-    <div class="chart-card" style="margin-bottom:1.5rem;overflow-x:auto;"><table class="week-table" id="weeklyTable"></table></div>
-
-    <div class="chart-row">
-      <div class="chart-card"><h3>Performance por recepcionista</h3><p class="chart-sub">Conversão leads → vendas — Mar/26</p><table class="team-table"><thead><tr><th>Nome</th><th>Leads</th><th>Vendas</th><th style="width:40%;">Conversão</th></tr></thead><tbody id="teamBody"></tbody></table></div>
-      <div class="chart-card"><h3>Vendas mensais</h3><p class="chart-sub">Novos alunos por mês</p><div style="position:relative;height:220px;"><canvas id="chartVendasHist"></canvas></div></div>
+      /* Other shared */
+      .area-group {
+        margin-bottom: 1.5rem;
+      }
+      .area-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .area-header h3 {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .area-count {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        background: var(--bg-elevated);
+        padding: 2px 8px;
+        border-radius: 10px;
+      }
+      .action-row {
+        display: grid;
+        grid-template-columns: 40px 1fr 100px 90px;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-radius: var(--radius);
+        transition: var(--transition);
+        font-size: 13px;
+      }
+      .action-row:hover {
+        background: var(--bg-elevated);
+      }
+      .action-id {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+      }
+      .action-owner {
+        font-size: 11px;
+        color: var(--text-secondary);
+        text-align: right;
+      }
+      .status-badge {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: 20px;
+        text-align: center;
+        white-space: nowrap;
+      }
+      .status-done {
+        background: var(--accent-light);
+        color: var(--accent-dark);
+      }
+      .status-progress {
+        background: var(--blue-light);
+        color: var(--blue);
+      }
+      .status-blocked {
+        background: var(--amber-light);
+        color: var(--amber);
+      }
+      .status-pending {
+        background: var(--bg-elevated);
+        color: var(--text-secondary);
+      }
+      .summary-strip {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 1.5rem;
+        padding: 14px 18px;
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-card);
+      }
+      .summary-item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .s-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-tertiary);
+      }
+      .s-value {
+        font-family: var(--font-display);
+        font-size: 18px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .proj-highlight {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 2rem;
+      }
+      .proj-card {
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        box-shadow: var(--shadow-card);
+      }
+      .proj-card h4 {
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+      .proj-val {
+        font-family: var(--font-display);
+        font-size: 32px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      .proj-sub {
+        font-size: 12px;
+        margin-top: 2px;
+      }
+      .evo-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 2rem;
+      }
+      .evo-card {
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
+        padding: 20px;
+        box-shadow: var(--shadow-card);
+      }
+      .evo-card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      .evo-card-header h3 {
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .evo-current {
+        text-align: right;
+      }
+      .evo-val {
+        font-family: var(--font-display);
+        font-size: 24px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .evo-sub-text {
+        font-size: 11px;
+        color: var(--text-tertiary);
+      }
+      .evo-meta {
+        font-size: 11px;
+        color: var(--text-tertiary);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .evo-target {
+        display: inline-flex;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .hist-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      .hist-table th {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        text-align: right;
+        padding: 6px 8px;
+        border-bottom: 1px solid var(--border);
+      }
+      .hist-table th:first-child {
+        text-align: left;
+      }
+      .hist-table td {
+        padding: 6px 8px;
+        text-align: right;
+        border-bottom: 0.5px solid var(--border);
+        font-variant-numeric: tabular-nums;
+      }
+      .hist-table td:first-child {
+        text-align: left;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+      .hist-table tr:last-child td {
+        font-weight: 600;
+        border-bottom: none;
+      }
+      .cell-pos {
+        color: var(--accent);
+      }
+      .cell-neg {
+        color: var(--red);
+      }
+      .cell-warn {
+        color: var(--amber);
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-in {
+        animation: fadeUp 0.4s ease both;
+      }
+      .animate-in:nth-child(1) {
+        animation-delay: 0.04s;
+      }
+      .animate-in:nth-child(2) {
+        animation-delay: 0.08s;
+      }
+      .animate-in:nth-child(3) {
+        animation-delay: 0.12s;
+      }
+      .animate-in:nth-child(4) {
+        animation-delay: 0.16s;
+      }
+      .animate-in:nth-child(5) {
+        animation-delay: 0.2s;
+      }
+      .animate-in:nth-child(6) {
+        animation-delay: 0.24s;
+      }
+      @media (max-width: 768px) {
+        .chart-row,
+        .evo-row,
+        .proj-highlight,
+        .sales-comp {
+          grid-template-columns: 1fr;
+        }
+        .kpi-grid {
+          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        }
+        .header,
+        .tabs,
+        .content {
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        .funnel-row {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .action-row {
+          grid-template-columns: 36px 1fr 80px;
+        }
+        .action-owner {
+          display: none;
+        }
+        .theme-section {
+          padding: 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-top">
+        <div class="brand">
+          <div class="brand-icon">P</div>
+          <div>
+            <h1>Dashboard estratégico</h1>
+            <p>Panobianco Jd. Satélite &mdash; São José dos Campos</p>
+          </div>
+        </div>
+        <div class="month-selector">
+          <label>Período:</label
+          ><select id="monthSelect">
+            <option value="feb">Fev/26 (baseline)</option>
+            <option value="mar" selected>Mar/26 — mês 1</option>
+          </select>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <!-- ===== RETENÇÃO ===== -->
-  <div class="theme-section theme-section--retencao">
-    <div class="theme-header"><div class="theme-icon" style="background:var(--coral);">R</div><h2>Retenção</h2><span class="theme-badge" style="background:var(--coral-light);color:var(--coral);">Mar/26</span></div>
-    <div class="kpi-grid" id="kpiRetencao"></div>
-    <div class="insight-card" id="insightRetencao"></div>
-    <div class="chart-row">
-      <div class="chart-card"><h3>Evolução da base de alunos</h3><p class="chart-sub">Histórico + projeção com ações</p><div class="legend" id="legendBase"></div><div style="position:relative;height:240px;"><canvas id="chartBase"></canvas></div></div>
-      <div class="chart-card"><h3>Inadimplência — março/26 (parcial)</h3><p class="chart-sub">232 registros no mês</p><div style="position:relative;height:220px;"><canvas id="chartInad"></canvas></div><div class="legend" id="legendInad" style="margin-top:10px;"></div></div>
+    <div class="tabs">
+      <div class="tab active" data-tab="kpis">KPIs</div>
+      <div class="tab" data-tab="evolucao">Evolução</div>
+      <div class="tab" data-tab="acoes">Ações</div>
+      <div class="tab" data-tab="projecao">Projeção</div>
     </div>
-  </div>
+    <div class="content">
+      <!-- ================================================================ -->
+      <!-- TAB KPIs                                                         -->
+      <!-- ================================================================ -->
+      <div class="tab-content active" id="tab-kpis">
+        <!-- ===== VISÃO GERAL ===== -->
+        <div class="theme-section theme-section--overview">
+          <div class="theme-header">
+            <div class="theme-icon" style="background: var(--accent)">VG</div>
+            <h2>Visão geral</h2>
+            <span
+              class="theme-badge"
+              style="background: var(--accent-light); color: var(--accent-dark)"
+              >Mar/26</span
+            >
+          </div>
+          <div class="kpi-grid" id="kpiOverview"></div>
+          <div class="insight-card" id="insightOverview"></div>
+        </div>
 
-  <!-- ===== FINANCEIRO ===== -->
-  <div class="theme-section theme-section--financeiro">
-    <div class="theme-header"><div class="theme-icon" style="background:var(--purple);">F</div><h2>Financeiro</h2><span class="theme-badge" style="background:var(--purple-light);color:var(--purple);">Mar/26</span></div>
-    <div class="kpi-grid" id="kpiFinanceiro"></div>
-    <div class="insight-card" id="insightFinanceiro"></div>
-    <div class="chart-row">
-      <div class="chart-card"><h3>Receita operacional mensal</h3><p class="chart-sub">Composição por fonte</p><div class="legend" id="legendReceita"></div><div style="position:relative;height:240px;"><canvas id="chartReceita"></canvas></div></div>
-      <div class="chart-card"><h3>Resultado operacional mensal</h3><p class="chart-sub">Receita - despesas (sem impostos, sem aportes)</p><div style="position:relative;height:240px;"><canvas id="chartResultado"></canvas></div></div>
+        <!-- ===== VENDAS E MARKETING ===== -->
+        <div class="theme-section theme-section--vendas">
+          <div class="theme-header">
+            <div class="theme-icon" style="background: var(--blue)">VM</div>
+            <h2>Vendas e marketing</h2>
+            <span
+              class="theme-badge"
+              style="background: var(--blue-light); color: var(--blue)"
+              >Mar/26</span
+            >
+          </div>
+          <div class="kpi-grid" id="kpiVendas"></div>
+          <div class="insight-card" id="insightVendas"></div>
+
+          <div class="section-label">Composição das vendas</div>
+          <div class="sales-comp" id="salesComp"></div>
+
+          <div class="section-label">Funil de aula experimental</div>
+          <div class="funnel-row" id="funnelRow"></div>
+
+          <div class="section-label">
+            Visão semanal — vendas e marketing (dom a sáb)
+          </div>
+          <div
+            class="chart-card"
+            style="margin-bottom: 1.5rem; overflow-x: auto"
+          >
+            <table class="week-table" id="weeklyTable"></table>
+          </div>
+
+          <div class="chart-row">
+            <div class="chart-card">
+              <h3>Performance por recepcionista</h3>
+              <p class="chart-sub">Conversão leads → vendas — Mar/26</p>
+              <table class="team-table">
+                <thead>
+                  <tr>
+                    <th>Nome</th>
+                    <th>Leads</th>
+                    <th>Vendas</th>
+                    <th style="width: 40%">Conversão</th>
+                  </tr>
+                </thead>
+                <tbody id="teamBody"></tbody>
+              </table>
+            </div>
+            <div class="chart-card">
+              <h3>Vendas mensais</h3>
+              <p class="chart-sub">Novos alunos por mês</p>
+              <div style="position: relative; height: 220px">
+                <canvas id="chartVendasHist"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== RETENÇÃO ===== -->
+        <div class="theme-section theme-section--retencao">
+          <div class="theme-header">
+            <div class="theme-icon" style="background: var(--coral)">R</div>
+            <h2>Retenção</h2>
+            <span
+              class="theme-badge"
+              style="background: var(--coral-light); color: var(--coral)"
+              >Mar/26</span
+            >
+          </div>
+          <div class="kpi-grid" id="kpiRetencao"></div>
+          <div class="insight-card" id="insightRetencao"></div>
+          <div class="chart-row">
+            <div class="chart-card">
+              <h3>Evolução da base de alunos</h3>
+              <p class="chart-sub">Histórico + projeção com ações</p>
+              <div class="legend" id="legendBase"></div>
+              <div style="position: relative; height: 240px">
+                <canvas id="chartBase"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Inadimplência — março/26 (parcial)</h3>
+              <p class="chart-sub">232 registros no mês</p>
+              <div style="position: relative; height: 220px">
+                <canvas id="chartInad"></canvas>
+              </div>
+              <div
+                class="legend"
+                id="legendInad"
+                style="margin-top: 10px"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== FINANCEIRO ===== -->
+        <div class="theme-section theme-section--financeiro">
+          <div class="theme-header">
+            <div class="theme-icon" style="background: var(--purple)">F</div>
+            <h2>Financeiro</h2>
+            <span
+              class="theme-badge"
+              style="background: var(--purple-light); color: var(--purple)"
+              >Mar/26</span
+            >
+          </div>
+          <div class="kpi-grid" id="kpiFinanceiro"></div>
+          <div class="insight-card" id="insightFinanceiro"></div>
+          <div class="chart-row">
+            <div class="chart-card">
+              <h3>Receita operacional mensal</h3>
+              <p class="chart-sub">Composição por fonte</p>
+              <div class="legend" id="legendReceita"></div>
+              <div style="position: relative; height: 240px">
+                <canvas id="chartReceita"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Resultado operacional mensal</h3>
+              <p class="chart-sub">
+                Receita - despesas (sem impostos, sem aportes)
+              </p>
+              <div style="position: relative; height: 240px">
+                <canvas id="chartResultado"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== RETORNO DO INVESTIMENTO ===== -->
+        <div
+          class="theme-section"
+          style="
+            background: linear-gradient(135deg, #faf6ee 0%, #f7f6f3 60%);
+            border: 1px solid rgba(133, 79, 11, 0.1);
+          "
+        >
+          <div class="theme-header">
+            <div class="theme-icon" style="background: var(--amber)">RI</div>
+            <h2>Retorno do investimento</h2>
+            <span
+              class="theme-badge"
+              style="background: var(--amber-light); color: var(--amber)"
+              >Desde Jul/24</span
+            >
+          </div>
+          <div class="kpi-grid" id="kpiROI"></div>
+          <div class="insight-card" id="insightROI"></div>
+          <div class="chart-row">
+            <div class="chart-card">
+              <h3>Composição do investimento</h3>
+              <p class="chart-sub">Pré-inauguração (Jul/24 a Mar/25)</p>
+              <div style="position: relative; height: 240px">
+                <canvas id="chartInvest"></canvas>
+              </div>
+            </div>
+            <div class="chart-card">
+              <h3>Evolução do saldo a recuperar</h3>
+              <p class="chart-sub">Aportes - resultado operacional acumulado</p>
+              <div style="position: relative; height: 240px">
+                <canvas id="chartPayback"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-content" id="tab-evolucao">
+        <div class="section-label" style="margin-top: 4px">
+          Base de alunos e crescimento
+        </div>
+        <div class="evo-row">
+          <div class="evo-card">
+            <div class="evo-card-header">
+              <div>
+                <h3>Alunos ativos</h3>
+                <div class="evo-meta">
+                  <span
+                    class="evo-target"
+                    style="
+                      background: var(--accent-light);
+                      color: var(--accent-dark);
+                    "
+                    >Meta 875</span
+                  ><span
+                    class="evo-target"
+                    style="background: var(--blue-light); color: var(--blue)"
+                    >Meta 1.047</span
+                  >
+                </div>
+              </div>
+              <div class="evo-current">
+                <div class="evo-val">827</div>
+                <div class="evo-sub-text">Fev/26 (mar pendente)</div>
+              </div>
+            </div>
+            <div style="position: relative; height: 180px">
+              <canvas id="evoAlunos"></canvas>
+            </div>
+          </div>
+          <div class="evo-card">
+            <div class="evo-card-header">
+              <div>
+                <h3>Saldo líquido mensal</h3>
+                <div class="evo-meta">
+                  <span
+                    class="evo-target"
+                    style="
+                      background: var(--accent-light);
+                      color: var(--accent-dark);
+                    "
+                    >Meta +53</span
+                  >
+                </div>
+              </div>
+              <div class="evo-current">
+                <div class="evo-val" style="color: var(--accent)">+19</div>
+                <div class="evo-sub-text">Fev/26</div>
+              </div>
+            </div>
+            <div style="position: relative; height: 180px">
+              <canvas id="evoSaldo"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="section-label">Vendas e saídas</div>
+        <div class="evo-row">
+          <div class="evo-card">
+            <div class="evo-card-header">
+              <div>
+                <h3>Novos alunos / mês</h3>
+                <div class="evo-meta">
+                  <span
+                    class="evo-target"
+                    style="background: var(--coral-light); color: var(--coral)"
+                    >Meta 150</span
+                  >
+                </div>
+              </div>
+              <div class="evo-current">
+                <div class="evo-val">100</div>
+                <div class="evo-sub-text">Mar/26</div>
+              </div>
+            </div>
+            <div style="position: relative; height: 180px">
+              <canvas id="evoNovos"></canvas>
+            </div>
+          </div>
+          <div class="evo-card">
+            <div class="evo-card-header">
+              <div>
+                <h3>Composição das saídas</h3>
+                <div class="evo-meta">
+                  <span class="legend-item"
+                    ><span class="legend-dot" style="background: #a32d2d"></span
+                    >Cancel.</span
+                  ><span class="legend-item"
+                    ><span class="legend-dot" style="background: #d85a30"></span
+                    >Desist.</span
+                  >
+                </div>
+              </div>
+              <div class="evo-current">
+                <div class="evo-val" style="color: var(--red)">115</div>
+                <div class="evo-sub-text">Fev/26</div>
+              </div>
+            </div>
+            <div style="position: relative; height: 180px">
+              <canvas id="evoSaidas"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="section-label">Receita e resultado</div>
+        <div class="evo-row">
+          <div class="evo-card">
+            <div class="evo-card-header">
+              <div><h3>Receita total</h3></div>
+              <div class="evo-current">
+                <div class="evo-val">R$ 199k</div>
+                <div class="evo-sub-text">Mar/26</div>
+              </div>
+            </div>
+            <div style="position: relative; height: 180px">
+              <canvas id="evoReceita"></canvas>
+            </div>
+          </div>
+          <div class="evo-card">
+            <div class="evo-card-header">
+              <div><h3>Resultado operacional</h3></div>
+              <div class="evo-current">
+                <div class="evo-val" style="color: var(--accent)">+R$ 33k</div>
+                <div class="evo-sub-text">Mar/26</div>
+              </div>
+            </div>
+            <div style="position: relative; height: 180px">
+              <canvas id="evoResultado"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="section-label">Tabela consolidada</div>
+        <div class="evo-card" style="overflow-x: auto">
+          <table class="hist-table" id="histTable"></table>
+        </div>
+      </div>
+
+      <!-- TAB AÇÕES -->
+      <div class="tab-content" id="tab-acoes">
+        <div class="summary-strip" id="actionSummary"></div>
+        <div id="actionGroups"></div>
+      </div>
+
+      <!-- TAB PROJEÇÃO -->
+      <div class="tab-content" id="tab-projecao">
+        <div class="section-label" style="margin-top: 4px">
+          Real vs projetado — março/26 (mês 1)
+        </div>
+        <div class="insight-card" id="insightRealVsProj"></div>
+
+        <div class="proj-highlight">
+          <div class="proj-card" style="background: var(--accent-light)">
+            <h4 style="color: var(--accent-dark)">Meta margem 15%</h4>
+            <div class="proj-val" style="color: var(--accent-dark)">
+              875 alunos
+            </div>
+            <div class="proj-sub" style="color: var(--accent)">
+              Projetado: mês 2 (Abr/26)
+            </div>
+          </div>
+          <div class="proj-card" style="background: var(--blue-light)">
+            <h4 style="color: var(--blue)">Meta margem 20%</h4>
+            <div class="proj-val" style="color: var(--blue)">1.047 alunos</div>
+            <div class="proj-sub" style="color: var(--blue)">
+              Projetado: mês 5 (Jul/26)
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom: 2rem">
+          <h3>Projeção de alunos — cenários comparados</h3>
+          <p class="chart-sub">Inércia vs ações Pareto — 12 meses</p>
+          <div class="legend" id="legendProj"></div>
+          <div style="position: relative; height: 320px">
+            <canvas id="chartProj"></canvas>
+          </div>
+        </div>
+
+        <div class="section-label">Projeção de receita</div>
+        <div class="chart-card" style="margin-bottom: 2rem">
+          <h3>Receita projetada — 6 meses</h3>
+          <p class="chart-sub">
+            Base: ticket médio atual × alunos projetados + Wellhub + Totalpass
+          </p>
+          <div class="legend" id="legendRecProj"></div>
+          <div style="position: relative; height: 280px">
+            <canvas id="chartRecProj"></canvas>
+          </div>
+        </div>
+
+        <div class="section-label">Premissas da projeção</div>
+        <div class="chart-card" style="margin-bottom: 2rem">
+          <table class="team-table">
+            <thead>
+              <tr>
+                <th>Premissa</th>
+                <th>Sem ações</th>
+                <th>Com ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Entradas/mês</td>
+                <td>129</td>
+                <td>150 (+13 confirmação +8 scripts)</td>
+              </tr>
+              <tr>
+                <td>Saídas/mês</td>
+                <td>108</td>
+                <td>97 (onboarding: -11 desist.)</td>
+              </tr>
+              <tr>
+                <td>Saldo líquido/mês</td>
+                <td style="color: var(--amber)">+21</td>
+                <td style="color: var(--accent); font-weight: 600">+53</td>
+              </tr>
+              <tr>
+                <td>Cobrança 7 dias</td>
+                <td>—</td>
+                <td>R$ 5-8k/mês</td>
+              </tr>
+              <tr>
+                <td>Acordo Wellhub (Ago/26)</td>
+                <td colspan="2">Piso R$ 112k/mês (+R$ 30,7k)</td>
+              </tr>
+              <tr>
+                <td>Fator R (Anexo III)</td>
+                <td colspan="2">R$ 10,2k/mês</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section-label">Impacto Pareto — top 5 ações</div>
+        <div class="chart-card">
+          <div style="position: relative; height: 240px">
+            <canvas id="chartPareto"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 
-  <!-- ===== RETORNO DO INVESTIMENTO ===== -->
-  <div class="theme-section" style="background:linear-gradient(135deg,#faf6ee 0%,#f7f6f3 60%);border:1px solid rgba(133,79,11,0.1);">
-    <div class="theme-header"><div class="theme-icon" style="background:var(--amber);">RI</div><h2>Retorno do investimento</h2><span class="theme-badge" style="background:var(--amber-light);color:var(--amber);">Desde Jul/24</span></div>
-    <div class="kpi-grid" id="kpiROI"></div>
-    <div class="insight-card" id="insightROI"></div>
-    <div class="chart-row">
-      <div class="chart-card"><h3>Composição do investimento</h3><p class="chart-sub">Pré-inauguração (Jul/24 a Mar/25)</p><div style="position:relative;height:240px;"><canvas id="chartInvest"></canvas></div></div>
-      <div class="chart-card"><h3>Evolução do saldo a recuperar</h3><p class="chart-sub">Aportes - resultado operacional acumulado</p><div style="position:relative;height:240px;"><canvas id="chartPayback"></canvas></div></div>
-    </div>
-  </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+    <script>
+      const M12 = [
+        "Mar/25",
+        "Abr",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
+        "Jan/26",
+        "Fev",
+      ];
+      const M13 = [...M12, "Mar/26"];
+      const AF = [230, 334, 420, 481, 591, 700, 754, 760, 773, 714, 808, 827];
+      const AI = [0, 230, 334, 420, 481, 591, 700, 754, 760, 773, 714, 808];
+      const NV = [227, 106, 120, 109, 163, 175, 125, 112, 124, 43, 151, 112];
+      const NV13 = [...NV, 100];
+      const SAI = [0, 6, 41, 62, 62, 81, 86, 115, 125, 118, 89, 115];
+      const CAN = [0, 1, 16, 38, 38, 54, 56, 77, 77, 62, 69, 58];
+      const DES = [0, 5, 25, 23, 21, 25, 29, 36, 37, 49, 19, 54];
+      const SLD = [230, 104, 86, 61, 110, 109, 54, 6, 13, -59, 94, 19];
+      const RL7 = [
+        "Abr/25",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
+        "Jan/26",
+        "Fev",
+        "Mar/26",
+      ];
+      const RV7 = [
+        -111996, -69478, -25144, -23149, -15283, 8734, 4742, -12225, -8321,
+        4129, 21597, 34236,
+      ];
+      const RMat7 = [
+        0, 24400, 22832, 22699, 24191, 52286, 90224, 68829, 75121, 85178, 79506,
+        102884,
+      ];
+      const RWel7 = [
+        3302, 41141, 53286, 55214, 58760, 58656, 68162, 70585, 63544, 55879,
+        81329, 74738,
+      ];
+      const ROth7 = [
+        14, 16403, 24181, 34361, 40840, 35117, 15056, 26223, 27975, 15359,
+        21838, 22916,
+      ];
+      const RTot7 = [
+        0, 0, 0, 0, 4209, 7219, 10068, 13013, 13238, 10571, 17243, 16848,
+      ];
+      const RProd7 = [
+        0, 313, 239, 179, 2486, 3371, 3371, 3596, 2514, 3199, 3299, 4493,
+      ];
+      const RNcat7 = [
+        14, 16090, 23942, 34182, 34145, 24527, 1617, 9614, 12223, 1589, 1296,
+        1575,
+      ];
+      const NV12L = [
+        "Abr/25",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
+        "Jan/26",
+        "Fev",
+        "Mar/26",
+      ];
+      const NV12D = [106, 120, 109, 163, 175, 125, 112, 124, 43, 151, 112, 100];
+      const RT_ALL = [
+        3316, 81944, 100299, 112273, 123791, 146058, 173442, 165637, 166639,
+        156415, 182672, 198963,
+      ];
 
-</div>
-<div class="tab-content" id="tab-evolucao">
-  <div class="section-label" style="margin-top:4px;">Base de alunos e crescimento</div>
-  <div class="evo-row">
-    <div class="evo-card"><div class="evo-card-header"><div><h3>Alunos ativos</h3><div class="evo-meta"><span class="evo-target" style="background:var(--accent-light);color:var(--accent-dark);">Meta 875</span><span class="evo-target" style="background:var(--blue-light);color:var(--blue);">Meta 1.047</span></div></div><div class="evo-current"><div class="evo-val">827</div><div class="evo-sub-text">Fev/26 (mar pendente)</div></div></div><div style="position:relative;height:180px;"><canvas id="evoAlunos"></canvas></div></div>
-    <div class="evo-card"><div class="evo-card-header"><div><h3>Saldo líquido mensal</h3><div class="evo-meta"><span class="evo-target" style="background:var(--accent-light);color:var(--accent-dark);">Meta +53</span></div></div><div class="evo-current"><div class="evo-val" style="color:var(--accent);">+19</div><div class="evo-sub-text">Fev/26</div></div></div><div style="position:relative;height:180px;"><canvas id="evoSaldo"></canvas></div></div>
-  </div>
-  <div class="section-label">Vendas e saídas</div>
-  <div class="evo-row">
-    <div class="evo-card"><div class="evo-card-header"><div><h3>Novos alunos / mês</h3><div class="evo-meta"><span class="evo-target" style="background:var(--coral-light);color:var(--coral);">Meta 150</span></div></div><div class="evo-current"><div class="evo-val">100</div><div class="evo-sub-text">Mar/26</div></div></div><div style="position:relative;height:180px;"><canvas id="evoNovos"></canvas></div></div>
-    <div class="evo-card"><div class="evo-card-header"><div><h3>Composição das saídas</h3><div class="evo-meta"><span class="legend-item"><span class="legend-dot" style="background:#A32D2D;"></span>Cancel.</span><span class="legend-item"><span class="legend-dot" style="background:#D85A30;"></span>Desist.</span></div></div><div class="evo-current"><div class="evo-val" style="color:var(--red);">115</div><div class="evo-sub-text">Fev/26</div></div></div><div style="position:relative;height:180px;"><canvas id="evoSaidas"></canvas></div></div>
-  </div>
-  <div class="section-label">Receita e resultado</div>
-  <div class="evo-row">
-    <div class="evo-card"><div class="evo-card-header"><div><h3>Receita total</h3></div><div class="evo-current"><div class="evo-val">R$ 199k</div><div class="evo-sub-text">Mar/26</div></div></div><div style="position:relative;height:180px;"><canvas id="evoReceita"></canvas></div></div>
-    <div class="evo-card"><div class="evo-card-header"><div><h3>Resultado operacional</h3></div><div class="evo-current"><div class="evo-val" style="color:var(--accent);">+R$ 33k</div><div class="evo-sub-text">Mar/26</div></div></div><div style="position:relative;height:180px;"><canvas id="evoResultado"></canvas></div></div>
-  </div>
-  <div class="section-label">Tabela consolidada</div>
-  <div class="evo-card" style="overflow-x:auto;"><table class="hist-table" id="histTable"></table></div>
-</div>
+      const FEV = {
+        vendas: 105,
+        leads: 430,
+        agendadas: 105,
+        presentes: 45,
+        fech: 26,
+        noshow: 57,
+        rec: 182672,
+        desp: 161076,
+        res: 21596,
+        matric: 79506,
+        wellhub: 81329,
+      };
+      const MAR = {
+        vendas: 100,
+        leads: 339,
+        agendadas: 93,
+        presentes: 22,
+        fech: 17,
+        noshow: 77,
+        rec: 198963,
+        desp: 166302,
+        res: 32661,
+        matric: {
+          total: 102884,
+          recorrente: 79286,
+          anual: 12548,
+          mensal: 9475,
+          nao_cat: 1575,
+        },
+        wellhub: 74738,
+        totalpass: 16848,
+        produtos: 4493,
+        inad: {
+          recup: 113,
+          aberto: 107,
+          cancel: 12,
+          vRecup: 14439,
+          vAberto: 13619,
+          vCancel: 1479,
+        },
+        team: [
+          { n: "Susana", l: 71, v: 21 },
+          { n: "Tamires", l: 113, v: 31 },
+          { n: "Gabriela", l: 111, v: 23 },
+          { n: "Kathleen", l: 23, v: 4 },
+        ],
+        mkt: {
+          invest: 2000,
+          weeks: [
+            { s: "S1", alc: 130000, fr: 2.2, vi: 295000, seg: 51 },
+            { s: "S2", alc: 120000, fr: 2.7, vi: 324000, seg: 60 },
+            { s: "S3", alc: 110000, fr: 3.7, vi: 409000, seg: 130 },
+            { s: "S4", alc: 82000, fr: 3.0, vi: 245000, seg: 69 },
+          ],
+        },
+      };
+      const mktT = { alc: 0, vi: 0, seg: 0 };
+      MAR.mkt.weeks.forEach((w) => {
+        mktT.alc += w.alc;
+        mktT.vi += w.vi;
+        mktT.seg += w.seg;
+      });
 
-<!-- TAB AÇÕES -->
-<div class="tab-content" id="tab-acoes"><div class="summary-strip" id="actionSummary"></div><div id="actionGroups"></div></div>
-
-<!-- TAB PROJEÇÃO -->
-<div class="tab-content" id="tab-projecao">
-  <div class="section-label" style="margin-top:4px;">Real vs projetado — março/26 (mês 1)</div>
-  <div class="insight-card" id="insightRealVsProj"></div>
-
-  <div class="proj-highlight"><div class="proj-card" style="background:var(--accent-light);"><h4 style="color:var(--accent-dark);">Meta margem 15%</h4><div class="proj-val" style="color:var(--accent-dark);">875 alunos</div><div class="proj-sub" style="color:var(--accent);">Projetado: mês 2 (Abr/26)</div></div><div class="proj-card" style="background:var(--blue-light);"><h4 style="color:var(--blue);">Meta margem 20%</h4><div class="proj-val" style="color:var(--blue);">1.047 alunos</div><div class="proj-sub" style="color:var(--blue);">Projetado: mês 5 (Jul/26)</div></div></div>
-
-  <div class="chart-card" style="margin-bottom:2rem;"><h3>Projeção de alunos — cenários comparados</h3><p class="chart-sub">Inércia vs ações Pareto — 12 meses</p><div class="legend" id="legendProj"></div><div style="position:relative;height:320px;"><canvas id="chartProj"></canvas></div></div>
-
-  <div class="section-label">Projeção de receita</div>
-  <div class="chart-card" style="margin-bottom:2rem;"><h3>Receita projetada — 6 meses</h3><p class="chart-sub">Base: ticket médio atual × alunos projetados + Wellhub + Totalpass</p><div class="legend" id="legendRecProj"></div><div style="position:relative;height:280px;"><canvas id="chartRecProj"></canvas></div></div>
-
-  <div class="section-label">Premissas da projeção</div>
-  <div class="chart-card" style="margin-bottom:2rem;"><table class="team-table"><thead><tr><th>Premissa</th><th>Sem ações</th><th>Com ações</th></tr></thead><tbody><tr><td>Entradas/mês</td><td>129</td><td>150 (+13 confirmação +8 scripts)</td></tr><tr><td>Saídas/mês</td><td>108</td><td>97 (onboarding: -11 desist.)</td></tr><tr><td>Saldo líquido/mês</td><td style="color:var(--amber);">+21</td><td style="color:var(--accent);font-weight:600;">+53</td></tr><tr><td>Cobrança 7 dias</td><td>—</td><td>R$ 5-8k/mês</td></tr><tr><td>Acordo Wellhub (Ago/26)</td><td colspan="2">Piso R$ 112k/mês (+R$ 30,7k)</td></tr><tr><td>Fator R (Anexo III)</td><td colspan="2">R$ 10,2k/mês</td></tr></tbody></table></div>
-  <div class="section-label">Impacto Pareto — top 5 ações</div>
-  <div class="chart-card"><div style="position:relative;height:240px;"><canvas id="chartPareto"></canvas></div></div>
-</div>
-
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-const M12=['Mar/25','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan/26','Fev'];
-const M13=[...M12,'Mar/26'];
-const AF=[230,334,420,481,591,700,754,760,773,714,808,827];
-const AI=[0,230,334,420,481,591,700,754,760,773,714,808];
-const NV=[227,106,120,109,163,175,125,112,124,43,151,112];
-const NV13=[...NV,100];
-const SAI=[0,6,41,62,62,81,86,115,125,118,89,115];
-const CAN=[0,1,16,38,38,54,56,77,77,62,69,58];
-const DES=[0,5,25,23,21,25,29,36,37,49,19,54];
-const SLD=[230,104,86,61,110,109,54,6,13,-59,94,19];
-const RL7=['Abr/25','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan/26','Fev','Mar/26'];
-const RV7=[-111996,-69478,-25144,-23149,-15283,8734,4742,-12225,-8321,4129,21597,34236];
-const RMat7=[0,24400,22832,22699,24191,52286,90224,68829,75121,85178,79506,102884];
-const RWel7=[3302,41141,53286,55214,58760,58656,68162,70585,63544,55879,81329,74738];
-const ROth7=[14,16403,24181,34361,40840,35117,15056,26223,27975,15359,21838,22916];
-const RTot7=[0,0,0,0,4209,7219,10068,13013,13238,10571,17243,16848];
-const RProd7=[0,313,239,179,2486,3371,3371,3596,2514,3199,3299,4493];
-const RNcat7=[14,16090,23942,34182,34145,24527,1617,9614,12223,1589,1296,1575];
-const NV12L=['Abr/25','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan/26','Fev','Mar/26'];
-const NV12D=[106,120,109,163,175,125,112,124,43,151,112,100];
-const RT_ALL=[3316,81944,100299,112273,123791,146058,173442,165637,166639,156415,182672,198963];
-
-const FEV={vendas:105,leads:430,agendadas:105,presentes:45,fech:26,noshow:57,rec:182672,desp:161076,res:21596,matric:79506,wellhub:81329};
-const MAR={vendas:100,leads:339,agendadas:93,presentes:22,fech:17,noshow:77,rec:198963,desp:166302,res:32661,
-  matric:{total:102884,recorrente:79286,anual:12548,mensal:9475,nao_cat:1575},
-  wellhub:74738,totalpass:16848,produtos:4493,
-  inad:{recup:113,aberto:107,cancel:12,vRecup:14439,vAberto:13619,vCancel:1479},
-  team:[{n:'Susana',l:71,v:21},{n:'Tamires',l:113,v:31},{n:'Gabriela',l:111,v:23},{n:'Kathleen',l:23,v:4}],
-  mkt:{invest:2000,weeks:[{s:'S1',alc:130000,fr:2.2,vi:295000,seg:51},{s:'S2',alc:120000,fr:2.7,vi:324000,seg:60},{s:'S3',alc:110000,fr:3.7,vi:409000,seg:130},{s:'S4',alc:82000,fr:3.0,vi:245000,seg:69}]}
-};
-const mktT={alc:0,vi:0,seg:0};MAR.mkt.weeks.forEach(w=>{mktT.alc+=w.alc;mktT.vi+=w.vi;mktT.seg+=w.seg;});
-
-const CD={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}};
-const GC='rgba(0,0,0,0.05)';const TS={color:'#9C9B96',font:{size:10,family:'DM Sans'}};
-function fmt(v){return v.toLocaleString('pt-BR');}
-function fR(v){return'R$ '+Math.round(v/1000)+'k';}
-function pct(a,b){return b?Math.round((a-b)/Math.abs(b)*100):0;}
-function dtag(c,p,inv){if(!p)return'';const pc=pct(c,p);const g=inv?pc<0:pc>0;return`<span class="kpi-delta ${pc===0?'delta-neutral':g?'delta-up':'delta-down'}">${pc>0?'+':''}${pc}% vs Fev</span>`;}
-function kH(items){return items.map(k=>`<div class="kpi-card animate-in"><span class="kpi-label">${k.l}</span><span class="kpi-value">${k.v}</span><div class="kpi-sub">${k.t||''}</div>${k.d?`<div class="sub-detail">${k.d}</div>`:''}<div class="kpi-bar" style="background:${k.b};"></div></div>`).join('');}
-function insightCard(headerBg,headerColor,headerText,items){
-  return`<div class="insight-card-header" style="background:${headerBg};color:${headerColor};">
+      const CD = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+      };
+      const GC = "rgba(0,0,0,0.05)";
+      const TS = { color: "#9C9B96", font: { size: 10, family: "DM Sans" } };
+      function fmt(v) {
+        return v.toLocaleString("pt-BR");
+      }
+      function fR(v) {
+        return "R$ " + Math.round(v / 1000) + "k";
+      }
+      function pct(a, b) {
+        return b ? Math.round(((a - b) / Math.abs(b)) * 100) : 0;
+      }
+      function dtag(c, p, inv) {
+        if (!p) return "";
+        const pc = pct(c, p);
+        const g = inv ? pc < 0 : pc > 0;
+        return `<span class="kpi-delta ${pc === 0 ? "delta-neutral" : g ? "delta-up" : "delta-down"}">${pc > 0 ? "+" : ""}${pc}% vs Fev</span>`;
+      }
+      function kH(items) {
+        return items
+          .map(
+            (k) =>
+              `<div class="kpi-card animate-in"><span class="kpi-label">${k.l}</span><span class="kpi-value">${k.v}</span><div class="kpi-sub">${k.t || ""}</div>${k.d ? `<div class="sub-detail">${k.d}</div>` : ""}<div class="kpi-bar" style="background:${k.b};"></div></div>`,
+          )
+          .join("");
+      }
+      function insightCard(headerBg, headerColor, headerText, items) {
+        return `<div class="insight-card-header" style="background:${headerBg};color:${headerColor};">
     <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.5 3a.75.75 0 011.5 0v4a.75.75 0 01-1.5 0V4zM8 12a1 1 0 110-2 1 1 0 010 2z"/></svg>${headerText}</div>
-    <div class="insight-card-body">${items.map(i=>`<div class="insight-item"><div class="insight-icon insight-icon--${i.type}">${i.type==='good'?'&#9650;':i.type==='bad'?'&#9660;':i.type==='warn'?'&#9679;':'&#8505;'}</div><div>${i.text}</div></div>`).join('')}</div>`;
-}
+    <div class="insight-card-body">${items.map((i) => `<div class="insight-item"><div class="insight-icon insight-icon--${i.type}">${i.type === "good" ? "&#9650;" : i.type === "bad" ? "&#9660;" : i.type === "warn" ? "&#9679;" : "&#8505;"}</div><div>${i.text}</div></div>`).join("")}</div>`;
+      }
 
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));t.classList.add('active');document.getElementById('tab-'+t.dataset.tab).classList.add('active');}));
+      document.querySelectorAll(".tab").forEach((t) =>
+        t.addEventListener("click", () => {
+          document
+            .querySelectorAll(".tab")
+            .forEach((x) => x.classList.remove("active"));
+          document
+            .querySelectorAll(".tab-content")
+            .forEach((x) => x.classList.remove("active"));
+          t.classList.add("active");
+          document
+            .getElementById("tab-" + t.dataset.tab)
+            .classList.add("active");
+        }),
+      );
 
-// === VISÃO GERAL ===
-document.getElementById('kpiOverview').innerHTML=kH([
-  {l:'Base de alunos',v:'827*',b:'#0F6E56',t:'<span style="font-size:11px;">*Fev — mar pendente · meta: 875</span>'},
-  {l:'Vendas no mês',v:'100',b:'#D85A30',t:`<span style="font-size:11px;">meta: 150</span>${dtag(100,105)}`},
-  {l:'Receita total',v:fR(MAR.rec),b:'#0F6E56',t:dtag(MAR.rec,FEV.rec)},
-  {l:'Resultado operacional',v:'+R$ 33k',b:'#0F6E56',t:`<span style="font-size:11px;">margem 16,4% · novo recorde</span>${dtag(MAR.res,FEV.res)}`},
-]);
-document.getElementById('insightOverview').innerHTML=insightCard('var(--accent-light)','var(--accent-dark)','Destaques do mês',[
-  {type:'good',text:'<strong>Novo recorde operacional:</strong> +R$ 32,7k (margem 16,4%), superando Fev (+R$ 21,6k). Terceiro mês consecutivo positivo.'},
-  {type:'good',text:'<strong>Receita recorde R$ 199k</strong> puxada pela alta de <span class="i-good">+29% em matriculados</span> (R$ 102,9k). Matriculados voltaram a liderar receita.'},
-  {type:'bad',text:'<strong>No-show explodiu para 77%</strong> (era 57%). Apenas 22 de 93 agendados apareceram. Régua de confirmação (ação 2.1) é urgente.'},
-  {type:'warn',text:'<strong>Leads caíram 21%</strong> (339 vs 430). Alcance do Instagram recuou semana a semana. Investimento de R$ 1.500 em mídia tem espaço para escalar.'},
-]);
+      // === VISÃO GERAL ===
+      document.getElementById("kpiOverview").innerHTML = kH([
+        {
+          l: "Base de alunos",
+          v: "827*",
+          b: "#0F6E56",
+          t: '<span style="font-size:11px;">*Fev — mar pendente · meta: 875</span>',
+        },
+        {
+          l: "Vendas no mês",
+          v: "100",
+          b: "#D85A30",
+          t: `<span style="font-size:11px;">meta: 150</span>${dtag(100, 105)}`,
+        },
+        {
+          l: "Receita total",
+          v: fR(MAR.rec),
+          b: "#0F6E56",
+          t: dtag(MAR.rec, FEV.rec),
+        },
+        {
+          l: "Resultado operacional",
+          v: "+R$ 33k",
+          b: "#0F6E56",
+          t: `<span style="font-size:11px;">margem 16,4% · novo recorde</span>${dtag(MAR.res, FEV.res)}`,
+        },
+      ]);
+      document.getElementById("insightOverview").innerHTML = insightCard(
+        "var(--accent-light)",
+        "var(--accent-dark)",
+        "Destaques do mês",
+        [
+          {
+            type: "good",
+            text: "<strong>Novo recorde operacional:</strong> +R$ 32,7k (margem 16,4%), superando Fev (+R$ 21,6k). Terceiro mês consecutivo positivo.",
+          },
+          {
+            type: "good",
+            text: '<strong>Receita recorde R$ 199k</strong> puxada pela alta de <span class="i-good">+29% em matriculados</span> (R$ 102,9k). Matriculados voltaram a liderar receita.',
+          },
+          {
+            type: "bad",
+            text: "<strong>No-show explodiu para 77%</strong> (era 57%). Apenas 22 de 93 agendados apareceram. Régua de confirmação (ação 2.1) é urgente.",
+          },
+          {
+            type: "warn",
+            text: "<strong>Leads caíram 21%</strong> (339 vs 430). Alcance do Instagram recuou semana a semana. Investimento de R$ 1.500 em mídia tem espaço para escalar.",
+          },
+        ],
+      );
 
-// === VENDAS E MARKETING ===
-const ticketMar=Math.round(MAR.matric.total/827); // receita matric / base alunos
-const cacVenda=Math.round(4661/MAR.vendas*100)/100; // total marketing / vendas
-const metaIndiv=Math.round(150/MAR.team.length);
-document.getElementById('kpiVendas').innerHTML=kH([
-  {l:'Vendas totais',v:'100',b:'#185FA5',t:`<span style="font-size:11px;">meta: 150 (67%)</span>${dtag(100,105)}`},
-  {l:'No-show experimental',v:'77%',b:'#A32D2D',t:'<span style="font-size:11px;">71 faltas de 93 agendados</span><span class="kpi-delta delta-down">era 57%</span>'},
-  {l:'Conversão presentes',v:'77%',b:'#0F6E56',t:'<span style="font-size:11px;">17 de 22</span><span class="kpi-delta delta-up">era 58%</span>'},
-  {l:'Leads gerados',v:'339',b:'#185FA5',t:dtag(339,430)},
-  {l:'Ticket médio',v:'R$ '+ticketMar,b:'#854F0B',t:`<span style="font-size:11px;">meta: R$ 116 (gap R$ ${fmt(Math.round((116-ticketMar)*827))}/mês)</span>`,d:'Recorrente R$ 96 · Anual R$ 100 · Mensal R$ 95'},
-  {l:'CAC por venda',v:'R$ '+cacVenda.toFixed(0),b:'#534AB7',t:`<span style="font-size:11px;">R$ 4.661 marketing / 100 vendas</span>`},
-  {l:'Investimento Meta Ads',v:'R$ 2.000',b:'#534AB7',t:'<span style="font-size:11px;">R$ 1.500 mídia + R$ 500 gestão</span>'},
-  {l:'Alcance total',v:fmt(mktT.alc),b:'#534AB7',t:`<span style="font-size:11px;">${fmt(mktT.vi)} views · +${mktT.seg} seguidores</span>`},
-]);
-document.getElementById('insightVendas').innerHTML=insightCard('var(--blue-light)','var(--blue)','Análise de vendas e marketing',[
-  {type:'bad',text:'<strong>No-show é o maior gargalo:</strong> subiu de 57% para <span class="i-bad">77%</span>. De 93 agendamentos, 71 não apareceram. Estima-se perda de 20+ vendas potenciais.'},
-  {type:'good',text:'<strong>Quando o lead aparece, fecha:</strong> conversão dos presentes subiu de 58% para <span class="i-good">77%</span>. A academia se vende — o problema é trazer o lead.'},
-  {type:'info',text:'<strong>Vendas via experimental (17)</strong> representam apenas 17% do total (100). Os outros 83 vieram de indicação, passou na frente, sistema online e outros canais.'},
-  {type:'warn',text:`<strong>Meta individual por recepcionista: ${metaIndiv}/mês.</strong> Nenhuma bateu — Tamires chegou mais perto (31). Susana: 21, Gabriela: 23, Kathleen: 4 (nova). O gap é estrutural (no-show + leads).`},
-  {type:'info',text:`<strong>CAC de R$ ${cacVenda.toFixed(0)} por venda</strong> (R$ 4.661 marketing total / 100 vendas). Via Meta Ads o custo é R$ 20/venda considerando só mídia digital. Há espaço para escalar o investimento.`},
-  {type:'warn',text:'<strong>Alcance Instagram caiu semana a semana:</strong> 130k → 120k → 110k → 82k. Semana 3 teve melhor taxa de seguidores (1,65%) — investigar o que foi diferente.'},
-]);
+      // === VENDAS E MARKETING ===
+      const ticketMar = Math.round(MAR.matric.total / 827); // receita matric / base alunos
+      const cacVenda = Math.round((4661 / MAR.vendas) * 100) / 100; // total marketing / vendas
+      const metaIndiv = Math.round(150 / MAR.team.length);
+      document.getElementById("kpiVendas").innerHTML = kH([
+        {
+          l: "Vendas totais",
+          v: "100",
+          b: "#185FA5",
+          t: `<span style="font-size:11px;">meta: 150 (67%)</span>${dtag(100, 105)}`,
+        },
+        {
+          l: "No-show experimental",
+          v: "77%",
+          b: "#A32D2D",
+          t: '<span style="font-size:11px;">71 faltas de 93 agendados</span><span class="kpi-delta delta-down">era 57%</span>',
+        },
+        {
+          l: "Conversão presentes",
+          v: "77%",
+          b: "#0F6E56",
+          t: '<span style="font-size:11px;">17 de 22</span><span class="kpi-delta delta-up">era 58%</span>',
+        },
+        { l: "Leads gerados", v: "339", b: "#185FA5", t: dtag(339, 430) },
+        {
+          l: "Ticket médio",
+          v: "R$ " + ticketMar,
+          b: "#854F0B",
+          t: `<span style="font-size:11px;">meta: R$ 116 (gap R$ ${fmt(Math.round((116 - ticketMar) * 827))}/mês)</span>`,
+          d: "Recorrente R$ 96 · Anual R$ 100 · Mensal R$ 95",
+        },
+        {
+          l: "CAC por venda",
+          v: "R$ " + cacVenda.toFixed(0),
+          b: "#534AB7",
+          t: `<span style="font-size:11px;">R$ 4.661 marketing / 100 vendas</span>`,
+        },
+        {
+          l: "Investimento Meta Ads",
+          v: "R$ 2.000",
+          b: "#534AB7",
+          t: '<span style="font-size:11px;">R$ 1.500 mídia + R$ 500 gestão</span>',
+        },
+        {
+          l: "Alcance total",
+          v: fmt(mktT.alc),
+          b: "#534AB7",
+          t: `<span style="font-size:11px;">${fmt(mktT.vi)} views · +${mktT.seg} seguidores</span>`,
+        },
+      ]);
+      document.getElementById("insightVendas").innerHTML = insightCard(
+        "var(--blue-light)",
+        "var(--blue)",
+        "Análise de vendas e marketing",
+        [
+          {
+            type: "bad",
+            text: '<strong>No-show é o maior gargalo:</strong> subiu de 57% para <span class="i-bad">77%</span>. De 93 agendamentos, 71 não apareceram. Estima-se perda de 20+ vendas potenciais.',
+          },
+          {
+            type: "good",
+            text: '<strong>Quando o lead aparece, fecha:</strong> conversão dos presentes subiu de 58% para <span class="i-good">77%</span>. A academia se vende — o problema é trazer o lead.',
+          },
+          {
+            type: "info",
+            text: "<strong>Vendas via experimental (17)</strong> representam apenas 17% do total (100). Os outros 83 vieram de indicação, passou na frente, sistema online e outros canais.",
+          },
+          {
+            type: "warn",
+            text: `<strong>Meta individual por recepcionista: ${metaIndiv}/mês.</strong> Nenhuma bateu — Tamires chegou mais perto (31). Susana: 21, Gabriela: 23, Kathleen: 4 (nova). O gap é estrutural (no-show + leads).`,
+          },
+          {
+            type: "info",
+            text: `<strong>CAC de R$ ${cacVenda.toFixed(0)} por venda</strong> (R$ 4.661 marketing total / 100 vendas). Via Meta Ads o custo é R$ 20/venda considerando só mídia digital. Há espaço para escalar o investimento.`,
+          },
+          {
+            type: "warn",
+            text: "<strong>Alcance Instagram caiu semana a semana:</strong> 130k → 120k → 110k → 82k. Semana 3 teve melhor taxa de seguidores (1,65%) — investigar o que foi diferente.",
+          },
+        ],
+      );
 
-// Sales composition
-document.getElementById('salesComp').innerHTML=`
+      // Sales composition
+      document.getElementById("salesComp").innerHTML = `
   <div class="sales-comp-card"><div style="width:4px;height:48px;border-radius:2px;background:var(--blue);"></div><div><div class="sales-comp-label">Via aula experimental</div><div class="sales-comp-val" style="color:var(--blue);">17</div><div class="sales-comp-detail">17% do total · 77% conversão presentes</div></div></div>
   <div class="sales-comp-card"><div style="width:4px;height:48px;border-radius:2px;background:var(--accent);"></div><div><div class="sales-comp-label">Outros canais</div><div class="sales-comp-val" style="color:var(--accent);">83</div><div class="sales-comp-detail">Indicação, passou na frente, sistema, outros</div></div></div>`;
 
-// Funnel (experimental only)
-const fnl=[{lb:'Agendadas',v:93,c:'#534AB7',bg:'#EEEDFE'},{lb:'Presentes',v:22,c:'#D85A30',bg:'#FAECE7'},{lb:'Fechamentos',v:17,c:'#0F6E56',bg:'#E1F5EE'},{lb:'Conversão',v:'77%',c:'#639922',bg:'#EAF3DE'}];
-document.getElementById('funnelRow').innerHTML=fnl.map((f,i)=>{
-  const r=i===0?'<span class="funnel-rate">de 339 leads</span>':i<3?`<span class="funnel-rate">${Math.round(typeof f.v==='number'?f.v/fnl[i-1].v*100:0)}%</span>`:'<span class="funnel-rate">dos presentes</span>';
-  const a=i<fnl.length-1?'<span class="funnel-arrow">&#9654;</span>':'';
-  return`<div class="funnel-step" style="background:${f.bg};"><span class="funnel-label" style="color:${f.c};">${f.lb}</span><span class="funnel-val" style="color:${f.c};">${f.v}</span>${r}${a}</div>`;
-}).join('');
+      // Funnel (experimental only)
+      const fnl = [
+        { lb: "Agendadas", v: 93, c: "#534AB7", bg: "#EEEDFE" },
+        { lb: "Presentes", v: 22, c: "#D85A30", bg: "#FAECE7" },
+        { lb: "Fechamentos", v: 17, c: "#0F6E56", bg: "#E1F5EE" },
+        { lb: "Conversão", v: "77%", c: "#639922", bg: "#EAF3DE" },
+      ];
+      document.getElementById("funnelRow").innerHTML = fnl
+        .map((f, i) => {
+          const r =
+            i === 0
+              ? '<span class="funnel-rate">de 339 leads</span>'
+              : i < 3
+                ? `<span class="funnel-rate">${Math.round(typeof f.v === "number" ? (f.v / fnl[i - 1].v) * 100 : 0)}%</span>`
+                : '<span class="funnel-rate">dos presentes</span>';
+          const a =
+            i < fnl.length - 1
+              ? '<span class="funnel-arrow">&#9654;</span>'
+              : "";
+          return `<div class="funnel-step" style="background:${f.bg};"><span class="funnel-label" style="color:${f.c};">${f.lb}</span><span class="funnel-val" style="color:${f.c};">${f.v}</span>${r}${a}</div>`;
+        })
+        .join("");
 
-// Weekly
-const ws=MAR.mkt.weeks;
-let wh=`<thead><tr><th></th><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>Total</th></tr></thead><tbody>`;
-wh+=`<tr><td colspan="6" class="wk-group">Marketing — Meta Ads / Instagram</td></tr>`;
-wh+=`<tr><td>Alcance</td>${ws.map(w=>`<td>${fmt(w.alc)}</td>`).join('')}<td>${fmt(mktT.alc)}</td></tr>`;
-wh+=`<tr><td>Frequência</td>${ws.map(w=>`<td>${w.fr.toFixed(1)}</td>`).join('')}<td>${(ws.reduce((a,w)=>a+w.fr,0)/4).toFixed(1)}</td></tr>`;
-wh+=`<tr><td>Visualizações</td>${ws.map(w=>`<td>${fmt(w.vi)}</td>`).join('')}<td>${fmt(mktT.vi)}</td></tr>`;
-wh+=`<tr><td>Novos seguidores</td>${ws.map(w=>`<td>${w.seg}</td>`).join('')}<td>${mktT.seg}</td></tr>`;
-wh+=`<tr><td colspan="6" class="wk-group">Funil de aula experimental <span style="font-weight:400;font-size:9px;text-transform:none;letter-spacing:0;color:var(--text-tertiary);">— dados semanais a partir de Abr/26</span></td></tr>`;
-wh+=`<tr><td>Agendadas</td><td>—</td><td>—</td><td>—</td><td>—</td><td>93</td></tr>`;
-wh+=`<tr><td>Presenças</td><td>—</td><td>—</td><td>—</td><td>—</td><td>22</td></tr>`;
-wh+=`<tr><td>Fechamentos</td><td>—</td><td>—</td><td>—</td><td>—</td><td>17</td></tr>`;
-wh+=`<tr><td colspan="6" class="wk-group">Vendas totais <span style="font-weight:400;font-size:9px;text-transform:none;letter-spacing:0;color:var(--text-tertiary);">— dados semanais a partir de Abr/26</span></td></tr>`;
-wh+=`<tr><td>Vendas (todos canais)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>100</td></tr>`;
-wh+=`</tbody>`;
-document.getElementById('weeklyTable').innerHTML=wh;
+      // Weekly
+      const ws = MAR.mkt.weeks;
+      let wh = `<thead><tr><th></th><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>Total</th></tr></thead><tbody>`;
+      wh += `<tr><td colspan="6" class="wk-group">Marketing — Meta Ads / Instagram</td></tr>`;
+      wh += `<tr><td>Alcance</td>${ws.map((w) => `<td>${fmt(w.alc)}</td>`).join("")}<td>${fmt(mktT.alc)}</td></tr>`;
+      wh += `<tr><td>Frequência</td>${ws.map((w) => `<td>${w.fr.toFixed(1)}</td>`).join("")}<td>${(ws.reduce((a, w) => a + w.fr, 0) / 4).toFixed(1)}</td></tr>`;
+      wh += `<tr><td>Visualizações</td>${ws.map((w) => `<td>${fmt(w.vi)}</td>`).join("")}<td>${fmt(mktT.vi)}</td></tr>`;
+      wh += `<tr><td>Novos seguidores</td>${ws.map((w) => `<td>${w.seg}</td>`).join("")}<td>${mktT.seg}</td></tr>`;
+      wh += `<tr><td colspan="6" class="wk-group">Funil de aula experimental <span style="font-weight:400;font-size:9px;text-transform:none;letter-spacing:0;color:var(--text-tertiary);">— dados semanais a partir de Abr/26</span></td></tr>`;
+      wh += `<tr><td>Agendadas</td><td>—</td><td>—</td><td>—</td><td>—</td><td>93</td></tr>`;
+      wh += `<tr><td>Presenças</td><td>—</td><td>—</td><td>—</td><td>—</td><td>22</td></tr>`;
+      wh += `<tr><td>Fechamentos</td><td>—</td><td>—</td><td>—</td><td>—</td><td>17</td></tr>`;
+      wh += `<tr><td colspan="6" class="wk-group">Vendas totais <span style="font-weight:400;font-size:9px;text-transform:none;letter-spacing:0;color:var(--text-tertiary);">— dados semanais a partir de Abr/26</span></td></tr>`;
+      wh += `<tr><td>Vendas (todos canais)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>100</td></tr>`;
+      wh += `</tbody>`;
+      document.getElementById("weeklyTable").innerHTML = wh;
 
-// Team with meta
-const tb=document.getElementById('teamBody');const mx=Math.max(...MAR.team.map(t=>t.v/t.l));
-tb.innerHTML=MAR.team.map(t=>{const cv=(t.v/t.l*100).toFixed(1);const bw=Math.round(cv/(mx*100)*100);const isNew=t.n==='Kathleen';return`<tr><td style="font-weight:500;">${t.n}${isNew?' <span style="font-size:10px;color:var(--blue);font-weight:600;">(nova)</span>':''}</td><td>${t.l}</td><td>${t.v} <span style="font-size:10px;color:var(--text-tertiary);">/ ${metaIndiv}</span></td><td><div class="bar-cell"><div class="mini-bar" style="width:${bw}%;background:${isNew?'var(--blue)':'var(--accent)'};"></div><span style="font-size:12px;font-weight:600;">${cv}%</span></div></td></tr>`;}).join('');
+      // Team with meta
+      const tb = document.getElementById("teamBody");
+      const mx = Math.max(...MAR.team.map((t) => t.v / t.l));
+      tb.innerHTML = MAR.team
+        .map((t) => {
+          const cv = ((t.v / t.l) * 100).toFixed(1);
+          const bw = Math.round((cv / (mx * 100)) * 100);
+          const isNew = t.n === "Kathleen";
+          return `<tr><td style="font-weight:500;">${t.n}${isNew ? ' <span style="font-size:10px;color:var(--blue);font-weight:600;">(nova)</span>' : ""}</td><td>${t.l}</td><td>${t.v} <span style="font-size:10px;color:var(--text-tertiary);">/ ${metaIndiv}</span></td><td><div class="bar-cell"><div class="mini-bar" style="width:${bw}%;background:${isNew ? "var(--blue)" : "var(--accent)"};"></div><span style="font-size:12px;font-weight:600;">${cv}%</span></div></td></tr>`;
+        })
+        .join("");
 
-// Vendas chart
-new Chart(document.getElementById('chartVendasHist'),{type:'bar',data:{labels:NV12L,datasets:[{data:NV12D,backgroundColor:NV12D.map(v=>v>=150?'#0F6E56':v>=120?'#378ADD':'#D85A30'),borderRadius:3}]},options:{...CD,scales:{x:{ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},y:{ticks:TS,grid:{color:GC}}}},plugins:[{afterDraw(ch){const ctx=ch.ctx,y=ch.scales.y,x=ch.scales.x;ctx.save();ctx.setLineDash([5,4]);ctx.lineWidth=1;const p=y.getPixelForValue(150);ctx.strokeStyle='#D85A30';ctx.beginPath();ctx.moveTo(x.left,p);ctx.lineTo(x.right,p);ctx.stroke();ctx.fillStyle='#D85A30';ctx.font='500 10px DM Sans';ctx.fillText('150',x.right-22,p-5);ctx.restore();}}]});
+      // Vendas chart
+      new Chart(document.getElementById("chartVendasHist"), {
+        type: "bar",
+        data: {
+          labels: NV12L,
+          datasets: [
+            {
+              data: NV12D,
+              backgroundColor: NV12D.map((v) =>
+                v >= 150 ? "#0F6E56" : v >= 120 ? "#378ADD" : "#D85A30",
+              ),
+              borderRadius: 3,
+            },
+          ],
+        },
+        options: {
+          ...CD,
+          scales: {
+            x: {
+              ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+              grid: { display: false },
+            },
+            y: { ticks: TS, grid: { color: GC } },
+          },
+        },
+        plugins: [
+          {
+            afterDraw(ch) {
+              const ctx = ch.ctx,
+                y = ch.scales.y,
+                x = ch.scales.x;
+              ctx.save();
+              ctx.setLineDash([5, 4]);
+              ctx.lineWidth = 1;
+              const p = y.getPixelForValue(150);
+              ctx.strokeStyle = "#D85A30";
+              ctx.beginPath();
+              ctx.moveTo(x.left, p);
+              ctx.lineTo(x.right, p);
+              ctx.stroke();
+              ctx.fillStyle = "#D85A30";
+              ctx.font = "500 10px DM Sans";
+              ctx.fillText("150", x.right - 22, p - 5);
+              ctx.restore();
+            },
+          },
+        ],
+      });
 
-// === RETENÇÃO ===
-document.getElementById('kpiRetencao').innerHTML=kH([
-  {l:'Base de alunos',v:'827*',b:'#0F6E56',t:'<span style="font-size:11px;">*Fev — crescimento mar pendente</span>'},
-  {l:'Inadimpl. em aberto (mar)',v:'107',b:'#A32D2D',t:`<span style="font-size:11px;">R$ 13,6k em aberto</span>`,d:'113 recuperados (R$ 14,4k) · 12 canceladas'},
-  {l:'Taxa recuperação (mar)',v:'49%',b:'#0F6E56',t:'<span style="font-size:11px;">113 de 232</span><span class="kpi-delta delta-up">50% em até 3 dias</span>'},
-  {l:'Saídas (Fev)',v:'115',b:'#A32D2D',t:dtag(115,89,true)},
-]);
-document.getElementById('insightRetencao').innerHTML=insightCard('var(--coral-light)','var(--coral)','Análise de retenção',[
-  {type:'warn',text:'<strong>Inadimplência março (parcial):</strong> 107 em aberto (R$ 13,6k) mas 113 já recuperados (R$ 14,4k). Taxa de recuperação em até 3 dias é <span class="i-good">50%</span>.'},
-  {type:'bad',text:'<strong>53 cobranças com 16-30 dias</strong> — metade do em aberto. São as mais difíceis de recuperar. Ação 5.3 (limpar dívida velha) continua pendente.'},
-  {type:'info',text:'<strong>Crescimento de março</strong> (entradas, saídas, base final) será atualizado quando o mês fechar no EVO.'},
-]);
+      // === RETENÇÃO ===
+      document.getElementById("kpiRetencao").innerHTML = kH([
+        {
+          l: "Base de alunos",
+          v: "827*",
+          b: "#0F6E56",
+          t: '<span style="font-size:11px;">*Fev — crescimento mar pendente</span>',
+        },
+        {
+          l: "Inadimpl. em aberto (mar)",
+          v: "107",
+          b: "#A32D2D",
+          t: `<span style="font-size:11px;">R$ 13,6k em aberto</span>`,
+          d: "113 recuperados (R$ 14,4k) · 12 canceladas",
+        },
+        {
+          l: "Taxa recuperação (mar)",
+          v: "49%",
+          b: "#0F6E56",
+          t: '<span style="font-size:11px;">113 de 232</span><span class="kpi-delta delta-up">50% em até 3 dias</span>',
+        },
+        { l: "Saídas (Fev)", v: "115", b: "#A32D2D", t: dtag(115, 89, true) },
+      ]);
+      document.getElementById("insightRetencao").innerHTML = insightCard(
+        "var(--coral-light)",
+        "var(--coral)",
+        "Análise de retenção",
+        [
+          {
+            type: "warn",
+            text: '<strong>Inadimplência março (parcial):</strong> 107 em aberto (R$ 13,6k) mas 113 já recuperados (R$ 14,4k). Taxa de recuperação em até 3 dias é <span class="i-good">50%</span>.',
+          },
+          {
+            type: "bad",
+            text: "<strong>53 cobranças com 16-30 dias</strong> — metade do em aberto. São as mais difíceis de recuperar. Ação 5.3 (limpar dívida velha) continua pendente.",
+          },
+          {
+            type: "info",
+            text: "<strong>Crescimento de março</strong> (entradas, saídas, base final) será atualizado quando o mês fechar no EVO.",
+          },
+        ],
+      );
 
-// Base chart
-document.getElementById('legendBase').innerHTML='<span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Histórico</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Projeção</span>';
-const bl=['Abr/25','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan/26','Fev','Mar*','Abr*','Mai*','Jun*','Jul*','Ago*'];const bh=[334,420,481,591,700,754,760,773,714,808,827,null,null,null,null,null,null];const bp=[null,null,null,null,null,null,null,null,null,null,827,861,914,967,1020,1073,1126];
-new Chart(document.getElementById('chartBase'),{type:'line',data:{labels:bl,datasets:[{data:bh,borderColor:'#B4B2A9',backgroundColor:'rgba(180,178,169,0.08)',fill:true,borderWidth:2,pointRadius:2,tension:.3,spanGaps:false},{data:bp,borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,0.08)',fill:true,borderWidth:2.5,pointRadius:3,borderDash:[4,3],tension:.3,spanGaps:false}]},options:{...CD,scales:{x:{ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},y:{ticks:{...TS,callback:v=>fmt(v)},grid:{color:GC},min:0}}},plugins:[{afterDraw(c){const x=c.ctx,y=c.scales.y,s=c.scales.x;x.save();x.setLineDash([5,4]);x.lineWidth=1;const p=y.getPixelForValue(875);x.strokeStyle='#D85A30';x.beginPath();x.moveTo(s.left,p);x.lineTo(s.right,p);x.stroke();x.fillStyle='#D85A30';x.font='500 10px DM Sans';x.fillText('875',s.right-26,p-4);x.restore();}}]});
+      // Base chart
+      document.getElementById("legendBase").innerHTML =
+        '<span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Histórico</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Projeção</span>';
+      const bl = [
+        "Abr/25",
+        "Mai",
+        "Jun",
+        "Jul",
+        "Ago",
+        "Set",
+        "Out",
+        "Nov",
+        "Dez",
+        "Jan/26",
+        "Fev",
+        "Mar*",
+        "Abr*",
+        "Mai*",
+        "Jun*",
+        "Jul*",
+        "Ago*",
+      ];
+      const bh = [
+        334,
+        420,
+        481,
+        591,
+        700,
+        754,
+        760,
+        773,
+        714,
+        808,
+        827,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ];
+      const bp = [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        827,
+        861,
+        914,
+        967,
+        1020,
+        1073,
+        1126,
+      ];
+      new Chart(document.getElementById("chartBase"), {
+        type: "line",
+        data: {
+          labels: bl,
+          datasets: [
+            {
+              data: bh,
+              borderColor: "#B4B2A9",
+              backgroundColor: "rgba(180,178,169,0.08)",
+              fill: true,
+              borderWidth: 2,
+              pointRadius: 2,
+              tension: 0.3,
+              spanGaps: false,
+            },
+            {
+              data: bp,
+              borderColor: "#0F6E56",
+              backgroundColor: "rgba(15,110,86,0.08)",
+              fill: true,
+              borderWidth: 2.5,
+              pointRadius: 3,
+              borderDash: [4, 3],
+              tension: 0.3,
+              spanGaps: false,
+            },
+          ],
+        },
+        options: {
+          ...CD,
+          scales: {
+            x: {
+              ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+              grid: { display: false },
+            },
+            y: {
+              ticks: { ...TS, callback: (v) => fmt(v) },
+              grid: { color: GC },
+              min: 0,
+            },
+          },
+        },
+        plugins: [
+          {
+            afterDraw(c) {
+              const x = c.ctx,
+                y = c.scales.y,
+                s = c.scales.x;
+              x.save();
+              x.setLineDash([5, 4]);
+              x.lineWidth = 1;
+              const p = y.getPixelForValue(875);
+              x.strokeStyle = "#D85A30";
+              x.beginPath();
+              x.moveTo(s.left, p);
+              x.lineTo(s.right, p);
+              x.stroke();
+              x.fillStyle = "#D85A30";
+              x.font = "500 10px DM Sans";
+              x.fillText("875", s.right - 26, p - 4);
+              x.restore();
+            },
+          },
+        ],
+      });
 
-const mi=MAR.inad;
-document.getElementById('legendInad').innerHTML=`<span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Recuperados ${mi.recup} (R$ ${fmt(mi.vRecup)})</span><span class="legend-item"><span class="legend-dot" style="background:#D85A30;"></span>Em aberto ${mi.aberto} (R$ ${fmt(mi.vAberto)})</span><span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Canceladas ${mi.cancel}</span>`;
-new Chart(document.getElementById('chartInad'),{type:'doughnut',data:{labels:['R','A','C'],datasets:[{data:[mi.recup,mi.aberto,mi.cancel],backgroundColor:['#0F6E56','#D85A30','#B4B2A9'],borderWidth:2,borderColor:'#fff'}]},options:{...CD,cutout:'65%'}});
+      const mi = MAR.inad;
+      document.getElementById("legendInad").innerHTML =
+        `<span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Recuperados ${mi.recup} (R$ ${fmt(mi.vRecup)})</span><span class="legend-item"><span class="legend-dot" style="background:#D85A30;"></span>Em aberto ${mi.aberto} (R$ ${fmt(mi.vAberto)})</span><span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Canceladas ${mi.cancel}</span>`;
+      new Chart(document.getElementById("chartInad"), {
+        type: "doughnut",
+        data: {
+          labels: ["R", "A", "C"],
+          datasets: [
+            {
+              data: [mi.recup, mi.aberto, mi.cancel],
+              backgroundColor: ["#0F6E56", "#D85A30", "#B4B2A9"],
+              borderWidth: 2,
+              borderColor: "#fff",
+            },
+          ],
+        },
+        options: { ...CD, cutout: "65%" },
+      });
 
-// === FINANCEIRO ===
-const royDevido=Math.round(MAR.rec*0.12);const royPago=18491;const royDiff=royPago-royDevido;const royPct=(royPago/MAR.rec*100).toFixed(1);
-const finResAcum=[-111996,-69478,-25144,-23149,-15283,8734,4742,-12225,-8321,4129,21597,32661].reduce((a,b)=>a+b,0);
-const finResAcumFev=[-111996,-69478,-25144,-23149,-15283,8734,4742,-12225,-8321,4129,21597].reduce((a,b)=>a+b,0);
-const aportesPostInag=255100;
-const finResComAportes=finResAcum+aportesPostInag;
-const finResComAportesFev=finResAcumFev+aportesPostInag;
-// Tax analysis - NF
-const impostoNFpago=16; // ~R$ 15-19/mês - praticamente zero
-const pctImpostoReal=Math.round(impostoNFpago/MAR.rec*10000)/100;
-const imposto134=Math.round(MAR.rec*0.134);
-const resultadoComImposto=MAR.res-imposto134; // resultado atual não tem imposto NF relevante, simula adicionar 13.4%
-const margemComImposto=Math.round(resultadoComImposto/MAR.rec*1000)/10;
-document.getElementById('kpiFinanceiro').innerHTML=kH([
-  {l:'Receita total',v:fR(MAR.rec),b:'#0F6E56',t:dtag(MAR.rec,FEV.rec)},
-  {l:'Despesa total',v:fR(MAR.desp),b:'#854F0B',t:`${dtag(MAR.desp,FEV.desp,true)} <span style="font-size:11px;">+R$ 5,2k</span>`},
-  {l:'Resultado operacional',v:'+R$ 33k',b:'#0F6E56',t:`<span style="font-size:11px;">margem 16,4%</span>${dtag(MAR.res,FEV.res)}`},
-  {l:'Imposto NF emitido',v:'~R$ 0',b:'#A32D2D',t:`<span style="font-size:11px;">${pctImpostoReal}% da receita</span><span class="kpi-delta delta-down">ref: 13,4%</span>`,d:'Emissão de NF mínima hoje — passivo fiscal acumulando'},
-  {l:'Resultado se 100% NF',v:resultadoComImposto>0?'+R$ '+Math.round(resultadoComImposto/1000)+'k':'−R$ '+Math.round(Math.abs(resultadoComImposto)/1000)+'k',b:resultadoComImposto>0?'#854F0B':'#A32D2D',t:`<span style="font-size:11px;">margem ${margemComImposto}% (simulação 13,4%)</span>`,d:'Imposto teórico: R$ '+fmt(imposto134)+'/mês sobre receita total'},
-  {l:'Acumulado sem aportes',v:'−R$ '+Math.round(Math.abs(finResAcum)/1000)+'k',b:'#A32D2D',t:`<span style="font-size:11px;">resultado operacional puro</span><span class="kpi-delta delta-up">+R$ ${fmt(Math.abs(finResAcum-finResAcumFev))} vs Fev</span>`,d:'Só receita - despesas, sem aportes dos sócios'},
-  {l:'Acumulado com aportes',v:'+R$ '+Math.round(finResComAportes/1000)+'k',b:'#0F6E56',t:`<span style="font-size:11px;">inclui R$ 255k aportes pós-inauguração</span><span class="kpi-delta delta-up">+R$ ${fmt(Math.abs(finResComAportes-finResComAportesFev))} vs Fev</span>`,d:'Aportes: Abr R$ 158k · Jun R$ 51k · Jul R$ 18,5k · Ago R$ 27,6k'},
-  {l:'Receita matriculados',v:'R$ 103k',b:'#378ADD',t:`<span style="font-size:11px;">51,6% do total</span>${dtag(MAR.matric.total,FEV.matric)}`,d:'Recorrente R$ 79,3k · Anual R$ 12,5k · Mensal R$ 9,5k'},
-  {l:'Receita Wellhub',v:'R$ 75k',b:'#0F6E56',t:`<span style="font-size:11px;">37,5% do total</span>${dtag(MAR.wellhub,FEV.wellhub)}`},
-  {l:'Royalties (validação)',v:'R$ 18,5k',b:royDiff<-500?'#A32D2D':'#0F6E56',t:`<span style="font-size:11px;">${royPct}% da receita (deveria ser 12%)</span>${royDiff<-500?'<span class="kpi-delta delta-down">-R$ '+fmt(Math.abs(royDiff))+'</span>':'<span class="kpi-delta delta-up">OK</span>'}`},
-]);
-document.getElementById('insightFinanceiro').innerHTML=insightCard('var(--purple-light)','var(--purple)','Análise financeira',[
-  {type:'good',text:'<strong>Terceiro mês positivo consecutivo</strong> e novo recorde: +R$ 32,7k (margem 16,4%). Tendência: Jan +R$ 4,1k → Fev +R$ 21,6k → Mar +R$ 32,7k.'},
-  {type:'bad',text:`<strong>Passivo fiscal (NF):</strong> emissão de NF hoje é mínima (~0% da receita). Se emitisse 100% (13,4%), o imposto seria <span class="i-bad">R$ ${fmt(imposto134)}/mês</span>. O resultado cairia de +R$ 33k para <span class="i-bad">+R$ ${fmt(resultadoComImposto)}</span> (margem ${margemComImposto}%). A operação se sustenta, mas com margem apertada. Esse passivo acumula mês a mês.`},
-  {type:'bad',text:'<strong>Royalties divergentes pelo 2º mês:</strong> pagou R$ 18,5k (9,3%) vs R$ 23,9k devidos (12%). <span class="i-bad">Faltam R$ 5.385 em março</span>. Acumulado: <span class="i-bad">R$ 9.902 a menos</span>. Investigar com a franqueadora.'},
-  {type:'good',text:'<strong>Matriculados ultrapassaram Wellhub:</strong> R$ 102,9k (51,6%). <span class="i-good">77% vem do recorrente</span> (R$ 79,3k) — receita previsível e saudável.'},
-  {type:'bad',text:'<strong>Insumos disparou +79%:</strong> de R$ 2,9k para <span class="i-bad">R$ 5,2k</span> — maior variação proporcional do mês.'},
-  {type:'warn',text:'<strong>Água subiu 39%:</strong> de R$ 3,4k para R$ 4,8k. Monitorar.'},
-  {type:'info',text:'<strong>Despesas pontuais:</strong> IPTU R$ 1,9k + Rescisões R$ 1,6k = R$ 3,5k não recorrente.'},
-  {type:'warn',text:'<strong>Wellhub recuou R$ 6,6k</strong> (R$ 74,7k vs R$ 81,3k). Acordo de R$ 112k/mês em Ago/26 elimina volatilidade.'},
-]);
+      // === FINANCEIRO ===
+      const royDevido = Math.round(MAR.rec * 0.12);
+      const royPago = 18491;
+      const royDiff = royPago - royDevido;
+      const royPct = ((royPago / MAR.rec) * 100).toFixed(1);
+      const finResAcum = [
+        -111996, -69478, -25144, -23149, -15283, 8734, 4742, -12225, -8321,
+        4129, 21597, 32661,
+      ].reduce((a, b) => a + b, 0);
+      const finResAcumFev = [
+        -111996, -69478, -25144, -23149, -15283, 8734, 4742, -12225, -8321,
+        4129, 21597,
+      ].reduce((a, b) => a + b, 0);
+      const aportesPostInag = 255100;
+      const finResComAportes = finResAcum + aportesPostInag;
+      const finResComAportesFev = finResAcumFev + aportesPostInag;
+      // Tax analysis - NF
+      const impostoNFpago = 16; // ~R$ 15-19/mês - praticamente zero
+      const pctImpostoReal =
+        Math.round((impostoNFpago / MAR.rec) * 10000) / 100;
+      const imposto134 = Math.round(MAR.rec * 0.134);
+      const resultadoComImposto = MAR.res - imposto134; // resultado atual não tem imposto NF relevante, simula adicionar 13.4%
+      const margemComImposto =
+        Math.round((resultadoComImposto / MAR.rec) * 1000) / 10;
+      document.getElementById("kpiFinanceiro").innerHTML = kH([
+        {
+          l: "Receita total",
+          v: fR(MAR.rec),
+          b: "#0F6E56",
+          t: dtag(MAR.rec, FEV.rec),
+        },
+        {
+          l: "Despesa total",
+          v: fR(MAR.desp),
+          b: "#854F0B",
+          t: `${dtag(MAR.desp, FEV.desp, true)} <span style="font-size:11px;">+R$ 5,2k</span>`,
+        },
+        {
+          l: "Resultado operacional",
+          v: "+R$ 33k",
+          b: "#0F6E56",
+          t: `<span style="font-size:11px;">margem 16,4%</span>${dtag(MAR.res, FEV.res)}`,
+        },
+        {
+          l: "Imposto NF emitido",
+          v: "~R$ 0",
+          b: "#A32D2D",
+          t: `<span style="font-size:11px;">${pctImpostoReal}% da receita</span><span class="kpi-delta delta-down">ref: 13,4%</span>`,
+        },
+        {
+          l: "Resultado se 100% NF",
+          v:
+            resultadoComImposto > 0
+              ? "+R$ " + Math.round(resultadoComImposto / 1000) + "k"
+              : "−R$ " + Math.round(Math.abs(resultadoComImposto) / 1000) + "k",
+          b: resultadoComImposto > 0 ? "#854F0B" : "#A32D2D",
+          t: `<span style="font-size:11px;">margem ${margemComImposto}% (simulação 13,4%)</span>`,
+          d:
+            "Imposto teórico: R$ " +
+            fmt(imposto134) +
+            "/mês sobre receita total",
+        },
+        {
+          l: "Acumulado sem aportes",
+          v: "−R$ " + Math.round(Math.abs(finResAcum) / 1000) + "k",
+          b: "#A32D2D",
+          t: `<span style="font-size:11px;">resultado operacional puro</span><span class="kpi-delta delta-up">+R$ ${fmt(Math.abs(finResAcum - finResAcumFev))} vs Fev</span>`,
+          d: "Só receita - despesas, sem aportes dos sócios",
+        },
+        {
+          l: "Acumulado com aportes",
+          v: "+R$ " + Math.round(finResComAportes / 1000) + "k",
+          b: "#0F6E56",
+          t: `<span style="font-size:11px;">inclui R$ 255k aportes pós-inauguração</span><span class="kpi-delta delta-up">+R$ ${fmt(Math.abs(finResComAportes - finResComAportesFev))} vs Fev</span>`,
+          d: "Aportes: Abr R$ 158k · Jun R$ 51k · Jul R$ 18,5k · Ago R$ 27,6k",
+        },
+        {
+          l: "Receita matriculados",
+          v: "R$ 103k",
+          b: "#378ADD",
+          t: `<span style="font-size:11px;">51,6% do total</span>${dtag(MAR.matric.total, FEV.matric)}`,
+          d: "Recorrente R$ 79,3k · Anual R$ 12,5k · Mensal R$ 9,5k",
+        },
+        {
+          l: "Receita Wellhub",
+          v: "R$ 75k",
+          b: "#0F6E56",
+          t: `<span style="font-size:11px;">37,5% do total</span>${dtag(MAR.wellhub, FEV.wellhub)}`,
+        },
+        {
+          l: "Royalties (validação)",
+          v: "R$ 18,5k",
+          b: royDiff < -500 ? "#A32D2D" : "#0F6E56",
+          t: `<span style="font-size:11px;">${royPct}% da receita (deveria ser 12%)</span>${royDiff < -500 ? '<span class="kpi-delta delta-down">-R$ ' + fmt(Math.abs(royDiff)) + "</span>" : '<span class="kpi-delta delta-up">OK</span>'}`,
+        },
+      ]);
+      document.getElementById("insightFinanceiro").innerHTML = insightCard(
+        "var(--purple-light)",
+        "var(--purple)",
+        "Análise financeira",
+        [
+          {
+            type: "good",
+            text: "<strong>Terceiro mês positivo consecutivo</strong> e novo recorde: +R$ 32,7k (margem 16,4%). Tendência: Jan +R$ 4,1k → Fev +R$ 21,6k → Mar +R$ 32,7k.",
+          },
+          {
+            type: "bad",
+            text: `<strong>Passivo fiscal (NF):</strong> emissão de NF hoje é mínima (~0% da receita). Se emitisse 100% (13,4%), o imposto seria <span class="i-bad">R$ ${fmt(imposto134)}/mês</span>. O resultado cairia de +R$ 33k para <span class="i-bad">+R$ ${fmt(resultadoComImposto)}</span> (margem ${margemComImposto}%). A operação se sustenta, mas com margem apertada. Esse passivo acumula mês a mês.`,
+          },
+          {
+            type: "bad",
+            text: '<strong>Royalties divergentes pelo 2º mês:</strong> pagou R$ 18,5k (9,3%) vs R$ 23,9k devidos (12%). <span class="i-bad">Faltam R$ 5.385 em março</span>. Acumulado: <span class="i-bad">R$ 9.902 a menos</span>. Investigar com a franqueadora.',
+          },
+          {
+            type: "good",
+            text: '<strong>Matriculados ultrapassaram Wellhub:</strong> R$ 102,9k (51,6%). <span class="i-good">77% vem do recorrente</span> (R$ 79,3k) — receita previsível e saudável.',
+          },
+          {
+            type: "bad",
+            text: '<strong>Insumos disparou +79%:</strong> de R$ 2,9k para <span class="i-bad">R$ 5,2k</span> — maior variação proporcional do mês.',
+          },
+          {
+            type: "warn",
+            text: "<strong>Água subiu 39%:</strong> de R$ 3,4k para R$ 4,8k. Monitorar.",
+          },
+          {
+            type: "info",
+            text: "<strong>Despesas pontuais:</strong> IPTU R$ 1,9k + Rescisões R$ 1,6k = R$ 3,5k não recorrente.",
+          },
+          {
+            type: "warn",
+            text: "<strong>Wellhub recuou R$ 6,6k</strong> (R$ 74,7k vs R$ 81,3k). Acordo de R$ 112k/mês em Ago/26 elimina volatilidade.",
+          },
+        ],
+      );
 
-document.getElementById('legendReceita').innerHTML='<span class="legend-item"><span class="legend-dot" style="background:#378ADD;"></span>Matriculados</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Wellhub</span><span class="legend-item"><span class="legend-dot" style="background:#EF9F27;"></span>Totalpass</span><span class="legend-item"><span class="legend-dot" style="background:#D85A30;"></span>Produtos</span><span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Não categorizado</span>';
-new Chart(document.getElementById('chartReceita'),{type:'bar',data:{labels:RL7,datasets:[{data:RMat7,backgroundColor:'#378ADD',borderRadius:2,label:'Matriculados'},{data:RWel7,backgroundColor:'#0F6E56',borderRadius:2,label:'Wellhub'},{data:RTot7,backgroundColor:'#EF9F27',borderRadius:2,label:'Totalpass'},{data:RProd7,backgroundColor:'#D85A30',borderRadius:2,label:'Produtos'},{data:RNcat7,backgroundColor:'#B4B2A9',borderRadius:2,label:'Não categ.'}]},options:{...CD,scales:{x:{stacked:true,ticks:{...TS,autoSkip:false},grid:{display:false}},y:{stacked:true,ticks:{...TS,callback:v=>'R$ '+Math.round(v/1000)+'k'},grid:{color:GC}}}}});
-new Chart(document.getElementById('chartResultado'),{type:'bar',data:{labels:RL7,datasets:[{data:RV7,backgroundColor:RV7.map(v=>v>=0?'#0F6E56':'#A32D2D'),borderRadius:3}]},options:{...CD,scales:{x:{ticks:{...TS,autoSkip:false},grid:{display:false}},y:{ticks:{...TS,callback:v=>(v<0?'-':'')+'R$ '+Math.abs(Math.round(v/1000))+'k'},grid:{color:GC}}}}});
+      document.getElementById("legendReceita").innerHTML =
+        '<span class="legend-item"><span class="legend-dot" style="background:#378ADD;"></span>Matriculados</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Wellhub</span><span class="legend-item"><span class="legend-dot" style="background:#EF9F27;"></span>Totalpass</span><span class="legend-item"><span class="legend-dot" style="background:#D85A30;"></span>Produtos</span><span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Não categorizado</span>';
+      new Chart(document.getElementById("chartReceita"), {
+        type: "bar",
+        data: {
+          labels: RL7,
+          datasets: [
+            {
+              data: RMat7,
+              backgroundColor: "#378ADD",
+              borderRadius: 2,
+              label: "Matriculados",
+            },
+            {
+              data: RWel7,
+              backgroundColor: "#0F6E56",
+              borderRadius: 2,
+              label: "Wellhub",
+            },
+            {
+              data: RTot7,
+              backgroundColor: "#EF9F27",
+              borderRadius: 2,
+              label: "Totalpass",
+            },
+            {
+              data: RProd7,
+              backgroundColor: "#D85A30",
+              borderRadius: 2,
+              label: "Produtos",
+            },
+            {
+              data: RNcat7,
+              backgroundColor: "#B4B2A9",
+              borderRadius: 2,
+              label: "Não categ.",
+            },
+          ],
+        },
+        options: {
+          ...CD,
+          scales: {
+            x: {
+              stacked: true,
+              ticks: { ...TS, autoSkip: false },
+              grid: { display: false },
+            },
+            y: {
+              stacked: true,
+              ticks: {
+                ...TS,
+                callback: (v) => "R$ " + Math.round(v / 1000) + "k",
+              },
+              grid: { color: GC },
+            },
+          },
+        },
+      });
+      new Chart(document.getElementById("chartResultado"), {
+        type: "bar",
+        data: {
+          labels: RL7,
+          datasets: [
+            {
+              data: RV7,
+              backgroundColor: RV7.map((v) => (v >= 0 ? "#0F6E56" : "#A32D2D")),
+              borderRadius: 3,
+            },
+          ],
+        },
+        options: {
+          ...CD,
+          scales: {
+            x: { ticks: { ...TS, autoSkip: false }, grid: { display: false } },
+            y: {
+              ticks: {
+                ...TS,
+                callback: (v) =>
+                  (v < 0 ? "-" : "") +
+                  "R$ " +
+                  Math.abs(Math.round(v / 1000)) +
+                  "k",
+              },
+              grid: { color: GC },
+            },
+          },
+        },
+      });
 
-// === RETORNO DO INVESTIMENTO ===
-(function(){
-const aportesPre=765200;
-const aportesPos=255100;
-const totalAportes=aportesPre+aportesPos;
-const resOp=[-111996,-69478,-25144,-23149,-15283,8734,4742,-12225,-8321,4129,21597,32661];
-const aportesM=[158000,0,51000,18500,27600,0,0,0,0,0,0,0];
-const distGabriel=11500;
+      // === RETORNO DO INVESTIMENTO ===
+      (function () {
+        const aportesPre = 765200;
+        const aportesPos = 255100;
+        const totalAportes = aportesPre + aportesPos;
+        const resOp = [
+          -111996, -69478, -25144, -23149, -15283, 8734, 4742, -12225, -8321,
+          4129, 21597, 32661,
+        ];
+        const aportesM = [158000, 0, 51000, 18500, 27600, 0, 0, 0, 0, 0, 0, 0];
+        const distGabriel = 11500;
 
-// Fluxo de caixa real: aportes pós + resultado operacional acumulado
-const caixaFinal=aportesPos+resOp.reduce((a,b)=>a+b,0); // 255100 + (-193733) = 61367
-const aRecuperar=totalAportes-caixaFinal;
-const pctRecuperado=Math.round(caixaFinal/totalAportes*1000)/10;
-const media3m=Math.round((resOp[9]+resOp[10]+resOp[11])/3);
-const mesesPayback=Math.round(aRecuperar/media3m);
-const media3mWH=media3m+30671;
-const mesesPaybackWH=Math.round(aRecuperar/media3mWH);
+        // Fluxo de caixa real: aportes pós + resultado operacional acumulado
+        const caixaFinal = aportesPos + resOp.reduce((a, b) => a + b, 0); // 255100 + (-193733) = 61367
+        const aRecuperar = totalAportes - caixaFinal;
+        const pctRecuperado =
+          Math.round((caixaFinal / totalAportes) * 1000) / 10;
+        const media3m = Math.round((resOp[9] + resOp[10] + resOp[11]) / 3);
+        const mesesPayback = Math.round(aRecuperar / media3m);
+        const media3mWH = media3m + 30671;
+        const mesesPaybackWH = Math.round(aRecuperar / media3mWH);
 
-document.getElementById('kpiROI').innerHTML=kH([
-  {l:'Total investido (Bruno+Guilherme)',v:'R$ 1.020k',b:'#854F0B',t:'<span style="font-size:11px;">R$ 765k pré + R$ 255k pós inauguração</span>',d:'Pré: materiais R$ 497k, serviços R$ 351k, franquia R$ 80k, outros R$ 65k'},
-  {l:'Saldo em caixa (fluxo real)',v:'R$ '+Math.round(caixaFinal/1000)+'k',b:'#0F6E56',t:`<span style="font-size:11px;">aportes pós (R$ 255k) + resultado acum. (−R$ 194k)</span><span class="kpi-delta delta-up">${pctRecuperado}% do investimento</span>`},
-  {l:'A recuperar',v:'R$ '+Math.round(aRecuperar/1000)+'k',b:'#A32D2D',t:'<span style="font-size:11px;">investido − saldo em caixa</span>'},
-  {l:'Payback estimado',v:mesesPayback+' meses',b:'#185FA5',t:`<span style="font-size:11px;">no ritmo atual (R$ ${fmt(media3m)}/mês)</span>`,d:'Com Wellhub (Ago/26): ~'+mesesPaybackWH+' meses (~R$ '+fmt(media3mWH)+'/mês)'},
-]);
+        document.getElementById("kpiROI").innerHTML = kH([
+          {
+            l: "Total investido (Bruno+Guilherme)",
+            v: "R$ 1.020k",
+            b: "#854F0B",
+            t: '<span style="font-size:11px;">R$ 765k pré + R$ 255k pós inauguração</span>',
+            d: "Pré: materiais R$ 497k, serviços R$ 351k, franquia R$ 80k, outros R$ 65k",
+          },
+          {
+            l: "Saldo em caixa (fluxo real)",
+            v: "R$ " + Math.round(caixaFinal / 1000) + "k",
+            b: "#0F6E56",
+            t: `<span style="font-size:11px;">aportes pós (R$ 255k) + resultado acum. (−R$ 194k)</span><span class="kpi-delta delta-up">${pctRecuperado}% do investimento</span>`,
+          },
+          {
+            l: "A recuperar",
+            v: "R$ " + Math.round(aRecuperar / 1000) + "k",
+            b: "#A32D2D",
+            t: '<span style="font-size:11px;">investido − saldo em caixa</span>',
+          },
+          {
+            l: "Payback estimado",
+            v: mesesPayback + " meses",
+            b: "#185FA5",
+            t: `<span style="font-size:11px;">no ritmo atual (R$ ${fmt(media3m)}/mês)</span>`,
+            d:
+              "Com Wellhub (Ago/26): ~" +
+              mesesPaybackWH +
+              " meses (~R$ " +
+              fmt(media3mWH) +
+              "/mês)",
+          },
+        ]);
 
-document.getElementById('insightROI').innerHTML=insightCard('var(--amber-light)','var(--amber)','Análise de retorno — Bruno e Guilherme',[
-  {type:'info',text:`<strong>Investimento total: R$ 1.020.300</strong> (Bruno + Guilherme) — R$ 765,2k antes da inauguração + R$ 255,1k de aportes operacionais (Abr a Ago/25). Sem aportes desde Set/25.`},
-  {type:'info',text:`<strong>Saldo em caixa: R$ ${fmt(caixaFinal)}</strong> — fluxo real considerando que meses negativos consomem caixa e meses positivos geram. Representa <span class="i-good">${pctRecuperado}%</span> do investimento total.`},
-  {type:'warn',text:`<strong>Faltam R$ ${fmt(aRecuperar)} para recuperar.</strong> No ritmo atual (média R$ ${fmt(media3m)}/mês), o payback levaria ~${mesesPayback} meses (${Math.floor(mesesPayback/12)} anos e ${mesesPayback%12} meses).`},
-  {type:'good',text:`<strong>Com o acordo Wellhub (+R$ 30,7k/mês a partir de Ago/26)</strong>, a média projetada sobe para ~R$ ${fmt(media3mWH)}/mês e o payback cai para <span class="i-good">~${mesesPaybackWH} meses</span>.`},
-  {type:'good',text:'<strong>Aceleração nos últimos 3 meses:</strong> Jan +R$ 4k, Fev +R$ 22k, Mar +R$ 33k = R$ 58k gerados. A operação está ganhando tração.'},
-  {type:'info',text:`<strong>Distribuição de lucro (Gabriel):</strong> R$ ${fmt(distGabriel)} acumulados. Gabriel entrou com trabalho, não com capital — não entra na conta do retorno.`},
-]);
+        document.getElementById("insightROI").innerHTML = insightCard(
+          "var(--amber-light)",
+          "var(--amber)",
+          "Análise de retorno — Bruno e Guilherme",
+          [
+            {
+              type: "info",
+              text: `<strong>Investimento total: R$ 1.020.300</strong> (Bruno + Guilherme) — R$ 765,2k antes da inauguração + R$ 255,1k de aportes operacionais (Abr a Ago/25). Sem aportes desde Set/25.`,
+            },
+            {
+              type: "info",
+              text: `<strong>Saldo em caixa: R$ ${fmt(caixaFinal)}</strong> — fluxo real considerando que meses negativos consomem caixa e meses positivos geram. Representa <span class="i-good">${pctRecuperado}%</span> do investimento total.`,
+            },
+            {
+              type: "warn",
+              text: `<strong>Faltam R$ ${fmt(aRecuperar)} para recuperar.</strong> No ritmo atual (média R$ ${fmt(media3m)}/mês), o payback levaria ~${mesesPayback} meses (${Math.floor(mesesPayback / 12)} anos e ${mesesPayback % 12} meses).`,
+            },
+            {
+              type: "good",
+              text: `<strong>Com o acordo Wellhub (+R$ 30,7k/mês a partir de Ago/26)</strong>, a média projetada sobe para ~R$ ${fmt(media3mWH)}/mês e o payback cai para <span class="i-good">~${mesesPaybackWH} meses</span>.`,
+            },
+            {
+              type: "good",
+              text: "<strong>Aceleração nos últimos 3 meses:</strong> Jan +R$ 4k, Fev +R$ 22k, Mar +R$ 33k = R$ 58k gerados. A operação está ganhando tração.",
+            },
+            {
+              type: "info",
+              text: `<strong>Distribuição de lucro (Gabriel):</strong> R$ ${fmt(distGabriel)} acumulados. Gabriel entrou com trabalho, não com capital — não entra na conta do retorno.`,
+            },
+          ],
+        );
 
-// Investment composition donut
-new Chart(document.getElementById('chartInvest'),{type:'doughnut',data:{
-  labels:['Materiais/obra','Serviços','Franquia','Equipamentos','Marketing','Folha','Outros','Aportes pós'],
-  datasets:[{data:[496772,351144,80000,24207,13559,21528,5869,255100],
-    backgroundColor:['#D85A30','#534AB7','#378ADD','#EF9F27','#1D9E75','#A32D2D','#B4B2A9','#854F0B'],borderWidth:2,borderColor:'#fff'}]
-},options:{...CD,cutout:'55%'}});
+        // Investment composition donut
+        new Chart(document.getElementById("chartInvest"), {
+          type: "doughnut",
+          data: {
+            labels: [
+              "Materiais/obra",
+              "Serviços",
+              "Franquia",
+              "Equipamentos",
+              "Marketing",
+              "Folha",
+              "Outros",
+              "Aportes pós",
+            ],
+            datasets: [
+              {
+                data: [
+                  496772, 351144, 80000, 24207, 13559, 21528, 5869, 255100,
+                ],
+                backgroundColor: [
+                  "#D85A30",
+                  "#534AB7",
+                  "#378ADD",
+                  "#EF9F27",
+                  "#1D9E75",
+                  "#A32D2D",
+                  "#B4B2A9",
+                  "#854F0B",
+                ],
+                borderWidth: 2,
+                borderColor: "#fff",
+              },
+            ],
+          },
+          options: { ...CD, cutout: "55%" },
+        });
 
-// Payback evolution - fluxo de caixa real mês a mês
-const payLabels=['Abr/25','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan/26','Fev','Mar'];
-let caixa=0;
-const caixaEvo=[];
-for(let i=0;i<12;i++){
-  caixa+=aportesM[i]+resOp[i];
-  caixaEvo.push(caixa);
-}
-// Saldo a recuperar = total investido - caixa acumulado
-const saldoEvo=caixaEvo.map(c=>totalAportes-c);
-new Chart(document.getElementById('chartPayback'),{type:'line',data:{labels:payLabels,datasets:[{
-  data:saldoEvo,borderColor:'#854F0B',backgroundColor:'rgba(133,79,11,0.08)',fill:true,borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#854F0B',tension:.3
-}]},options:{...CD,scales:{
-  x:{ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},
-  y:{ticks:{...TS,callback:v=>'R$ '+Math.round(v/1000)+'k'},grid:{color:GC}}
-}},plugins:[{afterDraw(ch){const ctx=ch.ctx,y=ch.scales.y,x=ch.scales.x;ctx.save();ctx.setLineDash([5,4]);ctx.lineWidth=1;const p=y.getPixelForValue(0);ctx.strokeStyle='#0F6E56';ctx.beginPath();ctx.moveTo(x.left,p);ctx.lineTo(x.right,p);ctx.stroke();ctx.fillStyle='#0F6E56';ctx.font='500 10px DM Sans';ctx.fillText('Payback',x.right-45,p-5);ctx.restore();}}]});
-})();
+        // Payback evolution - fluxo de caixa real mês a mês
+        const payLabels = [
+          "Abr/25",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Ago",
+          "Set",
+          "Out",
+          "Nov",
+          "Dez",
+          "Jan/26",
+          "Fev",
+          "Mar",
+        ];
+        let caixa = 0;
+        const caixaEvo = [];
+        for (let i = 0; i < 12; i++) {
+          caixa += aportesM[i] + resOp[i];
+          caixaEvo.push(caixa);
+        }
+        // Saldo a recuperar = total investido - caixa acumulado
+        const saldoEvo = caixaEvo.map((c) => totalAportes - c);
+        new Chart(document.getElementById("chartPayback"), {
+          type: "line",
+          data: {
+            labels: payLabels,
+            datasets: [
+              {
+                data: saldoEvo,
+                borderColor: "#854F0B",
+                backgroundColor: "rgba(133,79,11,0.08)",
+                fill: true,
+                borderWidth: 2.5,
+                pointRadius: 3,
+                pointBackgroundColor: "#854F0B",
+                tension: 0.3,
+              },
+            ],
+          },
+          options: {
+            ...CD,
+            scales: {
+              x: {
+                ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+                grid: { display: false },
+              },
+              y: {
+                ticks: {
+                  ...TS,
+                  callback: (v) => "R$ " + Math.round(v / 1000) + "k",
+                },
+                grid: { color: GC },
+              },
+            },
+          },
+          plugins: [
+            {
+              afterDraw(ch) {
+                const ctx = ch.ctx,
+                  y = ch.scales.y,
+                  x = ch.scales.x;
+                ctx.save();
+                ctx.setLineDash([5, 4]);
+                ctx.lineWidth = 1;
+                const p = y.getPixelForValue(0);
+                ctx.strokeStyle = "#0F6E56";
+                ctx.beginPath();
+                ctx.moveTo(x.left, p);
+                ctx.lineTo(x.right, p);
+                ctx.stroke();
+                ctx.fillStyle = "#0F6E56";
+                ctx.font = "500 10px DM Sans";
+                ctx.fillText("Payback", x.right - 45, p - 5);
+                ctx.restore();
+              },
+            },
+          ],
+        });
+      })();
 
-// === EVOLUÇÃO ===
-(function(){
-  function evoL(id,data,labels,color,opts={}){
-    const sc={x:{ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},y:{ticks:{...TS,callback:opts.yf||(v=>v)},grid:{color:GC}}};
-    if(opts.mn!==undefined)sc.y.min=opts.mn;const pl=[];
-    if(opts.tl){pl.push({afterDraw(ch){const ctx=ch.ctx,y=ch.scales.y,x=ch.scales.x;ctx.save();ctx.setLineDash([5,4]);ctx.lineWidth=1;opts.tl.forEach(t=>{const p=y.getPixelForValue(t.v);ctx.strokeStyle=t.c;ctx.beginPath();ctx.moveTo(x.left,p);ctx.lineTo(x.right,p);ctx.stroke();ctx.fillStyle=t.c;ctx.font='500 10px DM Sans';ctx.fillText(t.l,x.right-t.l.length*6,p-5);});ctx.restore();}});}
-    new Chart(document.getElementById(id),{type:'line',data:{labels,datasets:[{data,borderColor:color,backgroundColor:color+'12',fill:true,borderWidth:2.5,pointRadius:3,pointBackgroundColor:color,tension:.3}]},options:{...CD,scales:sc},plugins:pl});
-  }
-  evoL('evoAlunos',AF,M12,'#0F6E56',{yf:v=>fmt(v),tl:[{v:875,c:'#D85A30',l:'875'},{v:1047,c:'#185FA5',l:'1.047'}]});
-  new Chart(document.getElementById('evoSaldo'),{type:'bar',data:{labels:M12,datasets:[{data:SLD,backgroundColor:SLD.map(v=>v>=0?'#0F6E56':'#A32D2D'),borderRadius:3}]},options:{...CD,scales:{x:{ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},y:{ticks:{...TS,callback:v=>(v>0?'+':'')+v},grid:{color:GC}}}},plugins:[{afterDraw(ch){const ctx=ch.ctx,y=ch.scales.y,x=ch.scales.x;ctx.save();ctx.setLineDash([5,4]);ctx.lineWidth=1;const p=y.getPixelForValue(53);ctx.strokeStyle='#0F6E56';ctx.beginPath();ctx.moveTo(x.left,p);ctx.lineTo(x.right,p);ctx.stroke();ctx.fillStyle='#0F6E56';ctx.font='500 10px DM Sans';ctx.fillText('+53',x.right-24,p-5);ctx.restore();}}]});
-  evoL('evoNovos',NV12D,NV12L,'#378ADD',{tl:[{v:150,c:'#D85A30',l:'150'}]});
-  new Chart(document.getElementById('evoSaidas'),{type:'bar',data:{labels:M12,datasets:[{data:CAN,backgroundColor:'#A32D2D',borderRadius:2},{data:DES,backgroundColor:'#D85A30',borderRadius:2}]},options:{...CD,scales:{x:{stacked:true,ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},y:{stacked:true,ticks:TS,grid:{color:GC}}}}});
-  evoL('evoReceita',RT_ALL,['Abr/25','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan/26','Fev','Mar'],'#0F6E56',{yf:v=>'R$ '+Math.round(v/1000)+'k'});
-  new Chart(document.getElementById('evoResultado'),{type:'bar',data:{labels:RL7,datasets:[{data:RV7,backgroundColor:RV7.map(v=>v>=0?'#0F6E56':'#A32D2D'),borderRadius:3}]},options:{...CD,scales:{x:{ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},y:{ticks:{...TS,callback:v=>(v<0?'-':'')+'R$ '+Math.abs(Math.round(v/1000))+'k'},grid:{color:GC}}}}});
-  const tc=CAN.map((c,i)=>AI[i]>0?Math.round(c/AI[i]*1000)/10:0);const td=DES.map((d,i)=>AI[i]>0?Math.round(d/AI[i]*1000)/10:0);
-  const tbl=document.getElementById('histTable');const rows=[{l:'Ativos fim',d:AF,f:v=>fmt(v)},{l:'Novos',d:NV,f:v=>v},{l:'Saídas',d:SAI,f:v=>v,cls:'cell-neg'},{l:'Saldo',d:SLD,f:v=>(v>0?'+':'')+v,cf:v=>v>0?'cell-pos':v<0?'cell-neg':''},{l:'Cancel.',d:CAN,f:v=>v},{l:'Desist.',d:DES,f:v=>v},{l:'% cancel.',d:tc,f:v=>v.toFixed(1)+'%',cf:v=>v>8?'cell-neg':v>5?'cell-warn':''},{l:'% desist.',d:td,f:v=>v.toFixed(1)+'%',cf:v=>v>5?'cell-neg':v>3?'cell-warn':''}];
-  let h='<thead><tr><th></th>';M12.forEach(m=>h+=`<th>${m}</th>`);h+='</tr></thead><tbody>';
-  rows.forEach(r=>{h+=`<tr><td>${r.l}</td>`;r.d.forEach(v=>{const cl=r.cf?r.cf(v):(r.cls||'');h+=`<td class="${cl}">${r.f(v)}</td>`;});h+='</tr>';});
-  h+='</tbody>';tbl.innerHTML=h;
-})();
+      // === EVOLUÇÃO ===
+      (function () {
+        function evoL(id, data, labels, color, opts = {}) {
+          const sc = {
+            x: {
+              ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+              grid: { display: false },
+            },
+            y: {
+              ticks: { ...TS, callback: opts.yf || ((v) => v) },
+              grid: { color: GC },
+            },
+          };
+          if (opts.mn !== undefined) sc.y.min = opts.mn;
+          const pl = [];
+          if (opts.tl) {
+            pl.push({
+              afterDraw(ch) {
+                const ctx = ch.ctx,
+                  y = ch.scales.y,
+                  x = ch.scales.x;
+                ctx.save();
+                ctx.setLineDash([5, 4]);
+                ctx.lineWidth = 1;
+                opts.tl.forEach((t) => {
+                  const p = y.getPixelForValue(t.v);
+                  ctx.strokeStyle = t.c;
+                  ctx.beginPath();
+                  ctx.moveTo(x.left, p);
+                  ctx.lineTo(x.right, p);
+                  ctx.stroke();
+                  ctx.fillStyle = t.c;
+                  ctx.font = "500 10px DM Sans";
+                  ctx.fillText(t.l, x.right - t.l.length * 6, p - 5);
+                });
+                ctx.restore();
+              },
+            });
+          }
+          new Chart(document.getElementById(id), {
+            type: "line",
+            data: {
+              labels,
+              datasets: [
+                {
+                  data,
+                  borderColor: color,
+                  backgroundColor: color + "12",
+                  fill: true,
+                  borderWidth: 2.5,
+                  pointRadius: 3,
+                  pointBackgroundColor: color,
+                  tension: 0.3,
+                },
+              ],
+            },
+            options: { ...CD, scales: sc },
+            plugins: pl,
+          });
+        }
+        evoL("evoAlunos", AF, M12, "#0F6E56", {
+          yf: (v) => fmt(v),
+          tl: [
+            { v: 875, c: "#D85A30", l: "875" },
+            { v: 1047, c: "#185FA5", l: "1.047" },
+          ],
+        });
+        new Chart(document.getElementById("evoSaldo"), {
+          type: "bar",
+          data: {
+            labels: M12,
+            datasets: [
+              {
+                data: SLD,
+                backgroundColor: SLD.map((v) =>
+                  v >= 0 ? "#0F6E56" : "#A32D2D",
+                ),
+                borderRadius: 3,
+              },
+            ],
+          },
+          options: {
+            ...CD,
+            scales: {
+              x: {
+                ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+                grid: { display: false },
+              },
+              y: {
+                ticks: { ...TS, callback: (v) => (v > 0 ? "+" : "") + v },
+                grid: { color: GC },
+              },
+            },
+          },
+          plugins: [
+            {
+              afterDraw(ch) {
+                const ctx = ch.ctx,
+                  y = ch.scales.y,
+                  x = ch.scales.x;
+                ctx.save();
+                ctx.setLineDash([5, 4]);
+                ctx.lineWidth = 1;
+                const p = y.getPixelForValue(53);
+                ctx.strokeStyle = "#0F6E56";
+                ctx.beginPath();
+                ctx.moveTo(x.left, p);
+                ctx.lineTo(x.right, p);
+                ctx.stroke();
+                ctx.fillStyle = "#0F6E56";
+                ctx.font = "500 10px DM Sans";
+                ctx.fillText("+53", x.right - 24, p - 5);
+                ctx.restore();
+              },
+            },
+          ],
+        });
+        evoL("evoNovos", NV12D, NV12L, "#378ADD", {
+          tl: [{ v: 150, c: "#D85A30", l: "150" }],
+        });
+        new Chart(document.getElementById("evoSaidas"), {
+          type: "bar",
+          data: {
+            labels: M12,
+            datasets: [
+              { data: CAN, backgroundColor: "#A32D2D", borderRadius: 2 },
+              { data: DES, backgroundColor: "#D85A30", borderRadius: 2 },
+            ],
+          },
+          options: {
+            ...CD,
+            scales: {
+              x: {
+                stacked: true,
+                ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+                grid: { display: false },
+              },
+              y: { stacked: true, ticks: TS, grid: { color: GC } },
+            },
+          },
+        });
+        evoL(
+          "evoReceita",
+          RT_ALL,
+          [
+            "Abr/25",
+            "Mai",
+            "Jun",
+            "Jul",
+            "Ago",
+            "Set",
+            "Out",
+            "Nov",
+            "Dez",
+            "Jan/26",
+            "Fev",
+            "Mar",
+          ],
+          "#0F6E56",
+          { yf: (v) => "R$ " + Math.round(v / 1000) + "k" },
+        );
+        new Chart(document.getElementById("evoResultado"), {
+          type: "bar",
+          data: {
+            labels: RL7,
+            datasets: [
+              {
+                data: RV7,
+                backgroundColor: RV7.map((v) =>
+                  v >= 0 ? "#0F6E56" : "#A32D2D",
+                ),
+                borderRadius: 3,
+              },
+            ],
+          },
+          options: {
+            ...CD,
+            scales: {
+              x: {
+                ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+                grid: { display: false },
+              },
+              y: {
+                ticks: {
+                  ...TS,
+                  callback: (v) =>
+                    (v < 0 ? "-" : "") +
+                    "R$ " +
+                    Math.abs(Math.round(v / 1000)) +
+                    "k",
+                },
+                grid: { color: GC },
+              },
+            },
+          },
+        });
+        const tc = CAN.map((c, i) =>
+          AI[i] > 0 ? Math.round((c / AI[i]) * 1000) / 10 : 0,
+        );
+        const td = DES.map((d, i) =>
+          AI[i] > 0 ? Math.round((d / AI[i]) * 1000) / 10 : 0,
+        );
+        const tbl = document.getElementById("histTable");
+        const rows = [
+          { l: "Ativos fim", d: AF, f: (v) => fmt(v) },
+          { l: "Novos", d: NV, f: (v) => v },
+          { l: "Saídas", d: SAI, f: (v) => v, cls: "cell-neg" },
+          {
+            l: "Saldo",
+            d: SLD,
+            f: (v) => (v > 0 ? "+" : "") + v,
+            cf: (v) => (v > 0 ? "cell-pos" : v < 0 ? "cell-neg" : ""),
+          },
+          { l: "Cancel.", d: CAN, f: (v) => v },
+          { l: "Desist.", d: DES, f: (v) => v },
+          {
+            l: "% cancel.",
+            d: tc,
+            f: (v) => v.toFixed(1) + "%",
+            cf: (v) => (v > 8 ? "cell-neg" : v > 5 ? "cell-warn" : ""),
+          },
+          {
+            l: "% desist.",
+            d: td,
+            f: (v) => v.toFixed(1) + "%",
+            cf: (v) => (v > 5 ? "cell-neg" : v > 3 ? "cell-warn" : ""),
+          },
+        ];
+        let h = "<thead><tr><th></th>";
+        M12.forEach((m) => (h += `<th>${m}</th>`));
+        h += "</tr></thead><tbody>";
+        rows.forEach((r) => {
+          h += `<tr><td>${r.l}</td>`;
+          r.d.forEach((v) => {
+            const cl = r.cf ? r.cf(v) : r.cls || "";
+            h += `<td class="${cl}">${r.f(v)}</td>`;
+          });
+          h += "</tr>";
+        });
+        h += "</tbody>";
+        tbl.innerHTML = h;
+      })();
 
-// === AÇÕES ===
-const AREAS=[{name:'Gestão comercial e pessoas',i:'1',a:[{id:'1.1',d:'Argumentário de diferenciais',s:'done',o:'Bruno+Gabriel'},{id:'1.2',d:'Scripts de venda (v2)',s:'done',o:'Bruno'},{id:'1.3',d:'Follow-ups automáticos',s:'progress',o:'Guilherme'},{id:'1.4',d:'Gestão diária com qualidade',s:'blocked',o:'Gabriel'},{id:'1.5',d:'Capacitação semanal',s:'blocked',o:'Gabriel'}]},{name:'Aquisição',i:'2',a:[{id:'2.1',d:'Régua confirmação experimental',s:'progress',o:'Guilherme'},{id:'2.2',d:'Confirmação automática EVO',s:'pending',o:'Gabriel'},{id:'2.4',d:'Captação local Satélite/Bosque',s:'pending',o:'Guilherme+Gabriel'},{id:'2.5',d:'Programa de indicação',s:'pending',o:'Guilherme+Gabriel'}]},{name:'Onboarding',i:'3',a:[{id:'3.1',d:'Jornada primeiros 30 dias',s:'pending',o:'Gabriel+profs'},{id:'3.2',d:'Avaliação física como âncora',s:'pending',o:'Gabriel+profs'},{id:'3.3',d:'Alerta frequência EVO',s:'pending',o:'Gabriel'}]},{name:'Retenção',i:'4',a:[{id:'4.1',d:'Régua comunicação por tempo',s:'pending',o:'Guilherme'},{id:'4.2',d:'Alunos em risco',s:'pending',o:'Gabriel+profs'},{id:'4.3',d:'Retenção no cancelamento',s:'pending',o:'Bruno'}]},{name:'Inadimplência',i:'5',a:[{id:'5.1',d:'Régua cobrança 7 dias',s:'progress',o:'Guilherme+Gabriel'},{id:'5.2',d:'Facilitar meios pagamento',s:'pending',o:'Bruno'},{id:'5.3',d:'Limpar dívida velha',s:'pending',o:'Gabriel+Bruno'}]},{name:'Renovação',i:'6',a:[{id:'6.1',d:'Contato pré-vencimento',s:'progress',o:'Guilherme+Gabriel'},{id:'6.2',d:'Upgrade na renovação',s:'pending',o:'Bruno'},{id:'6.3',d:'Recuperação desistentes',s:'pending',o:'Recepção+Gabriel'}]}];
-const SM={done:{l:'Concluído',c:'status-done'},progress:{l:'Em andamento',c:'status-progress'},blocked:{l:'Bloqueado',c:'status-blocked'},pending:{l:'Pendente',c:'status-pending'}};
-(function(){const ct={done:0,progress:0,blocked:0,pending:0};AREAS.forEach(a=>a.a.forEach(x=>ct[x.s]++));const tt=Object.values(ct).reduce((a,b)=>a+b,0);
-document.getElementById('actionSummary').innerHTML=`<div class="summary-item"><span class="s-label">Total</span><span class="s-value">${tt}</span></div><div class="summary-item"><span class="s-label" style="color:var(--accent);">Concluídas</span><span class="s-value" style="color:var(--accent);">${ct.done}</span></div><div class="summary-item"><span class="s-label" style="color:var(--blue);">Em andamento</span><span class="s-value" style="color:var(--blue);">${ct.progress}</span></div><div class="summary-item"><span class="s-label" style="color:var(--amber);">Bloqueadas</span><span class="s-value" style="color:var(--amber);">${ct.blocked}</span></div><div class="summary-item"><span class="s-label">Pendentes</span><span class="s-value">${ct.pending}</span></div><div class="summary-item"><span class="s-label">Progresso</span><span class="s-value">${Math.round((ct.done+ct.progress*0.5)/tt*100)}%</span></div>`;
-document.getElementById('actionGroups').innerHTML=AREAS.map(ar=>{const dc=ar.a.filter(x=>x.s==='done').length;return`<div class="area-group"><div class="area-header"><h3>${ar.i}. ${ar.name}</h3><span class="area-count">${dc}/${ar.a.length}</span></div>${ar.a.map(x=>{const s=SM[x.s];return`<div class="action-row"><span class="action-id">${x.id}</span><span class="action-desc">${x.d}</span><span class="action-owner">${x.o}</span><span class="status-badge ${s.c}">${s.l}</span></div>`;}).join('')}</div>`;}).join('');})();
+      // === AÇÕES ===
+      const AREAS = [
+        {
+          name: "Gestão comercial e pessoas",
+          i: "1",
+          a: [
+            {
+              id: "1.1",
+              d: "Argumentário de diferenciais",
+              s: "done",
+              o: "Bruno+Gabriel",
+            },
+            { id: "1.2", d: "Scripts de venda (v2)", s: "done", o: "Bruno" },
+            {
+              id: "1.3",
+              d: "Follow-ups automáticos",
+              s: "progress",
+              o: "Guilherme",
+            },
+            {
+              id: "1.4",
+              d: "Gestão diária com qualidade",
+              s: "blocked",
+              o: "Gabriel",
+            },
+            { id: "1.5", d: "Capacitação semanal", s: "blocked", o: "Gabriel" },
+          ],
+        },
+        {
+          name: "Aquisição",
+          i: "2",
+          a: [
+            {
+              id: "2.1",
+              d: "Régua confirmação experimental",
+              s: "progress",
+              o: "Guilherme",
+            },
+            {
+              id: "2.2",
+              d: "Confirmação automática EVO",
+              s: "pending",
+              o: "Gabriel",
+            },
+            {
+              id: "2.4",
+              d: "Captação local Satélite/Bosque",
+              s: "pending",
+              o: "Guilherme+Gabriel",
+            },
+            {
+              id: "2.5",
+              d: "Programa de indicação",
+              s: "pending",
+              o: "Guilherme+Gabriel",
+            },
+          ],
+        },
+        {
+          name: "Onboarding",
+          i: "3",
+          a: [
+            {
+              id: "3.1",
+              d: "Jornada primeiros 30 dias",
+              s: "pending",
+              o: "Gabriel+profs",
+            },
+            {
+              id: "3.2",
+              d: "Avaliação física como âncora",
+              s: "pending",
+              o: "Gabriel+profs",
+            },
+            {
+              id: "3.3",
+              d: "Alerta frequência EVO",
+              s: "pending",
+              o: "Gabriel",
+            },
+          ],
+        },
+        {
+          name: "Retenção",
+          i: "4",
+          a: [
+            {
+              id: "4.1",
+              d: "Régua comunicação por tempo",
+              s: "pending",
+              o: "Guilherme",
+            },
+            {
+              id: "4.2",
+              d: "Alunos em risco",
+              s: "pending",
+              o: "Gabriel+profs",
+            },
+            {
+              id: "4.3",
+              d: "Retenção no cancelamento",
+              s: "pending",
+              o: "Bruno",
+            },
+          ],
+        },
+        {
+          name: "Inadimplência",
+          i: "5",
+          a: [
+            {
+              id: "5.1",
+              d: "Régua cobrança 7 dias",
+              s: "progress",
+              o: "Guilherme+Gabriel",
+            },
+            {
+              id: "5.2",
+              d: "Facilitar meios pagamento",
+              s: "pending",
+              o: "Bruno",
+            },
+            {
+              id: "5.3",
+              d: "Limpar dívida velha",
+              s: "pending",
+              o: "Gabriel+Bruno",
+            },
+          ],
+        },
+        {
+          name: "Renovação",
+          i: "6",
+          a: [
+            {
+              id: "6.1",
+              d: "Contato pré-vencimento",
+              s: "progress",
+              o: "Guilherme+Gabriel",
+            },
+            { id: "6.2", d: "Upgrade na renovação", s: "pending", o: "Bruno" },
+            {
+              id: "6.3",
+              d: "Recuperação desistentes",
+              s: "pending",
+              o: "Recepção+Gabriel",
+            },
+          ],
+        },
+      ];
+      const SM = {
+        done: { l: "Concluído", c: "status-done" },
+        progress: { l: "Em andamento", c: "status-progress" },
+        blocked: { l: "Bloqueado", c: "status-blocked" },
+        pending: { l: "Pendente", c: "status-pending" },
+      };
+      (function () {
+        const ct = { done: 0, progress: 0, blocked: 0, pending: 0 };
+        AREAS.forEach((a) => a.a.forEach((x) => ct[x.s]++));
+        const tt = Object.values(ct).reduce((a, b) => a + b, 0);
+        document.getElementById("actionSummary").innerHTML =
+          `<div class="summary-item"><span class="s-label">Total</span><span class="s-value">${tt}</span></div><div class="summary-item"><span class="s-label" style="color:var(--accent);">Concluídas</span><span class="s-value" style="color:var(--accent);">${ct.done}</span></div><div class="summary-item"><span class="s-label" style="color:var(--blue);">Em andamento</span><span class="s-value" style="color:var(--blue);">${ct.progress}</span></div><div class="summary-item"><span class="s-label" style="color:var(--amber);">Bloqueadas</span><span class="s-value" style="color:var(--amber);">${ct.blocked}</span></div><div class="summary-item"><span class="s-label">Pendentes</span><span class="s-value">${ct.pending}</span></div><div class="summary-item"><span class="s-label">Progresso</span><span class="s-value">${Math.round(((ct.done + ct.progress * 0.5) / tt) * 100)}%</span></div>`;
+        document.getElementById("actionGroups").innerHTML = AREAS.map((ar) => {
+          const dc = ar.a.filter((x) => x.s === "done").length;
+          return `<div class="area-group"><div class="area-header"><h3>${ar.i}. ${ar.name}</h3><span class="area-count">${dc}/${ar.a.length}</span></div>${ar.a
+            .map((x) => {
+              const s = SM[x.s];
+              return `<div class="action-row"><span class="action-id">${x.id}</span><span class="action-desc">${x.d}</span><span class="action-owner">${x.o}</span><span class="status-badge ${s.c}">${s.l}</span></div>`;
+            })
+            .join("")}</div>`;
+        }).join("");
+      })();
 
-// === PROJEÇÃO ===
-(function(){
-// Real vs Projected insight
-const projVendasM1=150, realVendasM1=100; // mês 1 com ações previa 150
-const projSemAcoesM1=129; // sem ações previa 129
-document.getElementById('insightRealVsProj').innerHTML=insightCard('var(--amber-light)','var(--amber)','Real vs projetado — vendas março/26',[
-  {type:'bad',text:`<strong>Vendas reais (100) ficaram abaixo dos dois cenários:</strong> projeção "com ações" previa 150, projeção "sem ações" previa 129. Real ficou <span class="i-bad">33% abaixo da meta</span> e <span class="i-bad">22% abaixo do cenário inércia</span>.`},
-  {type:'warn',text:'<strong>Por quê?</strong> As ações Pareto (scripts, confirmação experimental, onboarding) ainda não entraram em produção. O mês 1 operou essencialmente no cenário "sem ações" — e mesmo assim ficou abaixo porque os leads caíram 21% e o no-show subiu para 77%.'},
-  {type:'info',text:'<strong>Receita real surpreendeu positivamente:</strong> R$ 199k vs expectativa de ~R$ 183k (base Fev). O ticket médio subiu e a composição de receita melhorou (matriculados +29%). O resultado financeiro é o melhor da história mesmo com vendas abaixo.'},
-  {type:'info',text:'<strong>Recalibração:</strong> as premissas de vendas dependem das ações entrarem em produção. Enquanto o treinamento e a automação não acontecerem, o cenário real fica mais próximo de 100-110 vendas/mês, não 150.'},
-]);
+      // === PROJEÇÃO ===
+      (function () {
+        // Real vs Projected insight
+        const projVendasM1 = 150,
+          realVendasM1 = 100; // mês 1 com ações previa 150
+        const projSemAcoesM1 = 129; // sem ações previa 129
+        document.getElementById("insightRealVsProj").innerHTML = insightCard(
+          "var(--amber-light)",
+          "var(--amber)",
+          "Real vs projetado — vendas março/26",
+          [
+            {
+              type: "bad",
+              text: `<strong>Vendas reais (100) ficaram abaixo dos dois cenários:</strong> projeção "com ações" previa 150, projeção "sem ações" previa 129. Real ficou <span class="i-bad">33% abaixo da meta</span> e <span class="i-bad">22% abaixo do cenário inércia</span>.`,
+            },
+            {
+              type: "warn",
+              text: '<strong>Por quê?</strong> As ações Pareto (scripts, confirmação experimental, onboarding) ainda não entraram em produção. O mês 1 operou essencialmente no cenário "sem ações" — e mesmo assim ficou abaixo porque os leads caíram 21% e o no-show subiu para 77%.',
+            },
+            {
+              type: "info",
+              text: "<strong>Receita real surpreendeu positivamente:</strong> R$ 199k vs expectativa de ~R$ 183k (base Fev). O ticket médio subiu e a composição de receita melhorou (matriculados +29%). O resultado financeiro é o melhor da história mesmo com vendas abaixo.",
+            },
+            {
+              type: "info",
+              text: "<strong>Recalibração:</strong> as premissas de vendas dependem das ações entrarem em produção. Enquanto o treinamento e a automação não acontecerem, o cenário real fica mais próximo de 100-110 vendas/mês, não 150.",
+            },
+          ],
+        );
 
-// Alunos projection chart
-const SP=[827,848,869,890,911,932,953,974,995,1016,1037,1058,1079];
-const CP=[827,861,914,967,1020,1073,1126,1179,1232,1285,1338,1391,1444];
-const PL=['Fev/26','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez','Jan/27','Fev/27'];
-document.getElementById('legendProj').innerHTML='<span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Sem ações</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Com ações Pareto</span><span class="legend-item"><span class="legend-dot" style="background:transparent;border:1px dashed #D85A30;width:6px;height:6px;"></span>Meta 15%</span><span class="legend-item"><span class="legend-dot" style="background:transparent;border:1px dashed #185FA5;width:6px;height:6px;"></span>Meta 20%</span>';
-new Chart(document.getElementById('chartProj'),{type:'line',data:{labels:PL,datasets:[{data:SP,borderColor:'#B4B2A9',backgroundColor:'transparent',borderWidth:2,pointRadius:3,tension:.3},{data:CP,borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,0.06)',fill:true,borderWidth:2.5,pointRadius:4,tension:.3}]},options:{...CD,scales:{x:{ticks:{...TS,autoSkip:false,maxRotation:45},grid:{display:false}},y:{min:800,max:1500,ticks:{...TS,callback:v=>fmt(v)},grid:{color:GC}}}},plugins:[{afterDraw(c){const x=c.ctx,y=c.scales.y,s=c.scales.x;x.save();x.setLineDash([6,4]);x.lineWidth=1;let p=y.getPixelForValue(875);x.strokeStyle='#D85A30';x.beginPath();x.moveTo(s.left,p);x.lineTo(s.right,p);x.stroke();x.fillStyle='#D85A30';x.font='500 10px DM Sans';x.fillText('875',s.right-26,p-5);p=y.getPixelForValue(1047);x.strokeStyle='#185FA5';x.beginPath();x.moveTo(s.left,p);x.lineTo(s.right,p);x.stroke();x.fillStyle='#185FA5';x.fillText('1.047',s.right-30,p-5);x.restore();}}]});
+        // Alunos projection chart
+        const SP = [
+          827, 848, 869, 890, 911, 932, 953, 974, 995, 1016, 1037, 1058, 1079,
+        ];
+        const CP = [
+          827, 861, 914, 967, 1020, 1073, 1126, 1179, 1232, 1285, 1338, 1391,
+          1444,
+        ];
+        const PL = [
+          "Fev/26",
+          "Mar",
+          "Abr",
+          "Mai",
+          "Jun",
+          "Jul",
+          "Ago",
+          "Set",
+          "Out",
+          "Nov",
+          "Dez",
+          "Jan/27",
+          "Fev/27",
+        ];
+        document.getElementById("legendProj").innerHTML =
+          '<span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Sem ações</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Com ações Pareto</span><span class="legend-item"><span class="legend-dot" style="background:transparent;border:1px dashed #D85A30;width:6px;height:6px;"></span>Meta 15%</span><span class="legend-item"><span class="legend-dot" style="background:transparent;border:1px dashed #185FA5;width:6px;height:6px;"></span>Meta 20%</span>';
+        new Chart(document.getElementById("chartProj"), {
+          type: "line",
+          data: {
+            labels: PL,
+            datasets: [
+              {
+                data: SP,
+                borderColor: "#B4B2A9",
+                backgroundColor: "transparent",
+                borderWidth: 2,
+                pointRadius: 3,
+                tension: 0.3,
+              },
+              {
+                data: CP,
+                borderColor: "#0F6E56",
+                backgroundColor: "rgba(15,110,86,0.06)",
+                fill: true,
+                borderWidth: 2.5,
+                pointRadius: 4,
+                tension: 0.3,
+              },
+            ],
+          },
+          options: {
+            ...CD,
+            scales: {
+              x: {
+                ticks: { ...TS, autoSkip: false, maxRotation: 45 },
+                grid: { display: false },
+              },
+              y: {
+                min: 800,
+                max: 1500,
+                ticks: { ...TS, callback: (v) => fmt(v) },
+                grid: { color: GC },
+              },
+            },
+          },
+          plugins: [
+            {
+              afterDraw(c) {
+                const x = c.ctx,
+                  y = c.scales.y,
+                  s = c.scales.x;
+                x.save();
+                x.setLineDash([6, 4]);
+                x.lineWidth = 1;
+                let p = y.getPixelForValue(875);
+                x.strokeStyle = "#D85A30";
+                x.beginPath();
+                x.moveTo(s.left, p);
+                x.lineTo(s.right, p);
+                x.stroke();
+                x.fillStyle = "#D85A30";
+                x.font = "500 10px DM Sans";
+                x.fillText("875", s.right - 26, p - 5);
+                p = y.getPixelForValue(1047);
+                x.strokeStyle = "#185FA5";
+                x.beginPath();
+                x.moveTo(s.left, p);
+                x.lineTo(s.right, p);
+                x.stroke();
+                x.fillStyle = "#185FA5";
+                x.fillText("1.047", s.right - 30, p - 5);
+                x.restore();
+              },
+            },
+          ],
+        });
 
-// Revenue projection chart
-const rpLabels=['Mar/26','Abr','Mai','Jun','Jul','Ago'];
-const ticket=124; // ticket atual Mar (102884/827)
-const wellhubProj=[74738,75000,75000,75000,75000,112000]; // acordo ago/26
-const tpOutros=[22916,22000,22000,23000,23000,23000];
-const alunosProj=[827,914,967,1020,1073,1126]; // cenário com ações
-const recMatricProj=alunosProj.map(a=>a*ticket);
-const recTotalProj=recMatricProj.map((m,i)=>m+wellhubProj[i]+tpOutros[i]);
-const despProj=[166302,165000,165000,166000,166000,167000]; // estimativa estável
-const resProj=recTotalProj.map((r,i)=>r-despProj[i]);
+        // Revenue projection chart
+        const rpLabels = ["Mar/26", "Abr", "Mai", "Jun", "Jul", "Ago"];
+        const ticket = 124; // ticket atual Mar (102884/827)
+        const wellhubProj = [74738, 75000, 75000, 75000, 75000, 112000]; // acordo ago/26
+        const tpOutros = [22916, 22000, 22000, 23000, 23000, 23000];
+        const alunosProj = [827, 914, 967, 1020, 1073, 1126]; // cenário com ações
+        const recMatricProj = alunosProj.map((a) => a * ticket);
+        const recTotalProj = recMatricProj.map(
+          (m, i) => m + wellhubProj[i] + tpOutros[i],
+        );
+        const despProj = [166302, 165000, 165000, 166000, 166000, 167000]; // estimativa estável
+        const resProj = recTotalProj.map((r, i) => r - despProj[i]);
 
-document.getElementById('legendRecProj').innerHTML='<span class="legend-item"><span class="legend-dot" style="background:#378ADD;"></span>Receita projetada</span><span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Despesa estimada</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Resultado</span>';
-new Chart(document.getElementById('chartRecProj'),{type:'bar',data:{labels:rpLabels,datasets:[
-  {data:recTotalProj,backgroundColor:'#378ADD',borderRadius:2,label:'Receita',order:2},
-  {data:despProj,backgroundColor:'#B4B2A9',borderRadius:2,label:'Despesa',order:3},
-  {data:resProj,type:'line',borderColor:'#0F6E56',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#0F6E56',tension:.3,label:'Resultado',order:1,yAxisID:'y2'}
-]},options:{...CD,scales:{
-  x:{ticks:{...TS,autoSkip:false},grid:{display:false}},
-  y:{ticks:{...TS,callback:v=>'R$ '+Math.round(v/1000)+'k'},grid:{color:GC},position:'left'},
-  y2:{ticks:{...TS,callback:v=>'R$ '+Math.round(v/1000)+'k'},grid:{display:false},position:'right'}
-}}});
+        document.getElementById("legendRecProj").innerHTML =
+          '<span class="legend-item"><span class="legend-dot" style="background:#378ADD;"></span>Receita projetada</span><span class="legend-item"><span class="legend-dot" style="background:#B4B2A9;"></span>Despesa estimada</span><span class="legend-item"><span class="legend-dot" style="background:#0F6E56;"></span>Resultado</span>';
+        new Chart(document.getElementById("chartRecProj"), {
+          type: "bar",
+          data: {
+            labels: rpLabels,
+            datasets: [
+              {
+                data: recTotalProj,
+                backgroundColor: "#378ADD",
+                borderRadius: 2,
+                label: "Receita",
+                order: 2,
+              },
+              {
+                data: despProj,
+                backgroundColor: "#B4B2A9",
+                borderRadius: 2,
+                label: "Despesa",
+                order: 3,
+              },
+              {
+                data: resProj,
+                type: "line",
+                borderColor: "#0F6E56",
+                backgroundColor: "transparent",
+                borderWidth: 2.5,
+                pointRadius: 4,
+                pointBackgroundColor: "#0F6E56",
+                tension: 0.3,
+                label: "Resultado",
+                order: 1,
+                yAxisID: "y2",
+              },
+            ],
+          },
+          options: {
+            ...CD,
+            scales: {
+              x: {
+                ticks: { ...TS, autoSkip: false },
+                grid: { display: false },
+              },
+              y: {
+                ticks: {
+                  ...TS,
+                  callback: (v) => "R$ " + Math.round(v / 1000) + "k",
+                },
+                grid: { color: GC },
+                position: "left",
+              },
+              y2: {
+                ticks: {
+                  ...TS,
+                  callback: (v) => "R$ " + Math.round(v / 1000) + "k",
+                },
+                grid: { display: false },
+                position: "right",
+              },
+            },
+          },
+        });
 
-// Pareto
-new Chart(document.getElementById('chartPareto'),{type:'bar',data:{labels:['Fator R (Anexo III)','Confirmação experimental','Onboarding 30 dias','Scripts revisados (v2)','Cobrança 7 dias'],datasets:[{data:[10200,15000,12000,9200,6500],backgroundColor:['#0F6E56','#378ADD','#534AB7','#D85A30','#EF9F27'],borderRadius:4}]},options:{...CD,indexAxis:'y',scales:{x:{ticks:{...TS,callback:v=>'R$ '+Math.round(v/1000)+'k/mês'},grid:{color:GC}},y:{ticks:{...TS,font:{size:11,family:'DM Sans'}},grid:{display:false}}}}});
-})();
-</script>
-</body>
+        // Pareto
+        new Chart(document.getElementById("chartPareto"), {
+          type: "bar",
+          data: {
+            labels: [
+              "Fator R (Anexo III)",
+              "Confirmação experimental",
+              "Onboarding 30 dias",
+              "Scripts revisados (v2)",
+              "Cobrança 7 dias",
+            ],
+            datasets: [
+              {
+                data: [10200, 15000, 12000, 9200, 6500],
+                backgroundColor: [
+                  "#0F6E56",
+                  "#378ADD",
+                  "#534AB7",
+                  "#D85A30",
+                  "#EF9F27",
+                ],
+                borderRadius: 4,
+              },
+            ],
+          },
+          options: {
+            ...CD,
+            indexAxis: "y",
+            scales: {
+              x: {
+                ticks: {
+                  ...TS,
+                  callback: (v) => "R$ " + Math.round(v / 1000) + "k/mês",
+                },
+                grid: { color: GC },
+              },
+              y: {
+                ticks: { ...TS, font: { size: 11, family: "DM Sans" } },
+                grid: { display: false },
+              },
+            },
+          },
+        });
+      })();
+    </script>
+  </body>
 </html>

@@ -207,7 +207,7 @@ rows(period_month, code, numeric_value, text_value, meta_json) as (
     ('2026-01-01'::date, 'products_revenue', 4649::numeric, null, '{}'::jsonb),
     ('2026-02-01'::date, 'products_revenue', 3299::numeric, null, '{}'::jsonb),
     ('2026-03-01'::date, 'products_revenue', 4493::numeric, null, '{"partial": true}'::jsonb),
-    ('2026-03-01'::date, 'invoice_tax_nf', 25::numeric, null, '{"partial": true, "approximate_main": true, "pct_revenue_line": "0,01% da receita", "ref_line": "ref: 13,4%", "footnote": "Emissão de NF mínima hoje — passivo fiscal acumulando"}'::jsonb),
+    ('2026-03-01'::date, 'invoice_tax_nf', 25::numeric, null, '{"partial": true, "approximate_main": true, "pct_revenue_line": "0,01% da receita", "ref_line": "ref: 13,4%"}'::jsonb),
     ('2026-03-01'::date, 'operational_result_100pct_nf', 6000::numeric, null, '{"partial": true, "margin_line": "margem 3% (simulação 13,4%)", "tax_theory_line": "Imposto teórico: R$ 26.661/mês sobre receita total"}'::jsonb),
     ('2026-03-01'::date, 'accumulated_operational_no_contributions', -194000::numeric, null, '{"partial": true, "subline": "resultado operacional puro", "footnote": "Só receita − despesas, sem aportes dos sócios", "delta_vs_prev_pill": "+R$ 32.661 vs Fev"}'::jsonb),
     ('2026-03-01'::date, 'accumulated_with_contributions', 61367::numeric, null, '{"partial": true, "compact_currency": true, "subline": "inclui R$ 255k aportes pós-inauguração", "aportes_line": "Aportes: Abr R$ 158k · Jun R$ 51k · Jul R$ 18,5k · Ago R$ 27,6k", "delta_vs_prev_pill": "+R$ 32.661 vs Fev"}'::jsonb),
