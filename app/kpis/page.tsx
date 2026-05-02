@@ -1071,8 +1071,7 @@ function RetentionKpiCards({ data }: { data: KpiPageData }) {
 export default async function KpisPage() {
 	const data = await getKpiPageData();
 	const smPrimaryShort = data.salesMarketingDashboard.primaryPeriodLabel;
-	const smComparisonShort =
-		data.salesMarketingDashboard.comparisonPeriodLabel;
+	const smComparisonShort = data.salesMarketingDashboard.comparisonPeriodLabel;
 
 	return (
 		<div className={styles.page}>
@@ -1085,9 +1084,6 @@ export default async function KpisPage() {
 						<div>
 							<h1 className={styles.title}>Dashboard estratégico</h1>
 							<p className={styles.subtitle}>{data.gymName}</p>
-							<p className={styles.subtitle}>
-								{`Semanal: ${data.currentMonthLabel} · Mensal: ${data.currentPeriodLabel}`}
-							</p>
 						</div>
 					</div>
 					<div className={styles.periodStrip}>
@@ -1237,8 +1233,7 @@ export default async function KpisPage() {
 
 									if (section.id === "sales_marketing") {
 										const deltaVsLabel =
-											smComparisonShort ??
-											abbreviatePeriodLabel(vsLabel);
+											smComparisonShort ?? abbreviatePeriodLabel(vsLabel);
 										const metaObj = meta ?? {};
 										const deltaOpts =
 											card.key === "sales_total" &&
@@ -1305,11 +1300,7 @@ export default async function KpisPage() {
 										);
 									}
 
-									const delta = renderDelta(
-										current,
-										previous,
-										shortVsLabel,
-									);
+									const delta = renderDelta(current, previous, shortVsLabel);
 
 									if (section.id === "overview") {
 										const overviewDelta = renderDelta(
