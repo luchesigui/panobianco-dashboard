@@ -251,6 +251,13 @@ function brlKShort(value: number): string {
 	return `R$ ${k}k`;
 }
 
+/** Integer BRL for meta lines (e.g. imposto teórico 13,4% da receita). */
+function brlWholePtBr(value: number): string {
+	return Math.round(value).toLocaleString("pt-BR", {
+		maximumFractionDigits: 0,
+	});
+}
+
 function buildNextMonthForecast(
 	currentPeriod: string,
 	previousPeriod: string | undefined,
@@ -955,6 +962,27 @@ export async function getKpiPageData(
 			: Math.round(recC + openC + cancelled);
 
 	applyFinancePageFallbacks(current, currentMeta, insights);
+
+	// Resultado se 100% NF: margem e imposto teórico alinhados ao valor calculado (podem ser negativos).
+	{
+		const rev = current["revenue_total"];
+		const res100 = current["operational_result_100pct_nf"];
+		if (
+			rev != null &&
+			rev > 0 &&
+			res100 != null &&
+			!Number.isNaN(res100)
+		) {
+			const pct = Math.round((res100 / rev) * 1000) / 10;
+			const taxTheory = Math.round(rev * 0.134);
+			currentMeta["operational_result_100pct_nf"] = {
+				...(currentMeta["operational_result_100pct_nf"] ?? {}),
+				margin_line: `margem ${pct.toFixed(1).replace(".", ",")}% (simulação 13,4%)`,
+				tax_theory_line: `Imposto teórico: R$ ${brlWholePtBr(taxTheory)}/mês sobre receita total`,
+			};
+		}
+	}
+
 	const roiCharts = applyRoiPageFallbacks(current, currentMeta, insights);
 
 	const nextMonthForecast = buildNextMonthForecast(

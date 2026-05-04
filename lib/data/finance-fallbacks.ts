@@ -19,8 +19,6 @@ const FINANCE_META_FALLBACK: KpiMetaMap = {
 	},
 	operational_result_100pct_nf: {
 		partial: true,
-		margin_line: "margem 3% (simulação 13,4%)",
-		tax_theory_line: "Imposto teórico: R$ 26.661/mês sobre receita total",
 	},
 	accumulated_operational_no_contributions: {
 		partial: true,

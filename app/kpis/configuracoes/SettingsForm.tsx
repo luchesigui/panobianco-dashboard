@@ -146,7 +146,7 @@ export function SettingsForm({
       return;
     }
     const res = await saveGymSettingsAction({
-      totalInvested: totalInvested.trim() === "" ? "" : parsed,
+      totalInvested: totalInvested.trim() === "" ? "" : (parsed ?? undefined),
     });
     if (res.ok) {
       setMessage({ type: "ok", text: "Investimento total salvo." });

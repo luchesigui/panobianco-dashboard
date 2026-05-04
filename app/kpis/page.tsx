@@ -1445,23 +1445,6 @@ export default async function KpisPage() {
 				);
 			})}
 
-			<section className={styles.sectionPlain}>
-				<h2>Análises mensais</h2>
-				<div className={styles.analysis}>
-					{data.analysis.map((item) => (
-						<article
-							key={`${item.category}-${item.section}`}
-							className={styles.chartCard}
-						>
-							<div className={styles.analysisItem}>
-								<strong>{item.section}</strong>
-								<p>{item.analysis}</p>
-							</div>
-						</article>
-					))}
-				</div>
-			</section>
-
 			{data.featureOfMonth && (
 				<section className={styles.sectionPlain}>
 					<div className={styles.feature}>
