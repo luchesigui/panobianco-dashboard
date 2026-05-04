@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/app/actions/logout";
 
 const NAV_LINKS = [
   { href: "/kpis", label: "Dashboard", exact: true },
@@ -42,6 +43,15 @@ export function Navbar() {
             );
           })}
         </nav>
+
+        <form action={logout} className="ml-2">
+          <button
+            type="submit"
+            className="px-3.5 py-1.5 rounded-md text-sm font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors"
+          >
+            Sair
+          </button>
+        </form>
       </div>
     </header>
   );
