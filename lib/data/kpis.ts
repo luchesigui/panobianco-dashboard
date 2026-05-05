@@ -487,7 +487,14 @@ export async function getKpiPageData(
 		prev3MonthPeriod,
 	];
 
-	const [defsRes, valuesRes, dashboardRes, salesHistoryRes, settingsRes] =
+	const [
+		defsRes,
+		valuesRes,
+		dashboardRes,
+		salesHistoryRes,
+		settingsRes,
+		consultorasRes,
+	] =
 		await Promise.all(
 		[
 			supabase.from("kpi_definitions").select("id,code"),
@@ -513,6 +520,11 @@ export async function getKpiPageData(
 				.select("key,value")
 				.eq("gym_id", gym.id)
 				.eq("key", "totalInvested"),
+			supabase
+				.from("consultoras")
+				.select("monthly_goal")
+				.eq("gym_id", gym.id)
+				.is("deleted_at", null),
 		],
 	);
 
@@ -528,6 +540,8 @@ export async function getKpiPageData(
 		);
 	if (settingsRes.error)
 		throw new Error(`Gym settings load failed: ${settingsRes.error.message}`);
+	if (consultorasRes.error)
+		throw new Error(`Consultoras load failed: ${consultorasRes.error.message}`);
 
 	const smRows = dashboardRes.data ?? [];
 	const smByPeriod = new Map(
@@ -685,6 +699,13 @@ export async function getKpiPageData(
 		configuredTotalInvestedRaw != null
 			? Number(configuredTotalInvestedRaw)
 			: Number.NaN;
+	const consultorasSalesTarget = (consultorasRes.data ?? []).reduce(
+		(sum, row) => {
+			const v = Number(row.monthly_goal);
+			return sum + (Number.isFinite(v) && v > 0 ? v : 0);
+		},
+		0,
+	);
 
 	/** Janela mensal (KPIs / funil / recepção): atual+anterior ou anterior+M−2. */
 	const smMonthlyPayload = hasCurrentMonthData ? smCurrentPayload : smPrevPayload;
@@ -726,7 +747,7 @@ export async function getKpiPageData(
 	const salesMarketingDashboard = {
 		payload: smDashboardPayload,
 		monthlySalesChart,
-		salesTarget: 150,
+		salesTarget: consultorasSalesTarget > 0 ? consultorasSalesTarget : 150,
 		primaryPeriodLabel,
 		comparisonPeriodLabel,
 		weekSourcePeriod,
@@ -841,6 +862,14 @@ export async function getKpiPageData(
 		if (totalMarketing > 0 && sales != null && sales > 0) {
 			current["cac_per_sale"] = Math.round(totalMarketing / sales);
 		}
+	}
+
+	// sales_total goal (overview): sum of active sellers' monthly goals.
+	if (consultorasSalesTarget > 0) {
+		currentMeta["sales_total"] = {
+			...(currentMeta["sales_total"] ?? {}),
+			goal: consultorasSalesTarget,
+		};
 	}
 
 	// roi_payback_months: computed from entered data, never stored in DB
