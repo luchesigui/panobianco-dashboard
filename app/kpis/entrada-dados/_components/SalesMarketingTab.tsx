@@ -10,7 +10,6 @@ import {
 import type { UseSmDashboard } from "../hooks/useSmDashboard";
 import { SaveButton } from "./SaveButton";
 import { WeeklyDataGrid } from "./WeeklyDataGrid";
-import { WeeklyMismatchWarning } from "./WeeklyMismatchWarning";
 
 type Props = {
 	sm: UseSmDashboard;
@@ -19,8 +18,6 @@ type Props = {
 export function SalesMarketingTab({ sm }: Props) {
 	return (
 		<div className="space-y-5">
-			<WeeklyMismatchWarning messages={sm.mismatch} />
-
 			<Card className="shadow-sm border-slate-200">
 				<CardHeader className="pb-4 border-b border-slate-100">
 					<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">

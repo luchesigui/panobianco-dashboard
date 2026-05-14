@@ -47,9 +47,9 @@ export function PerformanceBySeller({
 											<span className={styles.teamBadge}> ({r.badge})</span>
 										) : null}
 									</td>
-									<td className={styles.teamTdNum}>{r.leads}</td>
+									<td className={styles.teamTdNum}>{r.leads ?? "N/A"}</td>
 									<td className={styles.teamTdNum}>
-										{r.sales}{" "}
+										{r.sales ?? "N/A"}{" "}
 										<span className={styles.teamVendasSplit}>/ {r.goal}</span>
 									</td>
 									<td className={styles.teamTdConv}>
@@ -63,7 +63,9 @@ export function PerformanceBySeller({
 												/>
 											</div>
 											<span className={styles.teamPct}>
-												{r.conversion_pct.toFixed(1)}%
+												{r.leads != null && r.sales != null
+													? `${r.conversion_pct.toFixed(1)}%`
+													: "N/A"}
 											</span>
 										</div>
 									</td>

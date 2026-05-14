@@ -19,7 +19,6 @@ import type {
 	RecepWeekRow,
 	WeeklyStrings,
 } from "../lib/types";
-import { weekMismatchMessages } from "../lib/validators";
 
 type Args = {
 	initialSmPayload: SalesMarketingDashboardPayload;
@@ -70,12 +69,7 @@ export function useSmDashboard({
 
 	const weekHeaders = smPayload.weekly.weekHeaders;
 	const nWeeks = weekHeaders.length;
-	const smGridTotalRows = 8 + recepWeekRows.length;
-
-	const mismatch = useMemo(
-		() => weekMismatchMessages(weeklyStr, recepWeekRows, nWeeks),
-		[weeklyStr, recepWeekRows, nWeeks],
-	);
+	const smGridTotalRows = 9 + recepWeekRows.length * 2;
 
 	const setFunnelField = useCallback(
 		(key: keyof FunnelState, value: string) => {
@@ -105,13 +99,18 @@ export function useSmDashboard({
 	);
 
 	const updateRecepWeekCell = useCallback(
-		(rowId: string, weekIdx: number, value: string) => {
+		(
+			rowId: string,
+			type: "leads" | "sales",
+			weekIdx: number,
+			value: string,
+		) => {
 			setRecepWeekRows((prev) =>
 				prev.map((rw) => {
 					if (rw.id !== rowId) return rw;
-					const wk = [...rw.weeks];
+					const wk = [...rw[type]];
 					wk[weekIdx] = value;
-					return { ...rw, weeks: wk };
+					return { ...rw, [type]: wk };
 				}),
 			);
 		},
@@ -175,7 +174,6 @@ export function useSmDashboard({
 		weekHeaders,
 		nWeeks,
 		smGridTotalRows,
-		mismatch,
 		saving,
 		handleSaveSm,
 	};

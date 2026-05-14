@@ -24,6 +24,7 @@ export function buildWeeklyStrings(
 		sch: numRowToStrings(w.funnelWeekly.scheduled, n),
 		att: numRowToStrings(w.funnelWeekly.attendance, n),
 		clo: numRowToStrings(w.funnelWeekly.closings, n),
+		leadsTot: numRowToStrings(w.salesWeekly.leadsByWeek, n),
 		salesTot: numRowToStrings(w.salesWeekly.totals, n),
 	};
 }
@@ -40,7 +41,10 @@ export function recepRowsFromConsultoras(
 		return {
 			id: newRowId(),
 			name: c.name,
-			weeks: match
+			leads: match
+				? numRowToStrings(match.leadsByWeek, n)
+				: Array.from({ length: n }, () => ""),
+			sales: match
 				? numRowToStrings(match.salesByWeek, n)
 				: Array.from({ length: n }, () => ""),
 		};
@@ -138,10 +142,12 @@ export function assembleSmPayload(
 	out.receptionists = recepMonth
 		.filter((r) => r.name.trim() !== "")
 		.map((r) => {
-			const leads = parsePtBrNumber(r.leads) ?? 0;
-			const sales = parsePtBrNumber(r.sales) ?? 0;
+			const leads = parsePtBrNumber(r.leads) ?? null;
+			const sales = parsePtBrNumber(r.sales) ?? null;
 			const conversion_pct =
-				leads > 0 ? Math.round((sales / leads) * 100 * 10) / 10 : 0;
+				leads && leads > 0 && sales != null
+					? Math.round((sales / leads) * 100 * 10) / 10
+					: 0;
 			return {
 				name: r.name.trim(),
 				leads,
@@ -161,16 +167,21 @@ export function assembleSmPayload(
 	out.weekly.funnelWeekly.scheduled = stringsToNumRow(weeklyStr.sch);
 	out.weekly.funnelWeekly.attendance = stringsToNumRow(weeklyStr.att);
 	out.weekly.funnelWeekly.closings = stringsToNumRow(weeklyStr.clo);
+	out.weekly.salesWeekly.leadsByWeek = stringsToNumRow(weeklyStr.leadsTot);
 	out.weekly.salesWeekly.totals = stringsToNumRow(weeklyStr.salesTot);
 	out.weekly.salesWeekly.byReceptionist = recepRows
 		.filter((r) => r.name.trim() !== "")
 		.map((r) => {
-			const salesByWeek = stringsToNumRow(r.weeks.slice(0, n));
+			const leadsByWeek = stringsToNumRow(r.leads.slice(0, n));
+			while (leadsByWeek.length < n) leadsByWeek.push(null);
+			const salesByWeek = stringsToNumRow(r.sales.slice(0, n));
 			while (salesByWeek.length < n) salesByWeek.push(null);
 			return {
 				name: r.name.trim(),
+				leadsByWeek,
+				leadsTotal: 0,
 				salesByWeek,
-				rowTotal: 0,
+				salesTotal: 0,
 			};
 		});
 	recomputeWeeklyTotals(out.weekly);

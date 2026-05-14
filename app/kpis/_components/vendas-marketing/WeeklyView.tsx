@@ -1,3 +1,4 @@
+import React from "react";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import styles from "./vendas-marketing.module.css";
 
@@ -197,17 +198,32 @@ export function WeeklyView({
 							</td>
 						</tr>
 						{(w.salesWeekly.byReceptionist ?? []).map((row, ri) => (
-							<WeeklyRow
-								key={`${row.name}-${ri}`}
-								label={row.name}
-								cells={padWeeks(row.salesByWeek, n)}
-								total={row.rowTotal}
-								mode="int"
-								weekKeys={weeks}
-							/>
+							<React.Fragment key={`${row.name}-${ri}`}>
+								<WeeklyRow
+									label={`${row.name} (leads)`}
+									cells={padWeeks(row.leadsByWeek, n)}
+									total={row.leadsTotal}
+									mode="int"
+									weekKeys={weeks}
+								/>
+								<WeeklyRow
+									label={`${row.name} (vendas)`}
+									cells={padWeeks(row.salesByWeek, n)}
+									total={row.salesTotal}
+									mode="int"
+									weekKeys={weeks}
+								/>
+							</React.Fragment>
 						))}
 						<WeeklyRow
-							label="Vendas (todos canais)"
+							label="Total Cadastrados"
+							cells={padWeeks(w.salesWeekly.leadsByWeek, n)}
+							total={w.salesWeekly.leadsGrandTotal}
+							mode="int"
+							weekKeys={weeks}
+						/>
+						<WeeklyRow
+							label="Total Convertidos"
 							cells={salesW}
 							total={salesTotal ?? w.salesWeekly.grandTotal}
 							mode="int"

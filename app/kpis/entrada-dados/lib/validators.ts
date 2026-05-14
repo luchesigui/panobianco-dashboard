@@ -12,7 +12,7 @@ export function weekMismatchMessages(
 		let any = false;
 		for (const row of recepRows) {
 			if (!row.name.trim()) continue;
-			const v = parsePtBrNumber(row.weeks[i] ?? "");
+			const v = parsePtBrNumber(row.sales[i] ?? "");
 			if (v !== undefined) {
 				sumR += v;
 				any = true;

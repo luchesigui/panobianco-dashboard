@@ -6,10 +6,16 @@ export type WeeklyStrings = {
 	sch: string[];
 	att: string[];
 	clo: string[];
+	leadsTot: string[];
 	salesTot: string[];
 };
 
-export type RecepWeekRow = { id: string; name: string; weeks: string[] };
+export type RecepWeekRow = {
+	id: string;
+	name: string;
+	leads: string[];
+	sales: string[];
+};
 
 export type FunnelStepStr = { value: string };
 

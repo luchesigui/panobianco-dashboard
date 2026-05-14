@@ -49,13 +49,17 @@ export type SalesMarketingDashboardPayload = {
     salesTitle: string;
     salesNote?: string;
     salesWeekly: {
+      leadsByWeek: Array<number | null>;
+      leadsGrandTotal: number;
       totals: Array<number | null>;
       grandTotal: number;
       /** Optional breakdown: one row per receptionist × week (dom–sáb columns). */
       byReceptionist?: Array<{
         name: string;
+        leadsByWeek: Array<number | null>;
+        leadsTotal: number | null;
         salesByWeek: Array<number | null>;
-        rowTotal: number;
+        salesTotal: number | null;
       }>;
     };
   };
@@ -63,8 +67,8 @@ export type SalesMarketingDashboardPayload = {
   receptionists: Array<{
     name: string;
     badge?: string;
-    leads: number;
-    sales: number;
+    leads: number | null;
+    sales: number | null;
     goal: number;
     conversion_pct: number;
     bar_variant?: "accent" | "default";

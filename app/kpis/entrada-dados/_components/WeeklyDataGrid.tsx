@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Input } from "@/components/ui/input";
 import type { RecepWeekRow, WeeklyStrings } from "../lib/types";
 
@@ -13,7 +14,12 @@ type Props = {
 		weekIdx: number,
 		value: string,
 	) => void;
-	onRecepCellChange: (rowId: string, weekIdx: number, value: string) => void;
+	onRecepCellChange: (
+		rowId: string,
+		type: "leads" | "sales",
+		weekIdx: number,
+		value: string,
+	) => void;
 };
 
 const MARKETING_ROWS = [
@@ -115,26 +121,56 @@ export function WeeklyDataGrid({
 						</td>
 					</tr>
 					{recepWeekRows.map((row, ri) => (
-						<tr key={row.id} className="hover:bg-slate-50/50">
-							<td className="border border-slate-200 px-3 py-1.5 bg-slate-50/70 text-xs font-medium text-slate-600 min-w-36">
-								{row.name}
-							</td>
-							{row.weeks.map((cell, wi) => (
+						<React.Fragment key={row.id}>
+							<tr>
 								<td
-									key={`${row.id}-w${wi}`}
-									className="border border-slate-200 px-1.5 py-1.5"
+									colSpan={nWeeks + 1}
+									className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50/80 border border-slate-200 px-3 py-1.5"
 								>
-									<Input
-										value={cell}
-										onChange={(e) =>
-											onRecepCellChange(row.id, wi, e.target.value)
-										}
-										tabIndex={wi * gridTotalRows + (ri + 7) + 1}
-										className="w-20 h-8 text-right text-sm bg-white border-slate-200"
-									/>
+									{row.name}
 								</td>
-							))}
-						</tr>
+							</tr>
+							<tr className="hover:bg-slate-50/50">
+								<td className="border border-slate-200 px-3 py-1.5 bg-white text-[10px] font-medium text-slate-400 uppercase tracking-tight min-w-36">
+									Cadastrados
+								</td>
+								{row.leads.map((cell, wi) => (
+									<td
+										key={`${row.id}-leads-w${wi}`}
+										className="border border-slate-200 px-1.5 py-1.5"
+									>
+										<Input
+											value={cell}
+											onChange={(e) =>
+												onRecepCellChange(row.id, "leads", wi, e.target.value)
+											}
+											tabIndex={wi * gridTotalRows + (ri * 2 + 7) + 1}
+											className="w-20 h-8 text-right text-sm bg-white border-slate-200"
+										/>
+									</td>
+								))}
+							</tr>
+							<tr className="hover:bg-slate-50/50">
+								<td className="border border-slate-200 px-3 py-1.5 bg-white text-[10px] font-medium text-slate-400 uppercase tracking-tight min-w-36">
+									Convertidos
+								</td>
+								{row.sales.map((cell, wi) => (
+									<td
+										key={`${row.id}-sales-w${wi}`}
+										className="border border-slate-200 px-1.5 py-1.5"
+									>
+										<Input
+											value={cell}
+											onChange={(e) =>
+												onRecepCellChange(row.id, "sales", wi, e.target.value)
+											}
+											tabIndex={wi * gridTotalRows + (ri * 2 + 8) + 1}
+											className="w-20 h-8 text-right text-sm bg-white border-slate-200"
+										/>
+									</td>
+								))}
+							</tr>
+						</React.Fragment>
 					))}
 					<tr>
 						<td
@@ -145,8 +181,30 @@ export function WeeklyDataGrid({
 						</td>
 					</tr>
 					<tr className="hover:bg-slate-50/50">
-						<td className="text-xs font-medium text-slate-600 border border-slate-200 px-3 py-1.5 bg-slate-50/70">
-							Total
+						<td className="text-[10px] font-medium text-slate-400 border border-slate-200 px-3 py-1.5 bg-white uppercase tracking-tight">
+							Total Cadastrados
+						</td>
+						{weeklyStr.leadsTot.map((cell, wi) => (
+							<td
+								key={`leadsTot-${weekHeaders[wi] ?? wi}`}
+								className="border border-slate-200 px-1.5 py-1.5"
+							>
+								<Input
+									value={cell}
+									onChange={(e) =>
+										onMatrixChange("leadsTot", wi, e.target.value)
+									}
+									tabIndex={
+										wi * gridTotalRows + (7 + recepWeekRows.length * 2) + 1
+									}
+									className="w-20 h-8 text-right text-sm bg-white border-slate-200"
+								/>
+							</td>
+						))}
+					</tr>
+					<tr className="hover:bg-slate-50/50">
+						<td className="text-[10px] font-medium text-slate-400 border border-slate-200 px-3 py-1.5 bg-white uppercase tracking-tight">
+							Total Convertidos
 						</td>
 						{weeklyStr.salesTot.map((cell, wi) => (
 							<td
@@ -159,7 +217,7 @@ export function WeeklyDataGrid({
 										onMatrixChange("salesTot", wi, e.target.value)
 									}
 									tabIndex={
-										wi * gridTotalRows + (7 + recepWeekRows.length) + 1
+										wi * gridTotalRows + (7 + recepWeekRows.length * 2 + 1) + 1
 									}
 									className="w-20 h-8 text-right text-sm bg-white border-slate-200"
 								/>
