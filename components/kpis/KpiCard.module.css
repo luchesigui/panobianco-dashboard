@@ -1,0 +1,93 @@
+.card {
+	background: var(--bg-card);
+	border-radius: var(--radius-lg);
+	padding: 16px 18px;
+	box-shadow: var(--shadow-card);
+	position: relative;
+	overflow: hidden;
+	transition: var(--transition);
+}
+
+.card:hover {
+	transform: translateY(-1px);
+	box-shadow: var(--shadow-md);
+}
+
+.header {
+	display: block;
+	margin-bottom: 6px;
+}
+
+.title {
+	font-size: 12px;
+	color: var(--text-secondary);
+	font-weight: 500;
+	display: block;
+}
+
+.mainNumber {
+	font-family: var(--font-display);
+	font-size: 26px;
+	font-weight: 600;
+	letter-spacing: -0.03em;
+	line-height: 1.1;
+	margin: 0;
+}
+
+.subdescription {
+	font-size: 11px;
+	color: var(--text-secondary);
+	margin: 4px 0 0;
+	line-height: 1.4;
+}
+
+.subdescriptionMuted {
+	color: var(--text-tertiary);
+	font-weight: 500;
+}
+
+.subdescriptionDanger {
+	color: var(--red);
+}
+
+.pillRow {
+	font-size: 11px;
+	color: var(--text-secondary);
+	margin-top: 4px;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	flex-wrap: wrap;
+}
+
+.pill {
+	display: inline-flex;
+	align-items: center;
+	font-size: 10px;
+	font-weight: 600;
+	padding: 2px 6px;
+	border-radius: 6px;
+}
+
+.pillGood {
+	background: var(--accent-light);
+	color: var(--accent-dark);
+}
+
+.pillBad {
+	background: var(--red-light);
+	color: var(--red);
+}
+
+.pillNeutral {
+	background: var(--bg-elevated);
+	color: var(--text-secondary);
+}
+
+.accentBar {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 3px;
+}

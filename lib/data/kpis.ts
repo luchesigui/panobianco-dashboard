@@ -128,6 +128,12 @@ export type KpiPageData = {
 	financeCharts: FinanceChartPayload;
 	nextMonthForecast: NextMonthForecastPayload;
 	roiCharts: RoiChartPayload;
+	gymConfiguration: {
+		/** Monthly student-base goal for the current calendar year, indexed 0..11 (Jan..Dec). */
+		goal: number[];
+		/** Monthly sales target = sum of active consultoras' monthly_goal (fallback 150). */
+		salesTarget: number;
+	};
 };
 
 /** Month abbreviations for period chips (reference: `Mar/26`, not `mar. de 26`). */
@@ -580,6 +586,31 @@ export async function getKpiPageData(
 
 	const defIdToCode = new Map((defsRes.data ?? []).map((d) => [d.id, d.code]));
 	const salesDefId = defsRes.data?.find((d) => d.code === "sales_total")?.id;
+	const baseStudentsGoalDefId = defsRes.data?.find(
+		(d) => d.code === "base_students_goal",
+	)?.id;
+
+	const currentYear = parseInt(currentMonthPeriod.slice(0, 4), 10);
+	const studentBaseGoalsByMonth = new Array(12).fill(0) as number[];
+	if (baseStudentsGoalDefId) {
+		const goalsRes = await supabase
+			.from("kpi_values")
+			.select("period_id,value_numeric")
+			.eq("gym_id", gym.id)
+			.eq("kpi_definition_id", baseStudentsGoalDefId)
+			.gte("period_id", `${currentYear}-01-01`)
+			.lte("period_id", `${currentYear}-12-01`);
+		for (const row of goalsRes.data ?? []) {
+			const month = parseInt((row.period_id as string).slice(5, 7), 10);
+			if (
+				month >= 1 &&
+				month <= 12 &&
+				typeof row.value_numeric === "number"
+			) {
+				studentBaseGoalsByMonth[month - 1] = row.value_numeric;
+			}
+		}
+	}
 
 	const CHART_BAR_COLORS = [
 		"#d85a30",
@@ -1062,5 +1093,9 @@ export async function getKpiPageData(
 		financeCharts,
 		nextMonthForecast,
 		roiCharts,
+		gymConfiguration: {
+			goal: studentBaseGoalsByMonth,
+			salesTarget: salesMarketingDashboard.salesTarget,
+		},
 	};
 }
