@@ -33,7 +33,7 @@ function fmtCell(
 type WeeklyRowProps = {
 	label: string;
 	cells: Array<number | null>;
-	total: number;
+	total: number | null;
 	mode: "int" | "decimal1" | "intCompact";
 	weekKeys: string[];
 };

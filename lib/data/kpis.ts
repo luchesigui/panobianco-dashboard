@@ -786,7 +786,7 @@ export async function getKpiPageData(
 			}
 		} 
 		// 2. Check if current month has weekly receptionist data
-		else if (smCurrentPayload?.weekly?.salesWeekly?.byReceptionist?.length) {
+		else if (smDashboardPayload.weekly.salesWeekly.byReceptionist?.length) {
 			// Calculate weekly sums only for the current month columns
 			smDashboardPayload.receptionists = smDashboardPayload.weekly.salesWeekly.byReceptionist.map((r) => {
 				let leads = 0;
