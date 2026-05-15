@@ -15,7 +15,6 @@ import { ExpenseSection } from "./ExpenseSection";
 import { FileUploadArea } from "./FileUploadArea";
 import { FunnelAndReceptionistsCard } from "./FunnelAndReceptionistsCard";
 import { KpiFormSection } from "./KpiFormSection";
-import { RetentionFields } from "./RetentionFields";
 import { RevenueBreakdownTable } from "./RevenueBreakdownTable";
 import { SaveButton } from "./SaveButton";
 
@@ -32,6 +31,7 @@ type Props = {
 		crescimento: UploadHandle;
 		recebimentos: UploadHandle;
 		custos: UploadHandle;
+		recuperacao: UploadHandle;
 	};
 	onSaveAll: () => void;
 	saving: boolean;
@@ -44,8 +44,7 @@ const monthlyGroups: KpiFormGroup[] = [
 	...KPI_FORM_GROUPS.filter(
 		(group) =>
 			group.id !== "overview" &&
-			group.id !== "finance_revenues" &&
-			group.id !== "retention",
+			group.id !== "finance_revenues",
 	),
 ];
 
@@ -85,6 +84,17 @@ export function MonthlyTab({
 				</div>
 			);
 		}
+		if (groupId === "retention") {
+			return (
+				<div className="mb-4">
+					<FileUploadArea
+						label="Importe o arquivo de relatório de inadimplência (recuperação)."
+						onFile={(file) => void uploads.recuperacao.handleFile(file)}
+						loading={uploads.recuperacao.uploading}
+					/>
+				</div>
+			);
+		}
 		if (groupId === "finance_revenues") {
 			return (
 				<div className="mb-4">
@@ -100,7 +110,8 @@ export function MonthlyTab({
 	};
 
 	const isFieldVisibleFor = (groupId: string) => (field: KpiFormField) => {
-		if (groupId === "overview") return kpi.hasUploadedCrescimento;
+		if (groupId === "overview")
+			return kpi.hasUploadedCrescimento || kpi.hasUploadedRecuperacao;
 		if (groupId === "finance_revenues") return shouldShowRevenueField(field.code);
 		return true;
 	};
@@ -123,10 +134,6 @@ export function MonthlyTab({
 		<div className="space-y-5">
 			{monthlyGroups.map((group) => {
 				const isFinanceRevenues = group.id === "finance_revenues";
-				const showRetention =
-					group.id === "overview" &&
-					kpi.retentionGroup &&
-					kpi.hasUploadedCrescimento;
 
 				let revenueAfterFields: React.ReactNode = null;
 				if (isFinanceRevenues) {
@@ -146,20 +153,25 @@ export function MonthlyTab({
 					);
 				}
 
-				const retentionAfterFields = showRetention && kpi.retentionGroup ? (
-					<RetentionFields
-						title={kpi.retentionGroup.title}
-						description={kpi.retentionGroup.description}
-						fields={kpi.retentionGroup.fields}
-						values={kpi.kpiInputs}
-						focusedKey={focusedKey}
-						groupLocked={lock.isGroupLocked("retention")}
-						isAlwaysEditable={lock.isRetentionFieldAlwaysEditable}
-						onFocus={onFocus}
-						onBlur={onBlur}
-						onChange={kpi.setKpiInput}
-					/>
-				) : null;
+				const isRetention = group.id === "retention";
+
+				let afterFields: React.ReactNode = null;
+				if (isFinanceRevenues) {
+					const revenueGroups = mapRevenueGroupsToCodes(
+						kpi.recebimentosBreakdown,
+					);
+					const total =
+						revenueGroups.matriculated_revenue +
+						(parsePtBrNumber(kpi.kpiInputs["wellhub_revenue"] ?? "") ?? 0) +
+						(parsePtBrNumber(kpi.kpiInputs["totalpass_revenue"] ?? "") ?? 0) +
+						revenueGroups.products_revenue;
+					afterFields = (
+						<RevenueBreakdownTable
+							breakdown={kpi.recebimentosBreakdown}
+							total={total}
+						/>
+					);
+				}
 
 				return (
 					<Fragment key={group.id}>
@@ -175,12 +187,7 @@ export function MonthlyTab({
 							headerSlot={renderHeaderSlot(group.id)}
 							getFieldDisabled={getFieldDisabledFor(group.id)}
 							isFieldVisible={isFieldVisibleFor(group.id)}
-							afterFieldsSlot={
-								<>
-									{retentionAfterFields}
-									{revenueAfterFields}
-								</>
-							}
+							afterFieldsSlot={afterFields}
 							onFocus={onFocus}
 							onBlur={onBlur}
 							onChange={kpi.setKpiInput}

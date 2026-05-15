@@ -4,7 +4,7 @@
  *
  * Fields listed here are MANUALLY entered. Calculated fields (no_show_rate,
  * present_conversion_rate, cac_per_sale, revenue_total in overview,
- * operational_result, operational_result_100pct_nf, recovered_default_*,
+ * operational_result, operational_result_100pct_nf,
  * monthly_exits) are derived by the dashboard and must NOT appear here.
  */
 
@@ -55,10 +55,12 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
   {
     id: "retention",
     title: "Retenção",
-    description: "Inadimplência em aberto no mês. Taxa de recuperação e saídas são calculadas automaticamente.",
+    description: "Inadimplência e saídas. Taxa de recuperação é calculada automaticamente.",
     fields: [
       { code: "open_default_count", label: "Inadimplência em aberto (qtd)", unit: "count" },
       { code: "open_default_value", label: "Inadimplência em aberto (R$)", unit: "currency" },
+      { code: "recovered_default_count", label: "Inadimplência recuperada (qtd)", unit: "count" },
+      { code: "recovered_default_value", label: "Inadimplência recuperada (R$)", unit: "currency" },
       { code: "monthly_cancellations", label: "Cancelamentos", unit: "count" },
       { code: "monthly_non_renewed", label: "Contratos não renovados", unit: "count" },
     ],

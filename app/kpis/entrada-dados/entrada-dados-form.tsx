@@ -96,6 +96,16 @@ export function EntradaDadosForm({
 		onError: status.showErr,
 	});
 
+	const recuperacao = useFileUpload({
+		kind: "recuperacao",
+		periodId: initialPeriodId,
+		onSuccess: (json) => {
+			kpi.applyRecuperacao(json);
+			status.showOk("Arquivo de inadimplência (recuperação) processado.");
+		},
+		onError: status.showErr,
+	});
+
 	const onSaveAll = () => {
 		void (async () => {
 			status.clear();
@@ -142,6 +152,7 @@ export function EntradaDadosForm({
 								crescimento,
 								recebimentos,
 								custos,
+								recuperacao,
 							}}
 							onSaveAll={onSaveAll}
 							saving={monthlySaving}

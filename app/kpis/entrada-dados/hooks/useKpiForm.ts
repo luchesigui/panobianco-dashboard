@@ -76,16 +76,14 @@ export function useKpiForm({
 		),
 	);
 
-	const retentionGroup =
-		KPI_FORM_GROUPS.find((group) => group.id === "retention") ?? null;
-	const hasSavedRetentionValues = retentionGroup
-		? retentionGroup.fields.some((field) => {
-				const value = kpiInputs[fieldToInputKey(field)] ?? "";
-				return value.trim() !== "";
-			})
-		: false;
+	const initialHasOverviewValues = useMemo(() => {
+		const overviewGroup = KPI_FORM_GROUPS.find(g => g.id === "overview");
+		if (!overviewGroup) return false;
+		return overviewGroup.fields.some(f => initialKpiValues[f.code] != null);
+	}, [initialKpiValues]);
+
 	const [hasUploadedCrescimento, setHasUploadedCrescimento] = useState(
-		hasSavedRetentionValues,
+		initialHasOverviewValues,
 	);
 
 	const hasRecebimentosBreakdown =
@@ -109,6 +107,19 @@ export function useKpiForm({
 
 	const updateExpense = useCallback((code: string, value: number) => {
 		setCustosBreakdown((prev) => ({ ...prev, [code]: value }));
+	}, []);
+
+	const [hasUploadedRecuperacao, setHasUploadedRecuperacao] = useState(false);
+
+	const applyRecuperacao = useCallback((json: Record<string, unknown>) => {
+		const updates: Record<string, string> = {
+			open_default_count: String(Number(json.open_default_count ?? 0)),
+			open_default_value: String(Number(json.open_default_value ?? 0)),
+			recovered_default_count: String(Number(json.recovered_default_count ?? 0)),
+			recovered_default_value: String(Number(json.recovered_default_value ?? 0)),
+		};
+		setKpiInputs((prev) => ({ ...prev, ...updates }));
+		setHasUploadedRecuperacao(true);
 	}, []);
 
 	const applyCrescimento = useCallback((json: Record<string, unknown>) => {
@@ -243,10 +254,11 @@ export function useKpiForm({
 		updateExpense,
 		hasRecebimentosBreakdown,
 		hasUploadedCrescimento,
+		hasUploadedRecuperacao,
 		expenseEntries,
-		retentionGroup,
 		saving,
 		applyCrescimento,
+		applyRecuperacao,
 		applyRecebimentos,
 		applyCustos,
 		handleSaveKpis,
