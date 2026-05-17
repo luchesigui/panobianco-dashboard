@@ -8,7 +8,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { KpiFormField } from "@/lib/data/dashboard-input-requirements";
-import { formatCurrency } from "../lib/parsers";
+import { formatCurrency, formatThousands, cleanPastedValue } from "../lib/parsers";
 
 type Props = {
 	field: KpiFormField;
@@ -29,8 +29,24 @@ export function KpiFieldInput({
 	onBlur,
 	onChange,
 }: Props) {
-	const displayVal =
-		field.unit === "currency" && !focused ? formatCurrency(value) : value;
+	const isFrequency = field.code === "marketing_frequency";
+	
+	let displayVal = value;
+	if (field.unit === "currency" && !focused) {
+		displayVal = formatCurrency(value);
+	} else if (!isFrequency && (field.unit === "currency" || field.unit === "count")) {
+		displayVal = formatThousands(value);
+	}
+
+	const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+		const pastedText = e.clipboardData.getData("text");
+		const cleanedValue = cleanPastedValue(pastedText, isFrequency);
+		if (cleanedValue !== pastedText) {
+			e.preventDefault();
+			onChange(cleanedValue);
+		}
+	};
+
 	const placeholder =
 		field.unit === "currency"
 			? "R$ 0"
@@ -64,6 +80,7 @@ export function KpiFieldInput({
 				disabled={disabled}
 				onFocus={onFocus}
 				onBlur={onBlur}
+				onPaste={handlePaste}
 				onChange={(e) => onChange(e.target.value)}
 				className="h-10 bg-white border-slate-200 focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-500"
 				placeholder={placeholder}

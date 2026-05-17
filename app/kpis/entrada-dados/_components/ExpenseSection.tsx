@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, LockOpen } from "lucide-react";
-import { formatCurrency, parsePtBrNumber } from "../lib/parsers";
+import { formatCurrency, formatThousands, cleanPastedValue, parsePtBrNumber } from "../lib/parsers";
 import { FileUploadArea } from "./FileUploadArea";
 
 export type ExpenseEntry = {
@@ -74,26 +74,39 @@ export function ExpenseSection({
 				/>
 				{entries.length > 0 ? (
 					<div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-x-4 gap-y-5">
-						{entries.map((item) => (
-							<div key={item.code} className="flex flex-col gap-2">
-								<Label className="text-xs font-medium text-slate-600">
-									{item.label}
-								</Label>
-								<Input
-									disabled={locked}
-									value={
-										locked
-											? formatCurrency(String(item.value))
-											: String(item.value)
-									}
-									onChange={(e) => {
-										const parsed = parsePtBrNumber(e.target.value) ?? 0;
-										onChange(item.code, parsed);
-									}}
-									className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
-								/>
-							</div>
-						))}
+						{entries.map((item) => {
+							const displayValue = locked
+								? formatCurrency(String(item.value))
+								: formatThousands(String(item.value));
+
+							const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+								const pastedText = e.clipboardData.getData("text");
+								const cleanedValue = cleanPastedValue(pastedText, false);
+								if (cleanedValue !== pastedText) {
+									e.preventDefault();
+									const parsed = parsePtBrNumber(cleanedValue) ?? 0;
+									onChange(item.code, parsed);
+								}
+							};
+
+							return (
+								<div key={item.code} className="flex flex-col gap-2">
+									<Label className="text-xs font-medium text-slate-600">
+										{item.label}
+									</Label>
+									<Input
+										disabled={locked}
+										value={displayValue}
+										onPaste={handlePaste}
+										onChange={(e) => {
+											const parsed = parsePtBrNumber(e.target.value) ?? 0;
+											onChange(item.code, parsed);
+										}}
+										className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
+									/>
+								</div>
+							);
+						})}
 						<div className="flex flex-col gap-2">
 							<Label className="text-xs font-medium text-slate-600">
 								Despesas totais

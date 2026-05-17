@@ -48,3 +48,14 @@ export function formatMonthPtBr(yyyyMm: string): string {
 	const month = new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(d);
 	return `${month.charAt(0).toUpperCase() + month.slice(1)}/${d.getFullYear()}`;
 }
+
+export function formatThousands(raw: string): string {
+	const digits = raw.replace(/\D/g, "");
+	if (!digits) return "";
+	return new Intl.NumberFormat("pt-BR").format(Number(digits));
+}
+
+export function cleanPastedValue(raw: string, isFrequency: boolean): string {
+	if (isFrequency) return raw;
+	return raw.replace(/[.,]/g, "");
+}

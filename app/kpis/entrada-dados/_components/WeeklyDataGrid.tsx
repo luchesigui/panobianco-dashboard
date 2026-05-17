@@ -3,6 +3,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import type { RecepWeekRow, WeeklyStrings } from "../lib/types";
+import { cleanPastedValue, formatThousands } from "../lib/parsers";
 
 type Props = {
 	weekHeaders: string[];
@@ -64,26 +65,40 @@ export function WeeklyDataGrid({
 					</tr>
 				</thead>
 				<tbody>
-					{MARKETING_ROWS.map(([label, key], ri) => (
-						<tr key={key} className="hover:bg-slate-50/50">
-							<td className="text-xs font-medium text-slate-600 border border-slate-200 px-3 py-1.5 bg-slate-50/70">
-								{label}
-							</td>
-							{weeklyStr[key].map((cell, wi) => (
-								<td
-									key={`${key}-${weekHeaders[wi] ?? wi}`}
-									className="border border-slate-200 px-1.5 py-1.5"
-								>
-									<Input
-										value={cell}
-										onChange={(e) => onMatrixChange(key, wi, e.target.value)}
-										tabIndex={wi * gridTotalRows + ri + 1}
-										className="w-20 h-8 text-right text-sm bg-white border-slate-200"
-									/>
+					{MARKETING_ROWS.map(([label, key], ri) => {
+						const isFreq = key === "frequency";
+						return (
+							<tr key={key} className="hover:bg-slate-50/50">
+								<td className="text-xs font-medium text-slate-600 border border-slate-200 px-3 py-1.5 bg-slate-50/70">
+									{label}
 								</td>
-							))}
-						</tr>
-					))}
+								{weeklyStr[key].map((cell, wi) => (
+									<td
+										key={`${key}-${weekHeaders[wi] ?? wi}`}
+										className="border border-slate-200 px-1.5 py-1.5"
+									>
+										<Input
+											value={isFreq ? cell : formatThousands(cell)}
+											onPaste={(e) => {
+												const pastedText = e.clipboardData.getData("text");
+												const cleanedValue = cleanPastedValue(
+													pastedText,
+													isFreq,
+												);
+												if (cleanedValue !== pastedText) {
+													e.preventDefault();
+													onMatrixChange(key, wi, cleanedValue);
+												}
+											}}
+											onChange={(e) => onMatrixChange(key, wi, e.target.value)}
+											tabIndex={wi * gridTotalRows + ri + 1}
+											className="w-20 h-8 text-right text-sm bg-white border-slate-200"
+										/>
+									</td>
+								))}
+							</tr>
+						);
+					})}
 					<tr>
 						<td
 							colSpan={nWeeks + 1}
@@ -103,7 +118,15 @@ export function WeeklyDataGrid({
 									className="border border-slate-200 px-1.5 py-1.5"
 								>
 									<Input
-										value={cell}
+										value={formatThousands(cell)}
+										onPaste={(e) => {
+											const pastedText = e.clipboardData.getData("text");
+											const cleanedValue = cleanPastedValue(pastedText, false);
+											if (cleanedValue !== pastedText) {
+												e.preventDefault();
+												onMatrixChange(key, wi, cleanedValue);
+											}
+										}}
 										onChange={(e) => onMatrixChange(key, wi, e.target.value)}
 										tabIndex={wi * gridTotalRows + (ri + 4) + 1}
 										className="w-20 h-8 text-right text-sm bg-white border-slate-200"
@@ -140,7 +163,23 @@ export function WeeklyDataGrid({
 										className="border border-slate-200 px-1.5 py-1.5"
 									>
 										<Input
-											value={cell}
+											value={formatThousands(cell)}
+											onPaste={(e) => {
+												const pastedText = e.clipboardData.getData("text");
+												const cleanedValue = cleanPastedValue(
+													pastedText,
+													false,
+												);
+												if (cleanedValue !== pastedText) {
+													e.preventDefault();
+													onRecepCellChange(
+														row.id,
+														"leads",
+														wi,
+														cleanedValue,
+													);
+												}
+											}}
 											onChange={(e) =>
 												onRecepCellChange(row.id, "leads", wi, e.target.value)
 											}
@@ -160,7 +199,23 @@ export function WeeklyDataGrid({
 										className="border border-slate-200 px-1.5 py-1.5"
 									>
 										<Input
-											value={cell}
+											value={formatThousands(cell)}
+											onPaste={(e) => {
+												const pastedText = e.clipboardData.getData("text");
+												const cleanedValue = cleanPastedValue(
+													pastedText,
+													false,
+												);
+												if (cleanedValue !== pastedText) {
+													e.preventDefault();
+													onRecepCellChange(
+														row.id,
+														"sales",
+														wi,
+														cleanedValue,
+													);
+												}
+											}}
 											onChange={(e) =>
 												onRecepCellChange(row.id, "sales", wi, e.target.value)
 											}
@@ -190,7 +245,15 @@ export function WeeklyDataGrid({
 								className="border border-slate-200 px-1.5 py-1.5"
 							>
 								<Input
-									value={cell}
+									value={formatThousands(cell)}
+									onPaste={(e) => {
+										const pastedText = e.clipboardData.getData("text");
+										const cleanedValue = cleanPastedValue(pastedText, false);
+										if (cleanedValue !== pastedText) {
+											e.preventDefault();
+											onMatrixChange("leadsTot", wi, cleanedValue);
+										}
+									}}
 									onChange={(e) =>
 										onMatrixChange("leadsTot", wi, e.target.value)
 									}
@@ -212,7 +275,15 @@ export function WeeklyDataGrid({
 								className="border border-slate-200 px-1.5 py-1.5"
 							>
 								<Input
-									value={cell}
+									value={formatThousands(cell)}
+									onPaste={(e) => {
+										const pastedText = e.clipboardData.getData("text");
+										const cleanedValue = cleanPastedValue(pastedText, false);
+										if (cleanedValue !== pastedText) {
+											e.preventDefault();
+											onMatrixChange("salesTot", wi, cleanedValue);
+										}
+									}}
 									onChange={(e) =>
 										onMatrixChange("salesTot", wi, e.target.value)
 									}
