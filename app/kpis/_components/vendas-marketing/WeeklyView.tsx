@@ -1,4 +1,3 @@
-import React from "react";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import styles from "./vendas-marketing.module.css";
 
@@ -197,38 +196,44 @@ export function WeeklyView({
 								) : null}
 							</td>
 						</tr>
-						{(w.salesWeekly.byReceptionist ?? []).map((row, ri) => (
-							<React.Fragment key={`${row.name}-${ri}`}>
-								<WeeklyRow
-									label={`${row.name} (leads)`}
-									cells={padWeeks(row.leadsByWeek, n)}
-									total={row.leadsTotal}
-									mode="int"
-									weekKeys={weeks}
-								/>
-								<WeeklyRow
-									label={`${row.name} (vendas)`}
-									cells={padWeeks(row.salesByWeek, n)}
-									total={row.salesTotal}
-									mode="int"
-									weekKeys={weeks}
-								/>
-							</React.Fragment>
-						))}
-						<WeeklyRow
-							label="Total Cadastrados"
-							cells={padWeeks(w.salesWeekly.leadsByWeek, n)}
-							total={w.salesWeekly.leadsGrandTotal}
-							mode="int"
-							weekKeys={weeks}
-						/>
-						<WeeklyRow
-							label="Total Convertidos"
-							cells={salesW}
-							total={salesTotal ?? w.salesWeekly.grandTotal}
-							mode="int"
-							weekKeys={weeks}
-						/>
+						{(w.salesWeekly.byReceptionist ?? []).map((row, ri) => {
+							const leads = padWeeks(row.leadsByWeek, n);
+							const vendas = padWeeks(row.salesByWeek, n);
+							const fmtPair = (v: number | null, l: number | null) =>
+								v == null && l == null ? "—" : `${v ?? "—"}/${l ?? "—"}`;
+							return (
+								<tr key={`${row.name}-${ri}`}>
+									<td className={styles.tdLabel}>{row.name}</td>
+									{vendas.map((v, i) => (
+										<td key={`${row.name}-${weeks[i]}`} className={styles.tdNum}>
+											{fmtPair(v, leads[i])}
+										</td>
+									))}
+									<td className={styles.tdTotal}>
+										{fmtPair(row.salesTotal, row.leadsTotal)}
+									</td>
+								</tr>
+							);
+						})}
+						{(() => {
+							const leadsT = padWeeks(w.salesWeekly.leadsByWeek, n);
+							const vendasT = salesW;
+							const fmtPair = (v: number | null, l: number | null) =>
+								v == null && l == null ? "—" : `${v ?? "—"}/${l ?? "—"}`;
+							return (
+								<tr>
+									<td className={styles.tdLabel}>Total</td>
+									{vendasT.map((v, i) => (
+										<td key={`total-${weeks[i]}`} className={styles.tdNum}>
+											{fmtPair(v, leadsT[i])}
+										</td>
+									))}
+									<td className={styles.tdTotal}>
+										{fmtPair(salesTotal ?? w.salesWeekly.grandTotal, w.salesWeekly.leadsGrandTotal)}
+									</td>
+								</tr>
+							);
+						})()}
 					</tbody>
 				</table>
 			</div>
