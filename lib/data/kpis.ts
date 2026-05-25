@@ -778,6 +778,37 @@ export async function getKpiPageData(
 				...r,
 				goal: goalByName.get(r.name) ?? r.goal
 			}));
+
+			// Override leads/sales with weekly sums when weekly data exists for that
+			// receptionist in the current period — prevents stale monthly totals from
+			// diverging after the weekly grid is updated without re-saving the monthly form.
+			const byRecepMap = new Map(
+				(smDashboardPayload.weekly.salesWeekly.byReceptionist ?? []).map(wr => [wr.name, wr]),
+			);
+			for (const r of smDashboardPayload.receptionists) {
+				const wr = byRecepMap.get(r.name);
+				if (!wr) continue;
+				let wLeads = 0, wSales = 0, hasAny = false;
+				for (let i = 0; i < weekSourcePeriodId.length; i++) {
+					if (weekSourcePeriodId[i] === currentMonthPeriod) {
+						const lw = wr.leadsByWeek[i];
+						const sw = wr.salesByWeek[i];
+						if (lw != null || sw != null) {
+							wLeads += (lw ?? 0);
+							wSales += (sw ?? 0);
+							hasAny = true;
+						}
+					}
+				}
+				if (hasAny) {
+					r.leads = wLeads;
+					r.sales = wSales;
+					r.conversion_pct = wLeads > 0
+						? Math.round((wSales / wLeads) * 100 * 10) / 10
+						: 0;
+				}
+			}
+
 			smDashboardPayload.receptionistsPeriodLabel = currentMonthly.receptionistsPeriodLabel;
 			// Also sync funnel/composition from current if we are using current recep
 			smDashboardPayload.funnel = structuredClone(currentMonthly.funnel);

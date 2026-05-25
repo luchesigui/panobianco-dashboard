@@ -185,6 +185,23 @@ export function assembleSmPayload(
 			};
 		});
 	recomputeWeeklyTotals(out.weekly);
+
+	// Sync monthly totals from weekly data (mirrors parse endpoint logic)
+	const byRecepMap = new Map(
+		(out.weekly.salesWeekly.byReceptionist ?? []).map((r) => [r.name, r]),
+	);
+	for (const r of out.receptionists) {
+		const wr = byRecepMap.get(r.name);
+		if (wr) {
+			if (wr.salesTotal != null) r.sales = wr.salesTotal;
+			if (wr.leadsTotal != null) r.leads = wr.leadsTotal;
+			r.conversion_pct =
+				r.leads && r.leads > 0 && r.sales != null
+					? Math.round((r.sales / r.leads) * 100 * 10) / 10
+					: 0;
+		}
+	}
+
 	if (monthlyMarketing) {
 		const t = out.weekly.marketing.totals;
 		if (monthlyMarketing.reach != null) t.reach = monthlyMarketing.reach;
