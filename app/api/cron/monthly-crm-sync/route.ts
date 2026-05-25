@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { validateApiRequest } from "@/lib/auth";
 
 /**
  * Vercel Cron (production only): dia 1 de cada mês, 00:05 UTC.
@@ -7,14 +8,9 @@ import { NextResponse } from "next/server";
  * Defina CRON_SECRET no projeto Vercel; a plataforma envia Authorization: Bearer <CRON_SECRET>.
  */
 export async function GET(req: Request) {
-	const cronSecret = process.env.CRON_SECRET;
-	const authHeader = req.headers.get("authorization");
-	if (
-		!cronSecret ||
-		!authHeader ||
-		authHeader !== `Bearer ${cronSecret}`
-	) {
-		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+	const auth = validateApiRequest(req);
+	if (!auth.isValid) {
+		return NextResponse.json({ error: auth.error || "Não autorizado." }, { status: auth.status || 401 });
 	}
 
 	const origin = new URL(req.url).origin;

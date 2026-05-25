@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
+import { saveMonthlyKpisAction } from "@/app/kpis/entrada-dados/actions";
+import { validateApiRequest } from "@/lib/auth";
 
 type RecuperacaoResponse = {
   open_default_count: number;
@@ -28,6 +30,21 @@ function parseCurrency(value: unknown): number {
 
 export async function POST(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const save = searchParams.get("save") === "true";
+    const gymParam = searchParams.get("gym") || "panobianco-sjc-satelite";
+    const periodParam = searchParams.get("period");
+
+    if (save) {
+      const auth = validateApiRequest(req);
+      if (!auth.isValid) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
+      }
+      if (!periodParam || !/^\d{4}-\d{2}-\d{2}$/.test(periodParam)) {
+        return NextResponse.json({ error: "Parâmetro 'period' inválido ou ausente. Formato esperado: YYYY-MM-DD." }, { status: 400 });
+      }
+    }
+
     const formData = await req.formData();
     const file = formData.get("file");
     if (!(file instanceof File)) {
@@ -61,7 +78,12 @@ export async function POST(req: Request) {
       const status = String(row["Status"] || "").trim();
       
       // Look for the value in common column name variants
-      const rawValue = row["Valor da divida"] ?? row["Valor da Dívida"] ?? row["Valor"] ?? row["Valor da dívida"];
+      const rawValue = [
+        row["Valor da divida"],
+        row["Valor da Dívida"],
+        row["Valor"],
+        row["Valor da dívida"]
+      ].find(v => v !== undefined && v !== null && v !== "");
       const value = parseCurrency(rawValue);
 
       if (status === "Em aberto") {
@@ -83,6 +105,25 @@ export async function POST(req: Request) {
       cancelled_count: cancelledCount,
       month_total_records: rows.length,
     };
+
+    if (save && periodParam) {
+      const saveRes = await saveMonthlyKpisAction({
+        gymSlug: gymParam,
+        periodId: periodParam,
+        values: {
+          open_default_count: response.open_default_count,
+          open_default_value: response.open_default_value,
+          recovered_default_count: response.recovered_default_count,
+          recovered_default_value: response.recovered_default_value,
+        },
+      });
+
+      if (!saveRes.ok) {
+        return NextResponse.json({ error: `Erro ao salvar no banco: ${saveRes.error}` }, { status: 500 });
+      }
+
+      return NextResponse.json({ ok: true, ...response });
+    }
 
     return NextResponse.json(response);
   } catch (error) {

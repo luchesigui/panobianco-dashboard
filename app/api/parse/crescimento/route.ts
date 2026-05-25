@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
+import { saveMonthlyKpisAction } from "@/app/kpis/entrada-dados/actions";
+import { validateApiRequest } from "@/lib/auth";
 
 type CrescimentoResponse = {
   base_students_end: number;
@@ -18,6 +20,21 @@ function parseNumeric(value: unknown): number {
 
 export async function POST(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const save = searchParams.get("save") === "true";
+    const gymParam = searchParams.get("gym") || "panobianco-sjc-satelite";
+    const periodParam = searchParams.get("period");
+
+    if (save) {
+      const auth = validateApiRequest(req);
+      if (!auth.isValid) {
+        return NextResponse.json({ error: auth.error }, { status: auth.status });
+      }
+      if (!periodParam || !/^\d{4}-\d{2}-\d{2}$/.test(periodParam)) {
+        return NextResponse.json({ error: "Parâmetro 'period' inválido ou ausente. Formato esperado: YYYY-MM-DD." }, { status: 400 });
+      }
+    }
+
     const formData = await req.formData();
     const file = formData.get("file");
     if (!(file instanceof File)) {
@@ -47,6 +64,25 @@ export async function POST(req: Request) {
       monthly_cancellations: parseNumeric(lastRow["Cancelados"]),
       monthly_non_renewed: parseNumeric(lastRow["Desistências"]),
     };
+
+    if (save && periodParam) {
+      const saveRes = await saveMonthlyKpisAction({
+        gymSlug: gymParam,
+        periodId: periodParam,
+        values: {
+          base_students_end: response.base_students_end,
+          sales_total: response.sales_total,
+          monthly_cancellations: response.monthly_cancellations,
+          monthly_non_renewed: response.monthly_non_renewed,
+        },
+      });
+
+      if (!saveRes.ok) {
+        return NextResponse.json({ error: `Erro ao salvar no banco: ${saveRes.error}` }, { status: 500 });
+      }
+
+      return NextResponse.json({ ok: true, ...response });
+    }
 
     return NextResponse.json(response);
   } catch (error) {
