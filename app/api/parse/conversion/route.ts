@@ -26,7 +26,10 @@ export async function POST(req: Request) {
     const save = searchParams.get("save") === "true";
     const gymParam = searchParams.get("gym") || "panobianco-sjc-satelite";
     const periodParam = searchParams.get("period");
-    const weekParam = searchParams.get("week");
+    let weekParam = searchParams.get("week") || searchParams.get("weekIndex");
+    if (weekParam && weekParam.startsWith("S")) {
+      weekParam = weekParam.substring(1);
+    }
 
     if (save) {
       const auth = validateApiRequest(req);
@@ -37,7 +40,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Parâmetro 'period' inválido ou ausente. Formato esperado: YYYY-MM-DD." }, { status: 400 });
       }
       if (!weekParam || !/^[1-5]$/.test(weekParam)) {
-        return NextResponse.json({ error: "Parâmetro 'week' inválido ou ausente. Esperado de 1 a 5." }, { status: 400 });
+        return NextResponse.json({ error: "Parâmetro 'week' ou 'weekIndex' inválido ou ausente. Esperado de 1 a 5 ou S1 a S5." }, { status: 400 });
       }
     }
 

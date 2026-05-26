@@ -338,7 +338,7 @@ async function runTests() {
   {
     mockActions.calls = [];
     const req = createUploadRequest(
-      "http://localhost:3000/api/parse/conversion?save=true&period=2026-05-01&gym=test-gym&week=2",
+      "http://localhost:3000/api/parse/conversion?save=true&period=2026-05-01&gym=test-gym&weekIndex=S2",
       conversionData,
       { Authorization: "Bearer test-secret" }
     );
