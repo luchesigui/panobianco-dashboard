@@ -7,6 +7,7 @@ import { getServiceSupabase } from "@/lib/supabase/server";
 import { ALL_KPI_CODES_FOR_MONTH } from "@/lib/data/dashboard-input-requirements";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import { recomputeWeeklyTotals } from "@/lib/data/sales-marketing-payload-merge";
+import { decomposePayloadToRows } from "@/lib/data/vendas-marketing-assembler";
 
 const periodSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
@@ -142,16 +143,48 @@ export async function saveSmDashboardAction(raw: z.infer<typeof saveSmSchema>): 
       .single();
     if (gErr || !gym) return { ok: false, error: "Academia não encontrada." };
 
-    const { error: uErr } = await supabase.from("sales_marketing_dashboard_payload").upsert(
-      {
-        gym_id: gym.id,
-        period_id: input.periodId,
-        payload: p as unknown as Record<string, unknown>,
-        updated_at: new Date().toISOString(),
-      },
+    const rows = decomposePayloadToRows(p);
+
+    const { error: funilErr } = await supabase.from("funil_mensal").upsert(
+      { gym_id: gym.id, period_id: input.periodId, ...rows.funilMensal, updated_at: new Date().toISOString() },
       { onConflict: "gym_id,period_id" },
     );
-    if (uErr) return { ok: false, error: uErr.message };
+    if (funilErr) return { ok: false, error: funilErr.message };
+
+    const weeklyTables = [
+      { table: "marketing_semanal", data: rows.marketingSemanal },
+      { table: "funil_semanal", data: rows.funilSemanal },
+      { table: "conversoes_semanais", data: rows.conversoesSemanal },
+    ] as const;
+
+    for (const { table, data } of weeklyTables) {
+      await supabase.from(table).delete().eq("gym_id", gym.id).eq("period_id", input.periodId);
+      if (data.length > 0) {
+        const { error } = await supabase.from(table).insert(
+          data.map((r) => ({ gym_id: gym.id, period_id: input.periodId, ...r })),
+        );
+        if (error) return { ok: false, error: error.message };
+      }
+    }
+
+    if (rows.recepcaoSemanal.length > 0) {
+      await supabase.from("recepcao_semanal").delete().eq("gym_id", gym.id).eq("period_id", input.periodId);
+      const { data: consultoras } = await supabase
+        .from("consultoras").select("id,name").eq("gym_id", gym.id).is("deleted_at", null);
+      const consultoraIdByName = new Map((consultoras ?? []).map((c) => [c.name, c.id]));
+      const { error } = await supabase.from("recepcao_semanal").insert(
+        rows.recepcaoSemanal.map((r) => ({
+          gym_id: gym.id,
+          period_id: input.periodId,
+          week_num: r.week_num,
+          receptionist_name: r.receptionist_name,
+          consultora_id: consultoraIdByName.get(r.receptionist_name) ?? null,
+          leads: r.leads,
+          sales: r.sales,
+        })),
+      );
+      if (error) return { ok: false, error: error.message };
+    }
 
     revalidatePath("/kpis");
     revalidatePath("/kpis/entrada-dados");

@@ -1,6 +1,7 @@
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
-import { createDefaultSmPayload, normalizeSmPayloadWeeks } from "@/lib/data/sales-marketing-payload-merge";
+import { assemblePayloadFromNormalized } from "@/lib/data/vendas-marketing-assembler";
+import { createDefaultSmPayload } from "@/lib/data/sales-marketing-payload-merge";
 export type GymOption = { slug: string; name: string };
 export type DefOption = { code: string; id: string };
 
@@ -74,21 +75,31 @@ export async function loadEntradaPageData(gymSlug: string, periodId: string): Pr
     }
   }
 
-  const { data: dashRow, error: dashErr } = await supabase
-    .from("sales_marketing_dashboard_payload")
-    .select("payload")
-    .eq("gym_id", gymId)
-    .eq("period_id", periodId)
-    .maybeSingle();
-  if (dashErr) throw new Error(dashErr.message);
+  const [funilRes, marketingRes, funilSemRes, conversoesRes, recepcaoRes, consultorasRes] =
+    await Promise.all([
+      supabase.from("funil_mensal").select("scheduled,present,closings").eq("gym_id", gymId).eq("period_id", periodId).maybeSingle(),
+      supabase.from("marketing_semanal").select("week_num,reach,frequency,views,followers").eq("gym_id", gymId).eq("period_id", periodId),
+      supabase.from("funil_semanal").select("week_num,scheduled,attendance,closings").eq("gym_id", gymId).eq("period_id", periodId),
+      supabase.from("conversoes_semanais").select("week_num,leads,sales").eq("gym_id", gymId).eq("period_id", periodId),
+      supabase.from("recepcao_semanal").select("week_num,receptionist_name,leads,sales").eq("gym_id", gymId).eq("period_id", periodId),
+      supabase.from("consultoras").select("name,monthly_goal").eq("gym_id", gymId).is("deleted_at", null).order("sort_order"),
+    ]);
+  if (funilRes.error) throw new Error(funilRes.error.message);
+  if (marketingRes.error) throw new Error(marketingRes.error.message);
+  if (funilSemRes.error) throw new Error(funilSemRes.error.message);
+  if (conversoesRes.error) throw new Error(conversoesRes.error.message);
+  if (recepcaoRes.error) throw new Error(recepcaoRes.error.message);
+  if (consultorasRes.error) throw new Error(consultorasRes.error.message);
 
-  let smPayload: SalesMarketingDashboardPayload;
-  const raw = dashRow?.payload;
-  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-    smPayload = normalizeSmPayloadWeeks(raw as SalesMarketingDashboardPayload);
-  } else {
-    smPayload = createDefaultSmPayload(monthLabel(periodId));
-  }
+  const smPayload: SalesMarketingDashboardPayload = assemblePayloadFromNormalized({
+    funilMensal: funilRes.data ?? null,
+    marketingSemanal: (marketingRes.data ?? []).map((r) => ({ ...r, reach: r.reach != null ? Number(r.reach) : null, frequency: r.frequency != null ? Number(r.frequency) : null, views: r.views != null ? Number(r.views) : null, followers: r.followers != null ? Number(r.followers) : null })),
+    funilSemanal: funilSemRes.data ?? [],
+    conversoesSemanal: conversoesRes.data ?? [],
+    recepcaoSemanal: recepcaoRes.data ?? [],
+    consultoras: (consultorasRes.data ?? []).map((c) => ({ name: c.name, monthly_goal: c.monthly_goal != null ? Number(c.monthly_goal) : null })),
+    periodLabel: monthLabel(periodId),
+  });
 
   return { gyms, definitions, kpiValues, metaByCode, smPayload };
 }
