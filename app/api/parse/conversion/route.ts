@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { getServiceSupabase } from "@/lib/supabase/server";
-import { saveMonthlyKpisAction, saveSmDashboardAction } from "@/app/kpis/entrada-dados/actions";
-import { createDefaultSmPayload, normalizeSmPayloadWeeks, recomputeWeeklyTotals } from "@/lib/data/sales-marketing-payload-merge";
-import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
+import { saveMonthlyKpisAction } from "@/app/kpis/entrada-dados/actions";
 import { validateApiRequest } from "@/lib/auth";
 
 function monthLabel(periodYyyyMmDd: string): string {
@@ -105,7 +103,7 @@ export async function POST(req: Request) {
     };
 
     if (save && periodParam && weekParam) {
-      const weekIndex = parseInt(weekParam, 10) - 1;
+      const weekNum = parseInt(weekParam, 10);
 
       const supabase = getServiceSupabase();
       const gymRow = await supabase.from("gyms").select("id").eq("slug", gymParam).maybeSingle();
@@ -114,7 +112,6 @@ export async function POST(req: Request) {
       }
       const gymId = gymRow.data.id;
 
-      // Load active consultoras
       const { data: consultorasData, error: consultorasErr } = await supabase
         .from("consultoras")
         .select("id,name,monthly_goal,sort_order")
@@ -131,131 +128,64 @@ export async function POST(req: Request) {
         id: r.id as string,
         name: r.name as string,
         monthly_goal: r.monthly_goal != null ? Number(r.monthly_goal) : null,
-        sort_order: Number(r.sort_order),
       }));
 
-      // Load existing dashboard payload
-      const { data: dashRow, error: dashErr } = await supabase
-        .from("sales_marketing_dashboard_payload")
-        .select("payload")
-        .eq("gym_id", gymId)
-        .eq("period_id", periodParam)
-        .maybeSingle();
-
-      if (dashErr) {
-        return NextResponse.json({ error: `Erro ao buscar dados do dashboard: ${dashErr.message}` }, { status: 500 });
-      }
-
-      let payload: SalesMarketingDashboardPayload;
-      const raw = dashRow?.payload;
-      if (raw && typeof raw === "object" && !Array.isArray(raw)) {
-        payload = normalizeSmPayloadWeeks(raw as SalesMarketingDashboardPayload);
-      } else {
-        payload = createDefaultSmPayload(monthLabel(periodParam));
-      }
-
-      // Match names using first name case-insensitive matching
+      // Match spreadsheet names to consultora names via first name
       const matchedReceptionists: Record<string, { leads: number; sales: number }> = {};
       for (const [rawName, stats] of receptionistMap.entries()) {
         const spreadsheetFirstName = getFirstName(rawName);
-        const matchedConsultora = consultoras.find(c => getFirstName(c.name) === spreadsheetFirstName);
-        if (matchedConsultora) {
-          const existing = matchedReceptionists[matchedConsultora.name] || { leads: 0, sales: 0 };
+        const matched = consultoras.find((c) => getFirstName(c.name) === spreadsheetFirstName);
+        if (matched) {
+          const existing = matchedReceptionists[matched.name] ?? { leads: 0, sales: 0 };
           existing.leads += stats.leads;
           existing.sales += stats.sales;
-          matchedReceptionists[matchedConsultora.name] = existing;
+          matchedReceptionists[matched.name] = existing;
         }
       }
 
-      // Update byReceptionist weekly totals
-      for (const c of consultoras) {
-        let row = payload.weekly.salesWeekly.byReceptionist?.find(r => r.name === c.name);
-        if (!row) {
-          row = {
-            name: c.name,
-            leadsByWeek: Array(5).fill(null),
-            leadsTotal: null,
-            salesByWeek: Array(5).fill(null),
-            salesTotal: null,
-          };
-          if (!payload.weekly.salesWeekly.byReceptionist) {
-            payload.weekly.salesWeekly.byReceptionist = [];
-          }
-          payload.weekly.salesWeekly.byReceptionist.push(row);
-        }
-
-        const stats = matchedReceptionists[c.name];
-        row.leadsByWeek[weekIndex] = stats ? stats.leads : 0;
-        row.salesByWeek[weekIndex] = stats ? stats.sales : 0;
+      // Upsert conversoes_semanais for this week
+      const { error: convErr } = await supabase.from("conversoes_semanais").upsert(
+        { gym_id: gymId, period_id: periodParam, week_num: weekNum, leads: totalLeads, sales: totalSales },
+        { onConflict: "gym_id,period_id,week_num" },
+      );
+      if (convErr) {
+        return NextResponse.json({ error: `Erro ao salvar conversões: ${convErr.message}` }, { status: 500 });
       }
 
-      // Update weekly totals
-      payload.weekly.salesWeekly.leadsByWeek[weekIndex] = totalLeads;
-      payload.weekly.salesWeekly.totals[weekIndex] = totalSales;
+      // Upsert recepcao_semanal for each consultora this week
+      const recepcaoRows = consultoras.map((c) => ({
+        gym_id: gymId,
+        period_id: periodParam,
+        week_num: weekNum,
+        receptionist_name: c.name,
+        consultora_id: c.id,
+        leads: matchedReceptionists[c.name]?.leads ?? 0,
+        sales: matchedReceptionists[c.name]?.sales ?? 0,
+      }));
 
-      // Recalculate monthly totals for receptionists
-      payload.receptionists = consultoras.map(c => {
-        const row = payload.weekly.salesWeekly.byReceptionist?.find(r => r.name === c.name);
-        let leads = null;
-        let sales = null;
-        if (row) {
-          let hasAny = false;
-          let sumLeads = 0;
-          let sumSales = 0;
-          for (let i = 0; i < row.leadsByWeek.length; i++) {
-            if (row.leadsByWeek[i] !== null) {
-              hasAny = true;
-              sumLeads += row.leadsByWeek[i]!;
-            }
-            if (row.salesByWeek[i] !== null) {
-              hasAny = true;
-              sumSales += row.salesByWeek[i]!;
-            }
-          }
-          if (hasAny) {
-            leads = sumLeads;
-            sales = sumSales;
-          }
-        }
-        const conversion_pct = (leads && leads > 0 && sales !== null)
-          ? Math.round((sales / leads) * 100 * 10) / 10
-          : 0;
-        const existingRecep = payload.receptionists?.find(r => r.name === c.name);
-        return {
-          name: c.name,
-          badge: existingRecep?.badge,
-          leads,
-          sales,
-          goal: c.monthly_goal ?? existingRecep?.goal ?? 0,
-          conversion_pct,
-          bar_variant: existingRecep?.bar_variant,
-        };
-      });
-
-      // Recompute all weekly totals
-      recomputeWeeklyTotals(payload.weekly);
-
-      // Save SM Dashboard payload
-      const saveSmRes = await saveSmDashboardAction({
-        gymSlug: gymParam,
-        periodId: periodParam,
-        payload: payload,
-      });
-
-      if (!saveSmRes.ok) {
-        return NextResponse.json({ error: `Erro ao salvar dashboard de vendas/marketing: ${saveSmRes.error}` }, { status: 500 });
+      const { error: recErr } = await supabase.from("recepcao_semanal").upsert(
+        recepcaoRows,
+        { onConflict: "gym_id,period_id,week_num,receptionist_name" },
+      );
+      if (recErr) {
+        return NextResponse.json({ error: `Erro ao salvar recepção: ${recErr.message}` }, { status: 500 });
       }
 
-      // Save overall generated leads & sales to KPI values
+      // Compute grand totals from all weeks for KPI values
+      const { data: allConversoes } = await supabase
+        .from("conversoes_semanais")
+        .select("leads,sales")
+        .eq("gym_id", gymId)
+        .eq("period_id", periodParam);
+
+      const leadsGrandTotal = (allConversoes ?? []).reduce((s, r) => s + (r.leads ?? 0), 0);
+      const grandTotal = (allConversoes ?? []).reduce((s, r) => s + (r.sales ?? 0), 0);
+
       const saveKpisRes = await saveMonthlyKpisAction({
         gymSlug: gymParam,
         periodId: periodParam,
-        values: {
-          leads_generated: payload.weekly.salesWeekly.leadsGrandTotal,
-          sales_total: payload.weekly.salesWeekly.grandTotal,
-        },
+        values: { leads_generated: leadsGrandTotal, sales_total: grandTotal },
       });
-
       if (!saveKpisRes.ok) {
         return NextResponse.json({ error: `Erro ao salvar KPIs mensais: ${saveKpisRes.error}` }, { status: 500 });
       }

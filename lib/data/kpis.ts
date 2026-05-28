@@ -8,6 +8,7 @@ import {
 	mergeSmWeeklyWithPeriodSource,
 	normalizeSmPayloadWeeks,
 } from "@/lib/data/sales-marketing-payload-merge";
+import { assemblePayloadFromNormalized } from "@/lib/data/vendas-marketing-assembler";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type {
 	MonthlySalesBar,
@@ -509,11 +510,13 @@ export async function getKpiPageData(
 				.select("period_id,kpi_definition_id,value_numeric,meta_json")
 				.eq("gym_id", gym.id)
 				.in("period_id", fetchPeriodIds),
-			supabase
-				.from("sales_marketing_dashboard_payload")
-				.select("period_id,payload")
-				.eq("gym_id", gym.id)
-				.in("period_id", fetchPeriodIds),
+			Promise.all([
+				supabase.from("funil_mensal").select("period_id,scheduled,present,closings").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
+				supabase.from("marketing_semanal").select("period_id,week_num,reach,frequency,views,followers").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
+				supabase.from("funil_semanal").select("period_id,week_num,scheduled,attendance,closings").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
+				supabase.from("conversoes_semanais").select("period_id,week_num,leads,sales").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
+				supabase.from("recepcao_semanal").select("period_id,week_num,receptionist_name,leads,sales").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
+			]),
 			supabase
 				.from("kpi_values")
 				.select("period_id,kpi_definition_id,value_numeric")
@@ -538,8 +541,6 @@ export async function getKpiPageData(
 		throw new Error(`Definitions load failed: ${defsRes.error.message}`);
 	if (valuesRes.error)
 		throw new Error(`Values load failed: ${valuesRes.error.message}`);
-	if (dashboardRes.error)
-		throw new Error(`Dashboard payload load failed: ${dashboardRes.error.message}`);
 	if (salesHistoryRes.error)
 		throw new Error(
 			`Sales history load failed: ${salesHistoryRes.error.message}`,
@@ -549,19 +550,40 @@ export async function getKpiPageData(
 	if (consultorasRes.error)
 		throw new Error(`Consultoras load failed: ${consultorasRes.error.message}`);
 
-	const smRows = dashboardRes.data ?? [];
-	const smByPeriod = new Map(
-		smRows.map((r) => [normalizePeriodId(r.period_id), r] as const),
-	);
+	const [funilMensalRes, marketingSemRes, funilSemRes, conversoesRes, recepcaoRes] = dashboardRes;
+	if (funilMensalRes.error) throw new Error(`Funil mensal load failed: ${funilMensalRes.error.message}`);
+	if (marketingSemRes.error) throw new Error(`Marketing semanal load failed: ${marketingSemRes.error.message}`);
+	if (funilSemRes.error) throw new Error(`Funil semanal load failed: ${funilSemRes.error.message}`);
+	if (conversoesRes.error) throw new Error(`Conversões load failed: ${conversoesRes.error.message}`);
+	if (recepcaoRes.error) throw new Error(`Recepção load failed: ${recepcaoRes.error.message}`);
 
-	const toSmPayload = (raw: unknown): SalesMarketingDashboardPayload | null =>
-		raw && typeof raw === "object" && !Array.isArray(raw)
-			? (raw as SalesMarketingDashboardPayload)
-			: null;
+	const consultorasForAssembler = (consultorasRes.data ?? []).map((c) => ({
+		name: c.name,
+		monthly_goal: c.monthly_goal != null ? Number(c.monthly_goal) : null,
+	}));
 
-	const smCurrentPayload = toSmPayload(smByPeriod.get(currentMonthPeriod)?.payload);
-	const smPrevPayload = toSmPayload(smByPeriod.get(prevMonthPeriod)?.payload);
-	const smPrev2Payload = toSmPayload(smByPeriod.get(prev2MonthPeriod)?.payload);
+	const buildSmPayload = (periodId: string): SalesMarketingDashboardPayload | null => {
+		const pid = normalizePeriodId(periodId);
+		const funil = (funilMensalRes.data ?? []).find((r) => normalizePeriodId(r.period_id) === pid) ?? null;
+		const marketing = (marketingSemRes.data ?? []).filter((r) => normalizePeriodId(r.period_id) === pid).map((r) => ({ ...r, reach: r.reach != null ? Number(r.reach) : null, frequency: r.frequency != null ? Number(r.frequency) : null, views: r.views != null ? Number(r.views) : null, followers: r.followers != null ? Number(r.followers) : null }));
+		const funilSem = (funilSemRes.data ?? []).filter((r) => normalizePeriodId(r.period_id) === pid);
+		const conversoes = (conversoesRes.data ?? []).filter((r) => normalizePeriodId(r.period_id) === pid);
+		const recepcao = (recepcaoRes.data ?? []).filter((r) => normalizePeriodId(r.period_id) === pid);
+		if (!funil && !marketing.length && !funilSem.length && !conversoes.length && !recepcao.length) return null;
+		return assemblePayloadFromNormalized({
+			funilMensal: funil ? { scheduled: funil.scheduled, present: funil.present, closings: funil.closings } : null,
+			marketingSemanal: marketing,
+			funilSemanal: funilSem,
+			conversoesSemanal: conversoes,
+			recepcaoSemanal: recepcao,
+			consultoras: consultorasForAssembler,
+			periodLabel: "",
+		});
+	};
+
+	const smCurrentPayload = buildSmPayload(currentMonthPeriod);
+	const smPrevPayload = buildSmPayload(prevMonthPeriod);
+	const smPrev2Payload = buildSmPayload(prev2MonthPeriod);
 
 	const hasCurrentMonthData =
 		smCurrentPayload != null &&
