@@ -47,6 +47,14 @@ export function KpiFieldInput({
 		}
 	};
 
+	const handleChange = (val: string) => {
+		if (!isFrequency && (field.unit === "currency" || field.unit === "count")) {
+			onChange(val.replace(/\D/g, ""));
+		} else {
+			onChange(val);
+		}
+	};
+
 	const placeholder =
 		field.unit === "currency"
 			? "R$ 0"
@@ -81,7 +89,7 @@ export function KpiFieldInput({
 				onFocus={onFocus}
 				onBlur={onBlur}
 				onPaste={handlePaste}
-				onChange={(e) => onChange(e.target.value)}
+				onChange={(e) => handleChange(e.target.value)}
 				className="h-10 bg-white border-slate-200 focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-500"
 				placeholder={placeholder}
 			/>

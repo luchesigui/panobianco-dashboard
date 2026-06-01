@@ -68,10 +68,22 @@ export async function POST(req: Request) {
 
     const items: Record<string, number> = {};
     for (const row of rows) {
-      const centerRaw = row["Centro de custo"];
-      const valueRawBaixa = row["Valor"];
-      const center = typeof centerRaw === "string" ? centerRaw.trim() : "";
+      const centerKey = Object.keys(row).find(
+        (k) => k.trim().toLowerCase() === "centro de custo"
+      );
+      const valueKey = Object.keys(row).find(
+        (k) => k.trim().toLowerCase() === "valor"
+      );
+
+      const centerRaw = centerKey ? row[centerKey] : undefined;
+      const valueRawBaixa = valueKey ? row[valueKey] : undefined;
+
+      const center =
+        centerRaw !== null && centerRaw !== undefined
+          ? String(centerRaw).trim()
+          : "";
       if (!center) continue;
+
       items[center] = (items[center] ?? 0) + parseCurrency(valueRawBaixa);
     }
 

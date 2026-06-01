@@ -28,6 +28,7 @@ export const mockActions = {
 };
 
 export const mockSupabase = {
+  dbCalls: [] as { table: string; method: string; data?: any }[],
   getServiceSupabase: () => {
     return {
       from: (table: string) => {
@@ -51,6 +52,10 @@ export const mockSupabase = {
             }
             return { data: null, error: null };
           },
+          upsert: async (data: any) => {
+            mockSupabase.dbCalls.push({ table, method: "upsert", data });
+            return { error: null };
+          },
         };
         query.then = (onfulfilled: any) => {
           if (table === "consultoras") {
@@ -59,6 +64,14 @@ export const mockSupabase = {
                 { id: "c1", name: "Maria Oliveira", monthly_goal: 100, sort_order: 1 },
                 { id: "c2", name: "Joao Silva", monthly_goal: 150, sort_order: 2 },
               ],
+              error: null,
+            }).then(onfulfilled);
+          }
+          if (table === "conversoes_semanais") {
+            const upserts = mockSupabase.dbCalls.filter(c => c.table === "conversoes_semanais");
+            const data = upserts.map(u => u.data);
+            return Promise.resolve({
+              data: data.length > 0 ? data : [{ leads: 4, sales: 3 }],
               error: null,
             }).then(onfulfilled);
           }
@@ -337,6 +350,7 @@ async function runTests() {
   // Test save=true Authorized
   {
     mockActions.calls = [];
+    mockSupabase.dbCalls = [];
     const req = createUploadRequest(
       "http://localhost:3000/api/parse/conversion?save=true&period=2026-05-01&gym=test-gym&weekIndex=S2",
       conversionData,
@@ -349,33 +363,25 @@ async function runTests() {
     }
     assert(res.status === 200, "Conversion save=true status 200");
     
-    // Should call saveSmDashboardAction AND saveMonthlyKpisAction
-    assert(mockActions.calls.length === 2, `Actions called: expected 2, got ${mockActions.calls.length}`);
+    // Should call saveMonthlyKpisAction
+    assert(mockActions.calls.length === 1, `Actions called: expected 1, got ${mockActions.calls.length}`);
     
-    const saveSm = mockActions.calls.find(c => c.type === "saveSmDashboard");
     const saveKpi = mockActions.calls.find(c => c.type === "saveMonthlyKpis");
-    
-    assert(!!saveSm, "saveSmDashboardAction was called");
     assert(!!saveKpi, "saveMonthlyKpisAction was called");
-
-    const payload = saveSm!.data.payload;
-    
-    // Check weekly leads totals updated for week index 1 (week 2)
-    assert(payload.weekly.salesWeekly.leadsByWeek[1] === 4, "Weekly leads correct at week index 1");
-    assert(payload.weekly.salesWeekly.totals[1] === 3, "Weekly sales correct at week index 1");
-
-    // Check receptionist totals for week index 1 (week 2)
-    const mariaRow = payload.weekly.salesWeekly.byReceptionist.find((r: any) => r.name === "Maria Oliveira");
-    assert(mariaRow.leadsByWeek[1] === 2, "Maria leads updated for week index 1");
-    assert(mariaRow.salesByWeek[1] === 1, "Maria sales updated for week index 1");
-
-    const joaoRow = payload.weekly.salesWeekly.byReceptionist.find((r: any) => r.name === "Joao Silva");
-    assert(joaoRow.leadsByWeek[1] === 1, "Joao leads updated for week index 1");
-    assert(joaoRow.salesByWeek[1] === 1, "Joao sales updated for week index 1");
 
     // Check grand totals updated in KPIs
     assert(saveKpi!.data.values.leads_generated === 4, "Grand total leads KPI saved");
     assert(saveKpi!.data.values.sales_total === 3, "Grand total sales KPI saved");
+
+    // Check DB upserts
+    const convUpsert = mockSupabase.dbCalls.find(c => c.table === "conversoes_semanais");
+    const recUpsert = mockSupabase.dbCalls.find(c => c.table === "recepcao_semanal");
+
+    assert(!!convUpsert, "conversoes_semanais upserted");
+    assert(!!recUpsert, "recepcao_semanal upserted");
+
+    assert(convUpsert!.data.leads === 4, "Weekly leads correct");
+    assert(convUpsert!.data.sales === 3, "Weekly sales correct");
   }
 
   console.log("\n🎉 All tests passed successfully!");

@@ -6,15 +6,16 @@ export function useFormLockState() {
 	const [crescimentoLocked, setCrescimentoLocked] = useState(true);
 	const [recebimentosLocked, setRecebimentosLocked] = useState(true);
 	const [custosLocked, setCustosLocked] = useState(true);
+	const [retentionLocked, setRetentionLocked] = useState(true);
 
 	const isGroupLocked = useCallback(
 		(groupId: string): boolean => {
-			if (groupId === "overview" || groupId === "retention")
-				return crescimentoLocked;
+			if (groupId === "overview") return crescimentoLocked;
+			if (groupId === "retention") return retentionLocked;
 			if (groupId === "finance_revenues") return recebimentosLocked;
 			return false;
 		},
-		[crescimentoLocked, recebimentosLocked],
+		[crescimentoLocked, retentionLocked, recebimentosLocked],
 	);
 
 	const isRevenueFieldAlwaysEditable = useCallback(
@@ -36,6 +37,8 @@ export function useFormLockState() {
 		setRecebimentosLocked,
 		custosLocked,
 		setCustosLocked,
+		retentionLocked,
+		setRetentionLocked,
 		isGroupLocked,
 		isRevenueFieldAlwaysEditable,
 		isRetentionFieldAlwaysEditable,

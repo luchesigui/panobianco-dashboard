@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     let matchedRows = 0;
     for (const row of rows) {
       const centerRaw = row["Centro de receita"];
-      const valueRawBaixa = row["Valor baixa"];
+      const valueRawBaixa = row["Valor de baixa"] ?? row["Valor baixa"] ?? row["Valor"];
       const center = typeof centerRaw === "string" ? centerRaw.trim() : "";
       if (!center) continue;
       const parsedValorBaixa = parseCurrency(valueRawBaixa);

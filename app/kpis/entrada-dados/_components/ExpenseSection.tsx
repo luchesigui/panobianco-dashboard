@@ -99,7 +99,8 @@ export function ExpenseSection({
 										value={displayValue}
 										onPaste={handlePaste}
 										onChange={(e) => {
-											const parsed = parsePtBrNumber(e.target.value) ?? 0;
+											const clean = e.target.value.replace(/\D/g, "");
+											const parsed = Number(clean) || 0;
 											onChange(item.code, parsed);
 										}}
 										className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"

@@ -117,7 +117,7 @@ export function MonthlyTab({
 	};
 
 	const showLockToggleFor = (groupId: string): boolean => {
-		if (groupId === "overview") return true;
+		if (groupId === "overview" || groupId === "retention") return true;
 		if (groupId === "finance_revenues") return kpi.hasRecebimentosBreakdown;
 		return false;
 	};
@@ -125,6 +125,8 @@ export function MonthlyTab({
 	const onToggleLockFor = (groupId: string) => () => {
 		if (groupId === "finance_revenues") {
 			lock.setRecebimentosLocked((prev) => !prev);
+		} else if (groupId === "retention") {
+			lock.setRetentionLocked((prev) => !prev);
 		} else {
 			lock.setCrescimentoLocked((prev) => !prev);
 		}

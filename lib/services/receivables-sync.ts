@@ -88,15 +88,17 @@ export async function runSyncJob(jobId: string): Promise<void> {
 					continue;
 				}
 
+				const value = receivable.ammountPaid || receivable.ammount;
+
 				if (receivable.idRevenueCenter === null) {
 					if (receivable.description.toLowerCase().includes("wellhub")) {
 						partialGroups["Wellhub"] =
-							(partialGroups["Wellhub"] ?? 0) + receivable.ammountPaid;
+							(partialGroups["Wellhub"] ?? 0) + value;
 						totalFetched++;
 						continue;
 					}
 					partialGroups["Outros"] =
-						(partialGroups["Outros"] ?? 0) + receivable.ammountPaid;
+						(partialGroups["Outros"] ?? 0) + value;
 					totalFetched++;
 					continue;
 				}
@@ -104,7 +106,7 @@ export async function runSyncJob(jobId: string): Promise<void> {
 				const centerName =
 					revenueCenters[String(receivable.idRevenueCenter)] ?? "Outros";
 				partialGroups[centerName] =
-					(partialGroups[centerName] ?? 0) + receivable.ammountPaid;
+					(partialGroups[centerName] ?? 0) + value;
 				totalFetched++;
 			}
 
