@@ -117,6 +117,126 @@ export function useSmDashboard({
 		[],
 	);
 
+	const applyConversion = useCallback((json: Record<string, unknown>) => {
+		const byRecep = Array.isArray(json.byReceptionist)
+			? (json.byReceptionist as { name: string; leads: number; sales: number }[])
+			: [];
+
+		setRecepMonth((prev) => {
+			return prev.map((row) => {
+				const rowFirstName = row.name.trim().split(/\s+/)[0]?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
+				const matched = byRecep.find((r) => {
+					const rFirstName = r.name.trim().split(/\s+/)[0]?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
+					return rFirstName === rowFirstName;
+				});
+				if (matched) {
+					return {
+						...row,
+						leads: String(matched.leads),
+						sales: String(matched.sales),
+					};
+				}
+				return row;
+			});
+		});
+
+		if (typeof json.totalSales === "number") {
+			setFunnel((prev) => ({
+				...prev,
+				closings: { value: String(json.totalSales) },
+			}));
+		}
+	}, []);
+
+	const applyWeeklyConversion = useCallback(
+		(json: Record<string, unknown>) => {
+			const byRecep = Array.isArray(json.byReceptionist)
+				? (json.byReceptionist as { name: string; leads: number; sales: number }[])
+				: [];
+
+			let targetWeekIdx = 0;
+			const n = weekHeaders.length;
+			for (let w = 0; w < n; w++) {
+				const hasData = recepWeekRows.some((r) => {
+					const l = r.leads[w];
+					const s = r.sales[w];
+					return (
+						(l && l !== "0" && l.trim() !== "") ||
+						(s && s !== "0" && s.trim() !== "")
+					);
+				});
+				if (!hasData) {
+					targetWeekIdx = w;
+					break;
+				}
+			}
+
+			setRecepWeekRows((prev) => {
+				return prev.map((row) => {
+					const rowFirstName =
+						row.name
+							.trim()
+							.split(/\s+/)[0]
+							?.toLowerCase()
+							.normalize("NFD")
+							.replace(/[\u0300-\u036f]/g, "") || "";
+					const matched = byRecep.find((r) => {
+						const rFirstName =
+							r.name
+								.trim()
+								.split(/\s+/)[0]
+								?.toLowerCase()
+								.normalize("NFD")
+								.replace(/[\u0300-\u036f]/g, "") || "";
+						return rFirstName === rowFirstName;
+					});
+					if (matched) {
+						const newLeads = [...row.leads];
+						newLeads[targetWeekIdx] = String(matched.leads);
+						const newSales = [...row.sales];
+						newSales[targetWeekIdx] = String(matched.sales);
+						return {
+							...row,
+							leads: newLeads,
+							sales: newSales,
+						};
+					}
+					return row;
+				});
+			});
+
+			setWeeklyStr((prev) => {
+				const newLeadsTot = [...prev.leadsTot];
+				if (typeof json.totalLeads === "number") {
+					newLeadsTot[targetWeekIdx] = String(json.totalLeads);
+				}
+				const newSalesTot = [...prev.salesTot];
+				if (typeof json.totalSales === "number") {
+					newSalesTot[targetWeekIdx] = String(json.totalSales);
+				}
+				const newClo = [...prev.clo];
+				if (
+					!newClo[targetWeekIdx] ||
+					newClo[targetWeekIdx] === "0" ||
+					newClo[targetWeekIdx].trim() === ""
+				) {
+					if (typeof json.totalSales === "number") {
+						newClo[targetWeekIdx] = String(json.totalSales);
+					}
+				}
+				return {
+					...prev,
+					leadsTot: newLeadsTot,
+					salesTot: newSalesTot,
+					clo: newClo,
+				};
+			});
+
+			return targetWeekIdx;
+		},
+		[weekHeaders, recepWeekRows],
+	);
+
 	const handleSaveSm = useCallback(async () => {
 		setSaving(true);
 		try {
@@ -176,6 +296,8 @@ export function useSmDashboard({
 		smGridTotalRows,
 		saving,
 		handleSaveSm,
+		applyConversion,
+		applyWeeklyConversion,
 	};
 }
 

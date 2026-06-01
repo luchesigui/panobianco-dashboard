@@ -33,6 +33,7 @@ type Props = {
 		custos: UploadHandle;
 		recuperacao: UploadHandle;
 		renovacao: UploadHandle;
+		conversion: UploadHandle;
 	};
 	onSaveAll: () => void;
 	saving: boolean;
@@ -143,26 +144,6 @@ export function MonthlyTab({
 			{monthlyGroups.map((group) => {
 				const isFinanceRevenues = group.id === "finance_revenues";
 
-				let revenueAfterFields: React.ReactNode = null;
-				if (isFinanceRevenues) {
-					const revenueGroups = mapRevenueGroupsToCodes(
-						kpi.recebimentosBreakdown,
-					);
-					const total =
-						revenueGroups.matriculated_revenue +
-						(parsePtBrNumber(kpi.kpiInputs["wellhub_revenue"] ?? "") ?? 0) +
-						(parsePtBrNumber(kpi.kpiInputs["totalpass_revenue"] ?? "") ?? 0) +
-						revenueGroups.products_revenue;
-					revenueAfterFields = (
-						<RevenueBreakdownTable
-							breakdown={kpi.recebimentosBreakdown}
-							total={total}
-						/>
-					);
-				}
-
-				const isRetention = group.id === "retention";
-
 				let afterFields: React.ReactNode = null;
 				if (isFinanceRevenues) {
 					const revenueGroups = mapRevenueGroupsToCodes(
@@ -173,9 +154,18 @@ export function MonthlyTab({
 						(parsePtBrNumber(kpi.kpiInputs["wellhub_revenue"] ?? "") ?? 0) +
 						(parsePtBrNumber(kpi.kpiInputs["totalpass_revenue"] ?? "") ?? 0) +
 						revenueGroups.products_revenue;
+
+					// Filter out wellhub and totalpass keys to avoid duplication in the breakdown list
+					const filteredBreakdown = Object.fromEntries(
+						Object.entries(kpi.recebimentosBreakdown).filter(([name]) => {
+							const lower = name.toLowerCase();
+							return !lower.includes("wellhub") && !lower.includes("totalpass");
+						})
+					);
+
 					afterFields = (
 						<RevenueBreakdownTable
-							breakdown={kpi.recebimentosBreakdown}
+							breakdown={filteredBreakdown}
 							total={total}
 						/>
 					);
@@ -221,6 +211,8 @@ export function MonthlyTab({
 				onFunnelChange={sm.setFunnelField}
 				recepMonth={sm.recepMonth}
 				onRecepMonthChange={sm.updateRecepMonthField}
+				onUploadFile={(file) => void uploads.conversion.handleFile(file)}
+				uploading={uploads.conversion.uploading}
 			/>
 
 			<SaveButton onClick={onSaveAll} loading={saving}>

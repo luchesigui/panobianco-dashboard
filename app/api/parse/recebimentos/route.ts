@@ -60,7 +60,27 @@ export async function POST(req: Request) {
     for (const row of rows) {
       const centerRaw = row["Centro de receita"];
       const valueRawBaixa = row["Valor de baixa"] ?? row["Valor baixa"] ?? row["Valor"];
-      const center = typeof centerRaw === "string" ? centerRaw.trim() : "";
+      let center = typeof centerRaw === "string" ? centerRaw.trim() : "";
+
+      // Check if any column name resembles a description, and if its value contains "Wellhub"
+      let rowDescription = "";
+      for (const [k, v] of Object.entries(row)) {
+        const keyLower = k.toLowerCase();
+        if (
+          (keyLower.includes("descri") ||
+            keyLower.includes("detalhe") ||
+            keyLower.includes("hist")) &&
+          typeof v === "string"
+        ) {
+          rowDescription = v;
+          break;
+        }
+      }
+
+      if (rowDescription.toLowerCase().includes("wellhub")) {
+        center = "Receita Wellhub";
+      }
+
       if (!center) continue;
       const parsedValorBaixa = parseCurrency(valueRawBaixa);
       groups[center] = (groups[center] ?? 0) + parsedValorBaixa;

@@ -116,6 +116,30 @@ export function EntradaDadosForm({
 		onError: status.showErr,
 	});
 
+	const conversion = useFileUpload({
+		kind: "conversion",
+		periodId: initialPeriodId,
+		onSuccess: (json) => {
+			sm.applyConversion(json);
+			if (typeof json.totalLeads === "number") {
+				kpi.setKpiInput("leads_generated", String(json.totalLeads));
+			}
+			status.showOk("Relatório de vendas/conversão das recepcionistas processado.");
+		},
+		onError: status.showErr,
+	});
+
+	const weeklyConversion = useFileUpload({
+		kind: "conversion",
+		periodId: initialPeriodId,
+		onSuccess: (json) => {
+			const targetWeekIdx = sm.applyWeeklyConversion(json);
+			const weekLabel = sm.weekHeaders[targetWeekIdx] ?? `S${targetWeekIdx + 1}`;
+			status.showOk(`Relatório processado e aplicado à semana ${weekLabel}.`);
+		},
+		onError: status.showErr,
+	});
+
 	const onSaveAll = () => {
 		void (async () => {
 			status.clear();
@@ -164,6 +188,7 @@ export function EntradaDadosForm({
 								custos,
 								recuperacao,
 								renovacao,
+								conversion,
 							}}
 							onSaveAll={onSaveAll}
 							saving={monthlySaving}
@@ -171,7 +196,11 @@ export function EntradaDadosForm({
 					</TabsContent>
 
 					<TabsContent value="semanal">
-						<SalesMarketingTab sm={sm} />
+						<SalesMarketingTab
+							sm={sm}
+							onUploadFile={(file) => void weeklyConversion.handleFile(file)}
+							uploading={weeklyConversion.uploading}
+						/>
 					</TabsContent>
 				</Tabs>
 			</div>

@@ -90,13 +90,14 @@ export async function runSyncJob(jobId: string): Promise<void> {
 
 				const value = receivable.ammountPaid || receivable.ammount;
 
+				if (receivable.description && receivable.description.toLowerCase().includes("wellhub")) {
+					partialGroups["Receita Wellhub"] =
+						(partialGroups["Receita Wellhub"] ?? 0) + value;
+					totalFetched++;
+					continue;
+				}
+
 				if (receivable.idRevenueCenter === null) {
-					if (receivable.description.toLowerCase().includes("wellhub")) {
-						partialGroups["Wellhub"] =
-							(partialGroups["Wellhub"] ?? 0) + value;
-						totalFetched++;
-						continue;
-					}
 					partialGroups["Outros"] =
 						(partialGroups["Outros"] ?? 0) + value;
 					totalFetched++;
