@@ -2,7 +2,7 @@
 
 import { useCallback, useState } from "react";
 
-type UploadKind = "crescimento" | "recebimentos" | "custos" | "recuperacao";
+type UploadKind = "crescimento" | "recebimentos" | "custos" | "recuperacao" | "renovacao";
 
 type Options = {
 	kind: UploadKind;

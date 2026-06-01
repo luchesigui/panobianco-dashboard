@@ -99,6 +99,7 @@ const { POST: custosHandler } = require("../app/api/parse/custos/route");
 const { POST: crescimentoHandler } = require("../app/api/parse/crescimento/route");
 const { POST: recuperacaoHandler } = require("../app/api/parse/recuperacao/route");
 const { POST: conversionHandler } = require("../app/api/parse/conversion/route");
+const { POST: renovacaoHandler } = require("../app/api/parse/renovacao/route");
 
 function createMockExcelBuffer(data: any[]): Buffer {
   const ws = XLSX.utils.json_to_sheet(data);
@@ -382,6 +383,43 @@ async function runTests() {
 
     assert(convUpsert!.data.leads === 4, "Weekly leads correct");
     assert(convUpsert!.data.sales === 3, "Weekly sales correct");
+  }
+
+  // ==========================================
+  // TEST RENOVAÇÃO
+  // ==========================================
+  console.log("\n--- Testing renovacao ---");
+  const renovacaoData = [
+    { "Status": "Renovação manual", "Valor do último contrato": 129.9 },
+    { "Status": "Renovação Automática", "Valor do último contrato": 139.9 },
+    { "Status": "Não renovado", "Valor do último contrato": 119.9 },
+  ];
+
+  // Test save=false
+  {
+    const req = createUploadRequest("http://localhost:3000/api/parse/renovacao", renovacaoData);
+    const res = await renovacaoHandler(req);
+    assert(res.status === 200, "Renovacao save=false status 200");
+    const json = await res.json();
+    assert(json.monthly_renewed === 2, "Renewed count correct");
+    assert(json.monthly_non_renewed === 1, "Non-renewed count correct");
+    assert(json.month_total_records === 3, "Total records correct");
+  }
+
+  // Test save=true Authorized
+  {
+    mockActions.calls = [];
+    const req = createUploadRequest(
+      "http://localhost:3000/api/parse/renovacao?save=true&period=2026-05-01&gym=test-gym",
+      renovacaoData,
+      { Authorization: "Bearer test-secret" }
+    );
+    const res = await renovacaoHandler(req);
+    assert(res.status === 200, "Renovacao save=true status 200");
+    assert(mockActions.calls.length === 1, "saveMonthlyKpisAction called for renovacao");
+    const call = mockActions.calls[0];
+    assert(call.data.values.monthly_renewed === 2, "monthly_renewed saved");
+    assert(call.data.values.monthly_non_renewed === 1, "monthly_non_renewed saved");
   }
 
   console.log("\n🎉 All tests passed successfully!");

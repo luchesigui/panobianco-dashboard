@@ -106,6 +106,16 @@ export function EntradaDadosForm({
 		onError: status.showErr,
 	});
 
+	const renovacao = useFileUpload({
+		kind: "renovacao",
+		periodId: initialPeriodId,
+		onSuccess: (json) => {
+			kpi.applyRenovacao(json);
+			status.showOk("Arquivo de renovação processado.");
+		},
+		onError: status.showErr,
+	});
+
 	const onSaveAll = () => {
 		void (async () => {
 			status.clear();
@@ -153,6 +163,7 @@ export function EntradaDadosForm({
 								recebimentos,
 								custos,
 								recuperacao,
+								renovacao,
 							}}
 							onSaveAll={onSaveAll}
 							saving={monthlySaving}

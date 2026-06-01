@@ -63,6 +63,7 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
       { code: "recovered_default_value", label: "Inadimplência recuperada (R$)", unit: "currency" },
       { code: "monthly_cancellations", label: "Cancelamentos", unit: "count" },
       { code: "monthly_non_renewed", label: "Contratos não renovados", unit: "count" },
+      { code: "monthly_renewed", label: "Contratos renovados", unit: "count" },
     ],
   },
   {

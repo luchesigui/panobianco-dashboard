@@ -15,6 +15,7 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 	const recC = data.current.recovered_default_count ?? 0;
 	const cancellations = data.current.monthly_cancellations;
 	const nonRenewed = data.current.monthly_non_renewed;
+	const renewed = data.current.monthly_renewed;
 	const cancelled =
 		typeof openM.cancelled_count === "number" ? openM.cancelled_count : 0;
 	const recordCount =
@@ -61,7 +62,7 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 		typeof baseM.pending_note === "string" ? `*${baseM.pending_note}` : null;
 
 	return (
-		<div className={styles.kpiGrid}>
+		<div className={renewed != null ? styles.retentionGrid : styles.kpiGrid}>
 			<article className={styles.kpiCard}>
 				<span className={styles.kpiLabel}>Base de alunos</span>
 				<p className={styles.kpiValue}>{baseDisplay}</p>
@@ -97,6 +98,27 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 				) : null}
 				<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
 			</article>
+			{renewed != null ? (
+				<article className={styles.kpiCard}>
+					<span className={styles.kpiLabel}>Renovações</span>
+					<p className={styles.kpiValue}>
+						{new Intl.NumberFormat("pt-BR").format(renewed)}
+					</p>
+					{nonRenewed != null ? (
+						<p className={styles.kpiMetaLine}>
+							{(() => {
+								const total = renewed + (nonRenewed ?? 0);
+								if (total === 0) return "0% taxa";
+								const rate = Math.round((renewed / total) * 1000) / 10;
+								return `${rate.toFixed(1).replace(".", ",")}% taxa de renov.`;
+							})()}
+						</p>
+					) : (
+						<p className={styles.kpiMetaLine}>Contratos renovados</p>
+					)}
+					<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
+				</article>
+			) : null}
 			<article className={styles.kpiCard}>
 				<span className={styles.kpiLabel}>Saídas</span>
 				<p className={styles.kpiValue}>

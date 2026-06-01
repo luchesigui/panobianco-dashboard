@@ -287,9 +287,25 @@
 	margin-bottom: 1rem;
 }
 
+.retentionGrid {
+	display: grid;
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 12px;
+	margin-bottom: 1rem;
+}
+
 /* Keep 4 columns from tablet width; narrow phones use a fluid grid */
 @media (max-width: 640px) {
 	.kpiGrid {
+		grid-template-columns: repeat(
+			auto-fit,
+			minmax(max(148px, calc((100% - 12px) / 2)), 1fr)
+		);
+	}
+}
+
+@media (max-width: 900px) {
+	.retentionGrid {
 		grid-template-columns: repeat(
 			auto-fit,
 			minmax(max(148px, calc((100% - 12px) / 2)), 1fr)

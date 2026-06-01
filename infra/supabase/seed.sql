@@ -47,6 +47,7 @@ with definitions(code, label, unit, category) as (
     ('monthly_exits',          'Saidas no mes',            'count', 'retention'),
     ('monthly_cancellations',  'Cancelamentos',             'count', 'retention'),
     ('monthly_non_renewed',    'Contratos nao renovados',   'count', 'retention'),
+    ('monthly_renewed',        'Contratos renovados',       'count', 'retention'),
     ('total_invested', 'Total investido', 'currency_brl', 'roi'),
     ('cash_balance', 'Saldo em caixa', 'currency_brl', 'roi'),
     ('recovery_balance', 'Saldo a recuperar', 'currency_brl', 'roi'),

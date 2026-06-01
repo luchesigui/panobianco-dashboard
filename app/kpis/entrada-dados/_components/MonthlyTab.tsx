@@ -32,6 +32,7 @@ type Props = {
 		recebimentos: UploadHandle;
 		custos: UploadHandle;
 		recuperacao: UploadHandle;
+		renovacao: UploadHandle;
 	};
 	onSaveAll: () => void;
 	saving: boolean;
@@ -86,11 +87,16 @@ export function MonthlyTab({
 		}
 		if (groupId === "retention") {
 			return (
-				<div className="mb-4">
+				<div className="mb-4 flex flex-col gap-3">
 					<FileUploadArea
 						label="Importe o arquivo de relatório de inadimplência (recuperação)."
 						onFile={(file) => void uploads.recuperacao.handleFile(file)}
 						loading={uploads.recuperacao.uploading}
+					/>
+					<FileUploadArea
+						label="Importe o arquivo de relatório de renovação."
+						onFile={(file) => void uploads.renovacao.handleFile(file)}
+						loading={uploads.renovacao.uploading}
 					/>
 				</div>
 			);

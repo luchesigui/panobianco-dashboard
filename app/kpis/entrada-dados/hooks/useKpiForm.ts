@@ -110,6 +110,16 @@ export function useKpiForm({
 	}, []);
 
 	const [hasUploadedRecuperacao, setHasUploadedRecuperacao] = useState(false);
+	const [hasUploadedRenovacao, setHasUploadedRenovacao] = useState(false);
+
+	const applyRenovacao = useCallback((json: Record<string, unknown>) => {
+		const updates: Record<string, string> = {
+			monthly_renewed: String(Number(json.monthly_renewed ?? 0)),
+			monthly_non_renewed: String(Number(json.monthly_non_renewed ?? 0)),
+		};
+		setKpiInputs((prev) => ({ ...prev, ...updates }));
+		setHasUploadedRenovacao(true);
+	}, []);
 
 	const applyRecuperacao = useCallback((json: Record<string, unknown>) => {
 		const updates: Record<string, string> = {
@@ -255,10 +265,12 @@ export function useKpiForm({
 		hasRecebimentosBreakdown,
 		hasUploadedCrescimento,
 		hasUploadedRecuperacao,
+		hasUploadedRenovacao,
 		expenseEntries,
 		saving,
 		applyCrescimento,
 		applyRecuperacao,
+		applyRenovacao,
 		applyRecebimentos,
 		applyCustos,
 		handleSaveKpis,
