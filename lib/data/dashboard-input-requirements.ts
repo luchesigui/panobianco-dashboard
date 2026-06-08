@@ -50,6 +50,8 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
       { code: "marketing_frequency", label: "Frequência", unit: "count" },
       { code: "marketing_views", label: "Visualizações", unit: "count" },
       { code: "marketing_followers", label: "Novos seguidores", unit: "count" },
+      { code: "vendas_via_experimental", label: "Vendas via aula experimental", unit: "count" },
+      { code: "vendas_outros_canais", label: "Vendas por outros canais", unit: "count" },
     ],
   },
   {

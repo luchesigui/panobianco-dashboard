@@ -51,11 +51,32 @@ export async function POST(req: Request) {
 
     let renewedCount = 0;
     let nonRenewedCount = 0;
+    let validRecordsCount = 0;
 
     for (const row of rows) {
       const statusKey = Object.keys(row).find(k => k.trim().toLowerCase() === "status");
       if (!statusKey) continue;
       const statusValue = String(row[statusKey] || "").trim().toLowerCase();
+
+      // Ignora 'Renovação Automática'
+      if (statusValue === "renovação automática" || statusValue === "renovacao automatica") {
+        continue;
+      }
+
+      // Procura a coluna 'Último contrato' de forma robusta
+      const ultimoContratoKey = Object.keys(row).find(k => {
+        const normalized = k.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        return normalized === "ultimo contrato" || normalized === "ultimo_contrato";
+      });
+
+      const ultimoContratoValue = ultimoContratoKey ? String(row[ultimoContratoKey] || "") : "";
+      
+      // Ignora contratos recorrentes
+      if (ultimoContratoValue.toLowerCase().includes("recorrente")) {
+        continue;
+      }
+
+      validRecordsCount++;
 
       if (statusValue === "não renovado" || statusValue === "nao renovado") {
         nonRenewedCount++;
@@ -67,7 +88,7 @@ export async function POST(req: Request) {
     const response: RenovacaoResponse = {
       monthly_renewed: renewedCount,
       monthly_non_renewed: nonRenewedCount,
-      month_total_records: rows.length,
+      month_total_records: validRecordsCount,
     };
 
     if (save && periodParam) {

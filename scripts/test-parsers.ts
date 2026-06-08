@@ -392,9 +392,10 @@ async function runTests() {
   // ==========================================
   console.log("\n--- Testing renovacao ---");
   const renovacaoData = [
-    { "Status": "Renovação manual", "Valor do último contrato": 129.9 },
-    { "Status": "Renovação Automática", "Valor do último contrato": 139.9 },
-    { "Status": "Não renovado", "Valor do último contrato": 119.9 },
+    { "Status": "Renovação manual", "Último contrato": "CONTRATO: PLATINUM MENSAL - 2025/26", "Valor do último contrato": 159.9 },
+    { "Status": "Renovação manual", "Último contrato": "CONTRATO: PLATINUM RECORRENTE", "Valor do último contrato": 129.9 }, // Ignorado
+    { "Status": "Renovação Automática", "Último contrato": "CONTRATO: PLATINUM MENSAL - 2025/26", "Valor do último contrato": 139.9 }, // Ignorado
+    { "Status": "Não renovado", "Último contrato": "CONTRATO: PLATINUM MENSAL - 2025/26", "Valor do último contrato": 119.9 },
   ];
 
   // Test save=false
@@ -403,9 +404,9 @@ async function runTests() {
     const res = await renovacaoHandler(req);
     assert(res.status === 200, "Renovacao save=false status 200");
     const json = await res.json();
-    assert(json.monthly_renewed === 2, "Renewed count correct");
-    assert(json.monthly_non_renewed === 1, "Non-renewed count correct");
-    assert(json.month_total_records === 3, "Total records correct");
+    assert(json.monthly_renewed === 1, `Renewed count correct (expected 1, got ${json.monthly_renewed})`);
+    assert(json.monthly_non_renewed === 1, `Non-renewed count correct (expected 1, got ${json.monthly_non_renewed})`);
+    assert(json.month_total_records === 2, `Total records correct (expected 2, got ${json.month_total_records})`);
   }
 
   // Test save=true Authorized
@@ -420,8 +421,8 @@ async function runTests() {
     assert(res.status === 200, "Renovacao save=true status 200");
     assert(mockActions.calls.length === 1, "saveMonthlyKpisAction called for renovacao");
     const call = mockActions.calls[0];
-    assert(call.data.values.monthly_renewed === 2, "monthly_renewed saved");
-    assert(call.data.values.monthly_non_renewed === 1, "monthly_non_renewed saved");
+    assert(call.data.values.monthly_renewed === 1, `monthly_renewed saved (expected 1, got ${call.data.values.monthly_renewed})`);
+    assert(call.data.values.monthly_non_renewed === 1, `monthly_non_renewed saved (expected 1, got ${call.data.values.monthly_non_renewed})`);
   }
 
   console.log("\n🎉 All tests passed successfully!");

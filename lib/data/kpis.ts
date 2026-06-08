@@ -19,6 +19,41 @@ type KpiMap = Record<string, number>;
 
 export type KpiMetaMap = Record<string, Record<string, unknown>>;
 
+function buildSalesComposition(
+	kpis: KpiMap,
+): SalesMarketingDashboardPayload["salesComposition"] {
+	const ev = kpis["vendas_via_experimental"];
+	const ov = kpis["vendas_outros_canais"];
+	if (ev == null && ov == null) return undefined;
+
+	const evVal = ev ?? 0;
+	const ovVal = ov ?? 0;
+	const total = kpis["sales_total"] ?? (evVal + ovVal);
+
+	const evPct = total > 0 ? Math.round((evVal / total) * 100) : 0;
+	const ovPct = total > 0 ? Math.round((ovVal / total) * 100) : 0;
+
+	const presentConversion = kpis["present_conversion_rate"];
+	const presentConversionStr =
+		presentConversion != null
+			? ` · ${Math.round(presentConversion)}% conversão presentes`
+			: "";
+
+	return {
+		sectionTitle: "Composição das vendas",
+		experimental: {
+			title: "Via aula experimental",
+			value: evVal,
+			subtext: `${evPct}% do total${presentConversionStr}`,
+		},
+		otherChannels: {
+			title: "Outros canais",
+			value: ovVal,
+			subtext: `${ovPct}% do total · Indicação, passou na frente, sistema online, outros`,
+		},
+	};
+}
+
 /** Retenção section: student base line chart + inadimplência donut (reference dashboard). */
 export type RetentionChartPayload = {
 	chartLabels: string[];
@@ -581,17 +616,38 @@ export async function getKpiPageData(
 		});
 	};
 
-	const smCurrentPayload = buildSmPayload(currentMonthPeriod);
-	const smPrevPayload = buildSmPayload(prevMonthPeriod);
-	const smPrev2Payload = buildSmPayload(prev2MonthPeriod);
+	const smPayloads = fetchPeriodIds.map((pid) => buildSmPayload(pid));
+	let resolvedPeriodIdx = -1;
+	for (let i = 0; i < fetchPeriodIds.length; i++) {
+		const payload = smPayloads[i];
+		if (payload && !isExperimentalFunnelEmpty(payload.funnel)) {
+			resolvedPeriodIdx = i;
+			break;
+		}
+	}
+	if (resolvedPeriodIdx === -1) {
+		resolvedPeriodIdx = 1; // Fallback to prevMonthPeriod if none has data
+	}
 
-	const hasCurrentMonthData =
-		smCurrentPayload != null &&
-		!isExperimentalFunnelEmpty(smCurrentPayload.funnel);
+	const kpiDataPeriod = fetchPeriodIds[resolvedPeriodIdx];
+	const hasCurrentMonthData = resolvedPeriodIdx === 0;
 
-	const kpiDataPeriod = hasCurrentMonthData ? currentMonthPeriod : prevMonthPeriod;
-	const previousPeriod = hasCurrentMonthData ? prevMonthPeriod : prev2MonthPeriod;
-	const thirdPeriod = hasCurrentMonthData ? prev2MonthPeriod : prev3MonthPeriod;
+	const getOffsetMonth = (basePeriod: string, offset: number): string => {
+		const parts = basePeriod.split("-").map(Number);
+		const d = new Date(parts[0], parts[1] - 1 + offset, 1);
+		const y = d.getFullYear();
+		const mo = String(d.getMonth() + 1).padStart(2, "0");
+		return `${y}-${mo}-01`;
+	};
+
+	const previousPeriod = getOffsetMonth(kpiDataPeriod, -1);
+	const thirdPeriod = getOffsetMonth(kpiDataPeriod, -2);
+
+	const smPrimaryPeriod = kpiDataPeriod;
+	const smComparisonPeriod = previousPeriod;
+
+	const primaryPayload = smPayloads[resolvedPeriodIdx] ?? null;
+	const comparisonPayload = buildSmPayload(smComparisonPeriod);
 
 	// Load insights for the resolved period (separate query after resolution)
 	const insightsRes = await supabase
@@ -760,23 +816,17 @@ export async function getKpiPageData(
 		0,
 	);
 
-	/** Janela mensal (KPIs / funil / recepção): atual+anterior ou anterior+M−2. */
-	const smMonthlyPayload = hasCurrentMonthData ? smCurrentPayload : smPrevPayload;
-	const smComparisonPayload = hasCurrentMonthData ? smPrevPayload : smPrev2Payload;
-	const smPrimaryPeriod = hasCurrentMonthData ? currentMonthPeriod : prevMonthPeriod;
-	const smComparisonPeriod = hasCurrentMonthData ? prevMonthPeriod : prev2MonthPeriod;
-
 	/** Grade semanal: sempre calendário mês corrente × mês anterior (parcial por coluna). */
 	let smDashboardPayload: SalesMarketingDashboardPayload | null = null;
 	let weekSourcePeriod: string[] = [];
 	let weekSourcePeriodId: string[] = [];
 
-	if (smCurrentPayload || smPrevPayload) {
+	if (primaryPayload || comparisonPayload) {
 		const mergedResult = mergeSmWeeklyWithPeriodSource(
-			smCurrentPayload,
-			smPrevPayload,
-			currentMonthPeriod,
-			smPrevPayload ? prevMonthPeriod : null,
+			primaryPayload,
+			comparisonPayload,
+			smPrimaryPeriod,
+			comparisonPayload ? smComparisonPeriod : null,
 		);
 		smDashboardPayload = mergedResult.merged;
 		weekSourcePeriodId = mergedResult.weekSourcePeriodId;
@@ -784,8 +834,8 @@ export async function getKpiPageData(
 	}
 
 	if (smDashboardPayload) {
-		const currentMonthly = smCurrentPayload ? normalizeSmPayloadWeeks(structuredClone(smCurrentPayload)) : null;
-		const prevMonthly = smPrevPayload ? normalizeSmPayloadWeeks(structuredClone(smPrevPayload)) : null;
+		const currentMonthly = primaryPayload ? normalizeSmPayloadWeeks(structuredClone(primaryPayload)) : null;
+		const prevMonthly = comparisonPayload ? normalizeSmPayloadWeeks(structuredClone(comparisonPayload)) : null;
 
 		const consultorasList = (consultorasRes.data ?? []) as Array<{ name: string; monthly_goal: number }>;
 		const goalByName = new Map(consultorasList.map(c => [c.name, c.monthly_goal]));
@@ -812,7 +862,7 @@ export async function getKpiPageData(
 				if (!wr) continue;
 				let wLeads = 0, wSales = 0, hasAny = false;
 				for (let i = 0; i < weekSourcePeriodId.length; i++) {
-					if (weekSourcePeriodId[i] === currentMonthPeriod) {
+					if (weekSourcePeriodId[i] === smPrimaryPeriod) {
 						const lw = wr.leadsByWeek[i];
 						const sw = wr.salesByWeek[i];
 						if (lw != null || sw != null) {
@@ -847,7 +897,7 @@ export async function getKpiPageData(
 				let hasAny = false;
 				
 				for (let i = 0; i < weekSourcePeriodId.length; i++) {
-					if (weekSourcePeriodId[i] === currentMonthPeriod) {
+					if (weekSourcePeriodId[i] === smPrimaryPeriod) {
 						const lw = r.leadsByWeek[i];
 						const sw = r.salesByWeek[i];
 						if (lw != null || sw != null) {
@@ -906,7 +956,7 @@ export async function getKpiPageData(
 
 	const primaryPeriodLabel = toLabel(smPrimaryPeriod);
 	const comparisonPeriodLabel =
-		smComparisonPayload != null ? toLabel(smComparisonPeriod) : null;
+		comparisonPayload != null ? toLabel(smComparisonPeriod) : null;
 
 	const salesMarketingDashboard = {
 		payload: smDashboardPayload,
@@ -1006,6 +1056,13 @@ export async function getKpiPageData(
 				current["present_conversion_rate"] =
 					Math.round((closings / present) * 100 * 10) / 10;
 			}
+		}
+	}
+
+	if (salesMarketingDashboard.payload) {
+		const comp = buildSalesComposition(current);
+		if (comp) {
+			salesMarketingDashboard.payload.salesComposition = comp;
 		}
 	}
 
