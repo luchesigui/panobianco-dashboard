@@ -4,6 +4,7 @@ import {
 	type RoiChartPayload,
 } from "@/lib/data/roi-fallbacks";
 import {
+	hasAnySmData,
 	isExperimentalFunnelEmpty,
 	mergeSmWeeklyWithPeriodSource,
 	normalizeSmPayloadWeeks,
@@ -620,7 +621,7 @@ export async function getKpiPageData(
 	let resolvedPeriodIdx = -1;
 	for (let i = 0; i < fetchPeriodIds.length; i++) {
 		const payload = smPayloads[i];
-		if (payload && !isExperimentalFunnelEmpty(payload.funnel)) {
+		if (payload && hasAnySmData(payload)) {
 			resolvedPeriodIdx = i;
 			break;
 		}

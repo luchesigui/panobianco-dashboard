@@ -251,3 +251,28 @@ export function createDefaultSmPayload(periodLabel: string): SalesMarketingDashb
     receptionists: [],
   };
 }
+
+export function hasAnySmData(
+  payload: SalesMarketingDashboardPayload | null | undefined,
+): boolean {
+  if (!payload) return false;
+
+  // Check monthly funnel
+  if (!isExperimentalFunnelEmpty(payload.funnel)) return true;
+
+  // Check weekly columns
+  for (let i = 0; i < W; i++) {
+    if (columnHasWeeklyData(payload.weekly, i)) return true;
+  }
+
+  // Check receptionists
+  if (payload.receptionists && payload.receptionists.length > 0) {
+    const hasRecepData = payload.receptionists.some(
+      (r) => (r.leads ?? 0) > 0 || (r.sales ?? 0) > 0,
+    );
+    if (hasRecepData) return true;
+  }
+
+  return false;
+}
+
