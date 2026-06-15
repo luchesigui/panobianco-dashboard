@@ -1,6 +1,36 @@
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import styles from "./vendas-marketing.module.css";
 
+function getWeekIndexAndMonth(date: Date): { monthPeriod: string; weekIdx: number } {
+	const startOfWeek = new Date(date);
+	startOfWeek.setDate(date.getDate() - date.getDay());
+
+	const wednesday = new Date(startOfWeek);
+	wednesday.setDate(startOfWeek.getDate() + 3);
+
+	const ownerYear = wednesday.getFullYear();
+	const ownerMonthNum = wednesday.getMonth(); // 0-based
+
+	const ownerMonthPeriod = `${ownerYear}-${String(ownerMonthNum + 1).padStart(2, "0")}-01`;
+
+	const firstDayOfMonth = new Date(ownerYear, ownerMonthNum, 1);
+	const firstWednesday = new Date(firstDayOfMonth);
+	const dayOfWeek = firstDayOfMonth.getDay();
+	const daysUntilWednesday = (3 - dayOfWeek + 7) % 7;
+	firstWednesday.setDate(firstDayOfMonth.getDate() + daysUntilWednesday);
+
+	const firstWeekSunday = new Date(firstWednesday);
+	firstWeekSunday.setDate(firstWednesday.getDate() - 3);
+
+	const diffMs = startOfWeek.getTime() - firstWeekSunday.getTime();
+	const diffWeeks = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
+
+	return {
+		monthPeriod: ownerMonthPeriod,
+		weekIdx: diffWeeks,
+	};
+}
+
 function padWeeks<T>(arr: Array<T | null | undefined>, n: number): Array<T | null> {
 	const out: Array<T | null> = [];
 	for (let i = 0; i < n; i++) {
@@ -154,9 +184,18 @@ export function WeeklyView({
 	const cloW = padWeeks(fw.closings, n);
 	const salesW = padWeeks(w.salesWeekly.totals, n);
 
-	// Detect active week index (latest week in the current month with data)
+	// Detect active week index (calendar week if current month is displayed, else last week with data)
 	let activeWeekIdx = -1;
-	if (primaryPayload?.weekly) {
+
+	const today = new Date();
+	const { monthPeriod, weekIdx } = getWeekIndexAndMonth(today);
+	const mShort = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+	const parts = monthPeriod.split("-").map(Number);
+	const formattedPeriodLabel = `${mShort[parts[1] - 1]}/${String(parts[0]).slice(-2)}`; // e.g. "Jun/26"
+
+	if (calendarCurrentMonthLabel === formattedPeriodLabel) {
+		activeWeekIdx = weekIdx;
+	} else if (primaryPayload?.weekly) {
 		const pw = primaryPayload.weekly;
 		for (let i = n - 1; i >= 0; i--) {
 			const hasData =

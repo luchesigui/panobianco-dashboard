@@ -631,20 +631,8 @@ export async function getKpiPageData(
 			);
 		});
 	};
-	let resolvedPeriodIdx = -1;
-	for (let i = 0; i < fetchPeriodIds.length; i++) {
-		const pid = fetchPeriodIds[i];
-		if (periodHasKpiData(pid)) {
-			resolvedPeriodIdx = i;
-			break;
-		}
-	}
-	if (resolvedPeriodIdx === -1) {
-		resolvedPeriodIdx = 1; // Fallback to prevMonthPeriod if none has data
-	}
-
-	const kpiDataPeriod = fetchPeriodIds[resolvedPeriodIdx];
-	const hasCurrentMonthData = resolvedPeriodIdx === 0;
+	const kpiDataPeriod = prevMonthPeriod; // General dashboard always targets previous calendar month
+	const hasCurrentMonthData = false;
 
 	const getOffsetMonth = (basePeriod: string, offset: number): string => {
 		const parts = basePeriod.split("-").map(Number);
@@ -654,14 +642,17 @@ export async function getKpiPageData(
 		return `${y}-${mo}-01`;
 	};
 
-	const previousPeriod = getOffsetMonth(kpiDataPeriod, -1);
+	const previousPeriod = getOffsetMonth(kpiDataPeriod, -1); // Month before previous (e.g. April)
 	const thirdPeriod = getOffsetMonth(kpiDataPeriod, -2);
 
-	const smPrimaryPeriod = kpiDataPeriod;
-	const smComparisonPeriod = previousPeriod;
+	// Resolve the weekly sales & marketing primary/comparison periods
+	const hasCurrentWeeklyData = smPayloads[0] && hasAnySmData(smPayloads[0]);
 
-	const primaryPayload = smPayloads[resolvedPeriodIdx] ?? null;
-	const comparisonPayload = buildSmPayload(smComparisonPeriod);
+	const smPrimaryPeriod = hasCurrentWeeklyData ? currentMonthPeriod : prevMonthPeriod;
+	const smComparisonPeriod = hasCurrentWeeklyData ? prevMonthPeriod : prev2MonthPeriod;
+
+	const primaryPayload = hasCurrentWeeklyData ? smPayloads[0] : smPayloads[1];
+	const comparisonPayload = hasCurrentWeeklyData ? buildSmPayload(smComparisonPeriod) : buildSmPayload(smComparisonPeriod);
 
 	// Load insights for the resolved period (separate query after resolution)
 	const insightsRes = await supabase
@@ -848,122 +839,76 @@ export async function getKpiPageData(
 	}
 
 	if (smDashboardPayload) {
-		const currentMonthly = primaryPayload ? normalizeSmPayloadWeeks(structuredClone(primaryPayload)) : null;
-		const prevMonthly = comparisonPayload ? normalizeSmPayloadWeeks(structuredClone(comparisonPayload)) : null;
-
 		const consultorasList = (consultorasRes.data ?? []) as Array<{ name: string; monthly_goal: number }>;
 		const goalByName = new Map(consultorasList.map(c => [c.name, c.monthly_goal]));
 
-		// 1. Check if current month has explicit monthly receptionist data
-		const hasCurrentMonthlyRecep = currentMonthly?.receptionists.some(
-			(r) => (r.leads ?? 0) > 0 || (r.sales ?? 0) > 0,
+		let receptionistsList: SalesMarketingDashboardPayload["receptionists"] = [];
+		let receptionistsPeriodLabel = "";
+
+		// Check if the current calendar month (June 2026, which is smPayloads[0]) has any weekly receptionist data
+		const JuneRecepRows = smPayloads[0]?.weekly?.salesWeekly?.byReceptionist ?? [];
+		const JuneHasRecepData = JuneRecepRows.some(
+			(r) => r.leadsByWeek.some((l) => l != null && l > 0) || r.salesByWeek.some((s) => s != null && s > 0)
 		);
 
-		if (hasCurrentMonthlyRecep && currentMonthly) {
-			smDashboardPayload.receptionists = structuredClone(currentMonthly.receptionists).map(r => ({
-				...r,
-				goal: goalByName.get(r.name) ?? r.goal
-			}));
-
-			// Override leads/sales with weekly sums when weekly data exists for that
-			// receptionist in the current period — prevents stale monthly totals from
-			// diverging after the weekly grid is updated without re-saving the monthly form.
-			const byRecepMap = new Map(
-				(smDashboardPayload.weekly.salesWeekly.byReceptionist ?? []).map(wr => [wr.name, wr]),
-			);
-			for (const r of smDashboardPayload.receptionists) {
-				const wr = byRecepMap.get(r.name);
-				if (!wr) continue;
-				let wLeads = 0, wSales = 0, hasAny = false;
-				for (let i = 0; i < weekSourcePeriodId.length; i++) {
-					if (weekSourcePeriodId[i] === smPrimaryPeriod) {
-						const lw = wr.leadsByWeek[i];
-						const sw = wr.salesByWeek[i];
-						if (lw != null || sw != null) {
-							wLeads += (lw ?? 0);
-							wSales += (sw ?? 0);
-							hasAny = true;
-						}
-					}
-				}
-				if (hasAny) {
-					r.leads = wLeads;
-					r.sales = wSales;
-					r.conversion_pct = wLeads > 0
-						? Math.round((wSales / wLeads) * 100 * 10) / 10
-						: 0;
-				}
-			}
-
-			smDashboardPayload.receptionistsPeriodLabel = currentMonthly.receptionistsPeriodLabel;
-			// Also sync funnel/composition from current if we are using current recep
-			smDashboardPayload.funnel = structuredClone(currentMonthly.funnel);
-			if (currentMonthly.salesComposition) {
-				smDashboardPayload.salesComposition = structuredClone(currentMonthly.salesComposition);
-			}
-		} 
-		// 2. Check if current month has weekly receptionist data
-		else if (smDashboardPayload.weekly.salesWeekly.byReceptionist?.length) {
-			// Calculate weekly sums only for the current month columns
-			smDashboardPayload.receptionists = smDashboardPayload.weekly.salesWeekly.byReceptionist.map((r) => {
+		if (JuneHasRecepData) {
+			receptionistsList = JuneRecepRows.map((r) => {
 				let leads = 0;
 				let sales = 0;
 				let hasAny = false;
-				
-				for (let i = 0; i < weekSourcePeriodId.length; i++) {
-					if (weekSourcePeriodId[i] === smPrimaryPeriod) {
-						const lw = r.leadsByWeek[i];
-						const sw = r.salesByWeek[i];
-						if (lw != null || sw != null) {
-							leads += (lw ?? 0);
-							sales += (sw ?? 0);
-							hasAny = true;
-						}
+				for (let i = 0; i < 5; i++) {
+					const lw = r.leadsByWeek[i];
+					const sw = r.salesByWeek[i];
+					if (lw != null || sw != null) {
+						leads += (lw ?? 0);
+						sales += (sw ?? 0);
+						hasAny = true;
 					}
 				}
-
 				return {
 					name: r.name,
 					leads: hasAny ? leads : null,
 					sales: hasAny ? sales : null,
 					goal: goalByName.get(r.name) ?? 0,
-					conversion_pct: (hasAny && leads > 0 && sales != null) 
-						? Math.round((sales / leads) * 100 * 10) / 10 
-						: 0,
-					badge: undefined,
+					conversion_pct: (hasAny && leads > 0) ? Math.round((sales / leads) * 100 * 10) / 10 : 0,
 				};
 			});
-			smDashboardPayload.receptionistsPeriodLabel = "Semanal";
-			
-			// If we are showing current weekly, we should also show current funnel if not empty
-			if (currentMonthly && !isExperimentalFunnelEmpty(currentMonthly.funnel)) {
-				smDashboardPayload.funnel = structuredClone(currentMonthly.funnel);
-			} else if (prevMonthly) {
-				smDashboardPayload.funnel = structuredClone(prevMonthly.funnel);
-			}
+			receptionistsPeriodLabel = toLabel(currentMonthPeriod);
+		} else {
+			// Fallback: sum May weekly data (smPayloads[1])
+			const MayRecepRows = smPayloads[1]?.weekly?.salesWeekly?.byReceptionist ?? [];
+			receptionistsList = MayRecepRows.map((r) => {
+				let leads = 0;
+				let sales = 0;
+				let hasAny = false;
+				for (let i = 0; i < 5; i++) {
+					const lw = r.leadsByWeek[i];
+					const sw = r.salesByWeek[i];
+					if (lw != null || sw != null) {
+						leads += (lw ?? 0);
+						sales += (sw ?? 0);
+						hasAny = true;
+					}
+				}
+				return {
+					name: r.name,
+					leads: hasAny ? leads : null,
+					sales: hasAny ? sales : null,
+					goal: goalByName.get(r.name) ?? 0,
+					conversion_pct: (hasAny && leads > 0) ? Math.round((sales / leads) * 100 * 10) / 10 : 0,
+				};
+			});
+			receptionistsPeriodLabel = toLabel(prevMonthPeriod);
 		}
-		// 3. Fallback to previous month's monthly data
-		else if (prevMonthly) {
-			const hasPrevMonthlyRecep = prevMonthly.receptionists.some(
-				(r) => (r.leads ?? 0) > 0 || (r.sales ?? 0) > 0,
-			);
-			if (hasPrevMonthlyRecep) {
-				smDashboardPayload.receptionists = structuredClone(prevMonthly.receptionists).map(r => ({
-					...r,
-					goal: goalByName.get(r.name) ?? r.goal
-				}));
-				smDashboardPayload.receptionistsPeriodLabel = prevMonthly.receptionistsPeriodLabel;
-			} else {
-				// No monthly data in prev either, maybe weekly?
-				smDashboardPayload.receptionists = structuredClone(prevMonthly.receptionists).map(r => ({
-					...r,
-					goal: goalByName.get(r.name) ?? r.goal
-				}));
-				smDashboardPayload.receptionistsPeriodLabel = prevMonthly.receptionistsPeriodLabel;
-			}
-			smDashboardPayload.funnel = structuredClone(prevMonthly.funnel);
-			if (prevMonthly.salesComposition) {
-				smDashboardPayload.salesComposition = structuredClone(prevMonthly.salesComposition);
+
+		smDashboardPayload.receptionists = receptionistsList;
+		smDashboardPayload.receptionistsPeriodLabel = receptionistsPeriodLabel;
+
+		// Force the monthly funnel & composition to come from the resolved weekly primary payload
+		if (primaryPayload) {
+			smDashboardPayload.funnel = structuredClone(primaryPayload.funnel);
+			if (primaryPayload.salesComposition) {
+				smDashboardPayload.salesComposition = structuredClone(primaryPayload.salesComposition);
 			}
 		}
 	}
