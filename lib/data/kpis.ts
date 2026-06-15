@@ -618,10 +618,21 @@ export async function getKpiPageData(
 	};
 
 	const smPayloads = fetchPeriodIds.map((pid) => buildSmPayload(pid));
+	const periodHasKpiData = (periodId: string): boolean => {
+		return valuesRes.data.some((row) => {
+			const rowPeriod = normalizePeriodId(row.period_id);
+			const def = (defsRes.data ?? []).find((d) => d.id === row.kpi_definition_id);
+			return (
+				rowPeriod === periodId &&
+				(def?.code === "revenue_total" || def?.code === "base_students_end") &&
+				row.value_numeric != null
+			);
+		});
+	};
 	let resolvedPeriodIdx = -1;
 	for (let i = 0; i < fetchPeriodIds.length; i++) {
-		const payload = smPayloads[i];
-		if (payload && hasAnySmData(payload)) {
+		const pid = fetchPeriodIds[i];
+		if (periodHasKpiData(pid)) {
 			resolvedPeriodIdx = i;
 			break;
 		}
@@ -1264,7 +1275,7 @@ export async function getKpiPageData(
 	return {
 		gymName: gym.name,
 		isCurrentMonthData: hasCurrentMonthData,
-		currentMonthLabel: toLongLabel(smPayloadPeriod),
+		currentMonthLabel: toLongLabel(kpiDataPeriod),
 		currentPeriodLabel: toLongLabel(kpiDataPeriod),
 		previousPeriodLabel: previousPeriod
 			? toLongLabel(previousPeriod)
