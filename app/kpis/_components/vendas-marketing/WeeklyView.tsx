@@ -69,6 +69,7 @@ type WeeklyRowProps = {
 	total: number | null;
 	mode: "int" | "decimal1" | "intCompact";
 	weekKeys: string[];
+	deltaMode?: "pct" | "abs";
 };
 
 function getDeltaPct(curr: number | null, prev: number | null): { value: string; isPositive: boolean; isNegative: boolean } | null {
@@ -83,6 +84,44 @@ function getDeltaPct(curr: number | null, prev: number | null): { value: string;
 	};
 }
 
+function getDeltaAbs(curr: number | null, prev: number | null): { value: string; isPositive: boolean; isNegative: boolean } | null {
+	if (curr === null || prev === null) return null;
+	const diff = curr - prev;
+	if (diff === 0) {
+		return { value: "0", isPositive: false, isNegative: false };
+	}
+	const formatted = diff > 0 ? `+${diff}` : `${diff}`;
+	return {
+		value: formatted,
+		isPositive: diff > 0,
+		isNegative: diff < 0,
+	};
+}
+
+function getRateDelta(
+	currSales: number | null,
+	currLeads: number | null,
+	prevSales: number | null,
+	prevLeads: number | null
+): { value: string; isPositive: boolean; isNegative: boolean } | null {
+	if (currSales === null || currLeads === null || currLeads === 0) return null;
+	if (prevSales === null || prevLeads === null || prevLeads === 0) return null;
+
+	const currRate = currSales / currLeads;
+	const prevRate = prevSales / prevLeads;
+	const diff = (currRate - prevRate) * 100;
+
+	if (Math.abs(diff) < 0.01) {
+		return { value: "0,0%", isPositive: false, isNegative: false };
+	}
+	const formatted = diff > 0 ? `+${diff.toFixed(1)}%` : `${diff.toFixed(1)}%`;
+	return {
+		value: formatted.replace(".", ","),
+		isPositive: diff > 0.01,
+		isNegative: diff < -0.01,
+	};
+}
+
 function WeeklyRow({
 	label,
 	cells,
@@ -93,6 +132,7 @@ function WeeklyRow({
 	total,
 	mode,
 	weekKeys,
+	deltaMode,
 }: WeeklyRowProps) {
 	return (
 		<tr>
@@ -117,7 +157,9 @@ function WeeklyRow({
 								<div className={styles.cellPrevRow}>
 									<span className={styles.cellPrevVal}>{fmtCell(prevVal, mode)}</span>
 									{(() => {
-										const delta = getDeltaPct(c, prevVal);
+										const delta = deltaMode === "abs"
+											? getDeltaAbs(c, prevVal)
+											: getDeltaPct(c, prevVal);
 										if (!delta) return null;
 										return (
 											<span className={`${styles.deltaBadge} ${delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral}`}>
@@ -349,6 +391,7 @@ export function WeeklyView({
 							total={funnel.scheduled.value}
 							mode="int"
 							weekKeys={weeks}
+							deltaMode="abs"
 						/>
 						<WeeklyRow
 							label="Presenças"
@@ -360,6 +403,7 @@ export function WeeklyView({
 							total={funnel.present.value}
 							mode="int"
 							weekKeys={weeks}
+							deltaMode="abs"
 						/>
 						<WeeklyRow
 							label="Fechamentos"
@@ -371,6 +415,7 @@ export function WeeklyView({
 							total={funnel.closings.value}
 							mode="int"
 							weekKeys={weeks}
+							deltaMode="abs"
 						/>
 						<tr>
 							<td className={styles.wkGroup} colSpan={n + 2}>
@@ -406,6 +451,8 @@ export function WeeklyView({
 											tdClassName = `${styles.tdNum} ${styles.currentWeekCell}`;
 										}
 
+										const delta = getRateDelta(v, leads[i], prevSales, prevLeads);
+
 										return (
 											<td key={`${row.name}-${weeks[i]}`} className={tdClassName}>
 												{showComparison ? (
@@ -413,6 +460,11 @@ export function WeeklyView({
 														<span className={styles.cellCurrVal}>{currStr}</span>
 														<div className={styles.cellPrevRow}>
 															<span className={styles.cellPrevValLabel}>vs {prevStr}</span>
+															{delta && (
+																<span className={`${styles.deltaBadge} ${delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral}`}>
+																	{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+																</span>
+															)}
 														</div>
 													</div>
 												) : (
@@ -450,6 +502,8 @@ export function WeeklyView({
 											tdClassName = `${styles.tdNum} ${styles.currentWeekCell}`;
 										}
 
+										const delta = getRateDelta(v, leadsT[i], prevSales, prevLeads);
+
 										return (
 											<td key={`total-${weeks[i]}`} className={tdClassName}>
 												{showComparison ? (
@@ -457,6 +511,11 @@ export function WeeklyView({
 														<span className={styles.cellCurrVal}>{currStr}</span>
 														<div className={styles.cellPrevRow}>
 															<span className={styles.cellPrevValLabel}>vs {prevStr}</span>
+															{delta && (
+																<span className={`${styles.deltaBadge} ${delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral}`}>
+																	{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+																</span>
+															)}
 														</div>
 													</div>
 												) : (
