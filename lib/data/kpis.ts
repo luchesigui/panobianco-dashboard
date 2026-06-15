@@ -904,11 +904,19 @@ export async function getKpiPageData(
 		smDashboardPayload.receptionists = receptionistsList;
 		smDashboardPayload.receptionistsPeriodLabel = receptionistsPeriodLabel;
 
-		// Force the monthly funnel & composition to come from the resolved weekly primary payload
-		if (primaryPayload) {
-			smDashboardPayload.funnel = structuredClone(primaryPayload.funnel);
-			if (primaryPayload.salesComposition) {
-				smDashboardPayload.salesComposition = structuredClone(primaryPayload.salesComposition);
+		// Force the monthly funnel & composition to come from the resolved general KPI payload (e.g. May/26)
+		let monthlyFunnelSource = smPayloads[1]; // May
+		if (!monthlyFunnelSource || isExperimentalFunnelEmpty(monthlyFunnelSource.funnel)) {
+			monthlyFunnelSource = smPayloads[2]; // April
+		}
+		if (!monthlyFunnelSource || isExperimentalFunnelEmpty(monthlyFunnelSource.funnel)) {
+			monthlyFunnelSource = smPayloads[3]; // March
+		}
+
+		if (monthlyFunnelSource) {
+			smDashboardPayload.funnel = structuredClone(monthlyFunnelSource.funnel);
+			if (monthlyFunnelSource.salesComposition) {
+				smDashboardPayload.salesComposition = structuredClone(monthlyFunnelSource.salesComposition);
 			}
 		}
 	}
