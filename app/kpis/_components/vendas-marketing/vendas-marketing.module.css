@@ -420,3 +420,102 @@
 	color: var(--text-secondary, #6b6a65);
 	margin: 0;
 }
+
+/* Custom styles for Current Week Highlighting and Comparison Stack */
+.currentWeekHeader {
+	background: var(--blue-light, #e6f1fb) !important;
+	border-bottom: 2px solid var(--blue, #185fa5) !important;
+	position: relative;
+}
+
+.thHeaderWrapper {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+}
+
+.currentWeekBadge {
+	font-size: 9px;
+	font-weight: 700;
+	color: #fff;
+	background-color: var(--blue, #185fa5);
+	padding: 1px 6px;
+	border-radius: 10px;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	display: inline-block;
+	line-height: 1.2;
+}
+
+.currentWeekCell {
+	background-color: rgba(24, 95, 165, 0.03) !important;
+	border-left: 1.5px solid rgba(24, 95, 165, 0.12) !important;
+	border-right: 1.5px solid rgba(24, 95, 165, 0.12) !important;
+}
+
+/* Make highlighted header border solid too */
+th.currentWeekHeader {
+	border-left: 1.5px solid rgba(24, 95, 165, 0.12) !important;
+	border-right: 1.5px solid rgba(24, 95, 165, 0.12) !important;
+}
+
+.cellComparisonStack {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 3px;
+	padding: 2px 0;
+}
+
+.cellCurrVal {
+	font-weight: 600;
+	color: var(--text-primary, #1a1a18);
+}
+
+.cellPrevRow {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	font-size: 10px;
+	line-height: 1.2;
+}
+
+.cellPrevVal {
+	color: var(--text-tertiary, #9c9b96);
+	font-weight: 400;
+}
+
+.cellPrevValLabel {
+	color: var(--text-tertiary, #9c9b96);
+	font-size: 10px;
+	font-weight: 400;
+}
+
+.deltaBadge {
+	font-size: 9px;
+	font-weight: 600;
+	padding: 1px 4px;
+	border-radius: 4px;
+	display: inline-flex;
+	align-items: center;
+	line-height: 1;
+}
+
+.deltaUp {
+	background: var(--accent-light, #e1f5ee);
+	color: var(--accent-dark, #085041);
+}
+
+.deltaDown {
+	background: var(--red-light, #fcebeb);
+	color: var(--red, #a32d2d);
+}
+
+.deltaNeutral {
+	background: var(--bg-elevated, #eeede8);
+	color: var(--text-secondary, #6b6a65);
+}
+

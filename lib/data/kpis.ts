@@ -151,6 +151,8 @@ export type KpiPageData = {
 	} | null;
 	salesMarketingDashboard: {
 		payload: SalesMarketingDashboardPayload | null;
+		primaryPayload: SalesMarketingDashboardPayload | null;
+		comparisonPayload: SalesMarketingDashboardPayload | null;
 		monthlySalesChart: MonthlySalesBar[];
 		salesTarget: number;
 		/** Short label for the primary SM month, e.g. "Mai/26". */
@@ -972,6 +974,8 @@ export async function getKpiPageData(
 
 	const salesMarketingDashboard = {
 		payload: smDashboardPayload,
+		primaryPayload: primaryPayload ? normalizeSmPayloadWeeks(structuredClone(primaryPayload)) : null,
+		comparisonPayload: comparisonPayload ? normalizeSmPayloadWeeks(structuredClone(comparisonPayload)) : null,
 		monthlySalesChart,
 		salesTarget: consultorasSalesTarget > 0 ? consultorasSalesTarget : 150,
 		primaryPeriodLabel,

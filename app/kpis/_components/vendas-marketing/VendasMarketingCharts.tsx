@@ -38,6 +38,8 @@ export function VendasMarketingCharts({
 				calendarCurrentMonthLabel={dashboard.calendarCurrentMonthLabel}
 				salesTotal={salesTotal}
 				monthlyMarketing={monthlyMarketing}
+				primaryPayload={dashboard.primaryPayload}
+				comparisonPayload={dashboard.comparisonPayload}
 			/>
 			<div className={styles.bottomGrid}>
 				<PerformanceBySeller
