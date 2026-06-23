@@ -1,9 +1,14 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { type ReactNode, useState } from "react";
 import styles from "../page.module.css";
+import { generateAiInsightsAction } from "../actions";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export type InsightVariant =
 	| "overview"
 	| "sales_marketing"
+	| "sales_marketing_weekly"
 	| "retention"
 	| "finance"
 	| "forecast"
@@ -16,17 +21,19 @@ export type InsightItem = {
 };
 
 const HEADER_LABEL: Record<InsightVariant, string> = {
-	overview: "Destaques do mês",
-	sales_marketing: "Análise de vendas e marketing",
-	retention: "Análise de retenção",
-	finance: "ANÁLISE FINANCEIRA",
+	overview: "Insights",
+	sales_marketing: "Insights",
+	sales_marketing_weekly: "Insights",
+	retention: "Insights",
+	finance: "Insights",
 	forecast: "Insights",
-	roi: "ANÁLISE DE RETORNO — BRUNO E GUILHERME",
+	roi: "Insights",
 };
 
 const CAPS_HEADER: Record<InsightVariant, boolean> = {
 	overview: false,
 	sales_marketing: true,
+	sales_marketing_weekly: true,
 	retention: true,
 	finance: true,
 	forecast: false,
@@ -36,15 +43,17 @@ const CAPS_HEADER: Record<InsightVariant, boolean> = {
 const PREFIX_BANG: Record<InsightVariant, boolean> = {
 	overview: false,
 	sales_marketing: false,
-	retention: true,
-	finance: true,
+	sales_marketing_weekly: false,
+	retention: false,
+	finance: false,
 	forecast: false,
-	roi: true,
+	roi: false,
 };
 
 const HEADER_VARIANT_CLASS: Record<InsightVariant, string> = {
 	overview: styles.headerOverview,
 	sales_marketing: styles.headerVendas,
+	sales_marketing_weekly: styles.headerVendas,
 	retention: styles.headerRetencao,
 	finance: styles.headerFinanceiro,
 	forecast: styles.headerPrevisao,
@@ -52,7 +61,7 @@ const HEADER_VARIANT_CLASS: Record<InsightVariant, string> = {
 };
 
 function insightIconClass(type: string): string {
-	const t = type.toLowerCase();
+	const t = (type || "").toLowerCase();
 	if (t === "good" || t === "positive" || t === "success")
 		return styles.insightIconGood;
 	if (t === "bad" || t === "negative" || t === "danger")
@@ -63,7 +72,7 @@ function insightIconClass(type: string): string {
 }
 
 function insightGlyph(type: string): string {
-	const t = type.toLowerCase();
+	const t = (type || "").toLowerCase();
 	if (t === "good" || t === "positive" || t === "success") return "▲";
 	if (t === "bad" || t === "negative" || t === "danger") return "▼";
 	if (t === "warn" || t === "warning" || t === "neutral") return "●";
@@ -71,6 +80,7 @@ function insightGlyph(type: string): string {
 }
 
 function highlight50PercentInBody(body: string): ReactNode {
+	if (!body) return "";
 	const idx = body.indexOf("50%");
 	if (idx === -1) return body;
 	return (
@@ -83,6 +93,7 @@ function highlight50PercentInBody(body: string): ReactNode {
 }
 
 function highlightPayback19Meses(body: string): ReactNode {
+	if (!body) return "";
 	const marker = "~19 meses";
 	const i = body.indexOf(marker);
 	if (i === -1) return body;
@@ -97,7 +108,7 @@ function highlightPayback19Meses(body: string): ReactNode {
 
 function HeaderIcon() {
 	return (
-		<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden>
+		<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden style={{ width: "14px", height: "14px" }}>
 			<title>Informação</title>
 			<path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.5 3a.75.75 0 011.5 0v4a.75.75 0 01-1.5 0V4zM8 12a1 1 0 110-2 1 1 0 010 2z" />
 		</svg>
@@ -110,6 +121,13 @@ function renderItemBody(variant: InsightVariant, item: InsightItem): ReactNode {
 	if (variant === "finance" && !hasTitle) return item.body;
 	if (variant === "roi" && !hasTitle) return highlightPayback19Meses(item.body);
 	if (variant === "sales_marketing" && hasTitle) {
+		return (
+			<>
+				<strong>{item.title}</strong> {item.body}
+			</>
+		);
+	}
+	if (variant === "sales_marketing_weekly" && hasTitle) {
 		return (
 			<>
 				<strong>{item.title}</strong> {item.body}
@@ -131,12 +149,14 @@ function renderItemBody(variant: InsightVariant, item: InsightItem): ReactNode {
 	);
 }
 
+// biome-ignore lint/style/useDefaultParameterLast: <explanation>
 function isSingleStyle(variant: InsightVariant, item: InsightItem): boolean {
 	const hasTitle = Boolean(item.title?.trim());
 	if (variant === "overview" && !hasTitle) return true;
 	if (variant === "finance" && !hasTitle) return true;
 	if (variant === "roi" && !hasTitle) return true;
 	if (variant === "sales_marketing" && hasTitle) return true;
+	if (variant === "sales_marketing_weekly" && hasTitle) return true;
 	if (variant === "retention" && hasTitle) return true;
 	return false;
 }
@@ -144,10 +164,31 @@ function isSingleStyle(variant: InsightVariant, item: InsightItem): boolean {
 type SectionInsightsProps = {
 	variant: InsightVariant;
 	items: InsightItem[];
+	periodId: string;
 };
 
-export function SectionInsights({ variant, items }: SectionInsightsProps) {
-	if (items.length === 0) return null;
+export function SectionInsights({ variant, items, periodId }: SectionInsightsProps) {
+	const [isGenerating, setIsGenerating] = useState(false);
+	const [isCollapsed, setIsCollapsed] = useState(false);
+	const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+	const handleGenerate = async () => {
+		setIsGenerating(true);
+		setErrorMsg(null);
+		try {
+			const res = await generateAiInsightsAction(periodId, variant);
+			if (!res.ok) {
+				setErrorMsg(res.error || "Erro na geração dos insights.");
+			}
+		} catch (err) {
+			setErrorMsg("Erro de conexão na requisição de IA.");
+		} finally {
+			setIsGenerating(false);
+		}
+	};
+
+	const showAiButton = ["overview", "sales_marketing", "sales_marketing_weekly", "retention", "finance"].includes(variant);
+
 	const cardClass = `${styles.insightCard}${
 		variant === "retention" ? ` ${styles.insightCardRetention}` : ""
 	}${variant === "roi" ? ` ${styles.insightCardRoi}` : ""}`;
@@ -155,34 +196,81 @@ export function SectionInsights({ variant, items }: SectionInsightsProps) {
 		CAPS_HEADER[variant] ? styles.insightHeaderCaps : ""
 	}`;
 	const headerLabel = `${PREFIX_BANG[variant] ? "! " : ""}${HEADER_LABEL[variant]}`;
+
 	return (
 		<div className={styles.insightsWrap}>
 			<div className={cardClass}>
 				<div className={headerClass}>
-					<HeaderIcon />
-					{headerLabel}
-				</div>
-				<div className={styles.insightCardBody}>
-					{items.map((insight, idx) => (
-						<div key={`${variant}-${idx}`} className={styles.insightItem}>
-							<div
-								className={`${styles.insightIcon} ${insightIconClass(insight.type)}`}
-								aria-hidden
-							>
-								{insightGlyph(insight.type)}
-							</div>
-							<div
-								className={
-									isSingleStyle(variant, insight)
-										? styles.insightBodySingle
-										: undefined
-								}
-							>
-								{renderItemBody(variant, insight)}
-							</div>
+					<div className={styles.insightCardHeaderWrapper}>
+						<div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+							<HeaderIcon />
+							<span>{headerLabel}</span>
 						</div>
-					))}
+						<div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+							{showAiButton && items.length > 0 && (
+								<button
+									type="button"
+									onClick={handleGenerate}
+									disabled={isGenerating}
+									className={styles.aiButton}
+								>
+									{isGenerating ? "Gerando..." : "Recalcular"}
+								</button>
+							)}
+							<button
+								type="button"
+								onClick={() => setIsCollapsed(!isCollapsed)}
+								className={styles.aiButton}
+								style={{ padding: "4px" }}
+								aria-label={isCollapsed ? "Expandir" : "Recolher"}
+							>
+								{isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+							</button>
+						</div>
+					</div>
 				</div>
+				{!isCollapsed && (
+					<div className={styles.insightCardBody}>
+						{items.length === 0 ? (
+							<div className={styles.insightCardBodyEmpty}>
+								<p className={styles.insightEmptyText}>
+									{errorMsg || "Nenhum insight disponível para esta seção."}
+								</p>
+								{showAiButton && (
+									<button
+										type="button"
+										onClick={handleGenerate}
+										disabled={isGenerating}
+										className={styles.aiButton}
+										style={{ marginLeft: "0" }}
+									>
+										{isGenerating ? "Gerando com IA..." : "Gerar insights com IA"}
+									</button>
+								)}
+							</div>
+						) : (
+							items.map((insight, idx) => (
+								<div key={`${variant}-${idx}`} className={styles.insightItem}>
+									<div
+										className={`${styles.insightIcon} ${insightIconClass(insight.type)}`}
+										aria-hidden
+									>
+										{insightGlyph(insight.type)}
+									</div>
+									<div
+										className={
+											isSingleStyle(variant, insight)
+												? styles.insightBodySingle
+												: undefined
+										}
+									>
+										{renderItemBody(variant, insight)}
+									</div>
+								</div>
+							))
+						)}
+					</div>
+				)}
 			</div>
 		</div>
 	);

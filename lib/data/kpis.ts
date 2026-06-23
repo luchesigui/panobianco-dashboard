@@ -124,6 +124,8 @@ export type NextMonthForecastPayload = {
 
 export type KpiPageData = {
 	gymName: string;
+	kpiDataPeriod: string;
+	smPrimaryPeriod: string;
 	/** True when monthly KPI data is loaded from current calendar month, false when fallback is previous month. */
 	isCurrentMonthData: boolean;
 	/** Current calendar month label, e.g. "Abr/26" — used in header and weekly section badge. */
@@ -654,14 +656,15 @@ export async function getKpiPageData(
 	const primaryPayload = hasCurrentWeeklyData ? smPayloads[0] : smPayloads[1];
 	const comparisonPayload = hasCurrentWeeklyData ? buildSmPayload(smComparisonPeriod) : buildSmPayload(smComparisonPeriod);
 
-	// Load insights for the resolved period (separate query after resolution)
+	// Load insights for the resolved periods (separate query after resolution)
+	const fetchInsightPeriods = Array.from(new Set([kpiDataPeriod, smPrimaryPeriod]));
 	const insightsRes = await supabase
 		.from("kpi_insights")
 		.select(
-			"category,insight_scope,insight_type,title,body,sort_order,meta_json",
+			"period_id,category,insight_scope,insight_type,title,body,sort_order,meta_json",
 		)
 		.eq("gym_id", gym.id)
-		.eq("period_id", kpiDataPeriod)
+		.in("period_id", fetchInsightPeriods)
 		.order("sort_order", { ascending: true });
 
 	if (insightsRes.error)
@@ -1091,6 +1094,13 @@ export async function getKpiPageData(
 	});
 
 	for (const row of sortedInsightRows) {
+		const rowPeriod = normalizePeriodId(row.period_id);
+		if (row.category === "sales_marketing_weekly") {
+			if (rowPeriod !== smPrimaryPeriod) continue;
+		} else {
+			if (rowPeriod !== kpiDataPeriod) continue;
+		}
+
 		if (row.insight_scope === "analysis") {
 			analysis.push({
 				section: String(
@@ -1231,6 +1241,8 @@ export async function getKpiPageData(
 
 	return {
 		gymName: gym.name,
+		kpiDataPeriod,
+		smPrimaryPeriod,
 		isCurrentMonthData: hasCurrentMonthData,
 		currentMonthLabel: toLongLabel(kpiDataPeriod),
 		currentPeriodLabel: toLongLabel(kpiDataPeriod),

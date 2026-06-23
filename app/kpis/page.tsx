@@ -40,6 +40,7 @@ export default async function KpisPage() {
 				<SectionInsights
 					variant="overview"
 					items={data.insights.overview ?? []}
+					periodId={data.kpiDataPeriod}
 				/>
 			</SectionCard>
 
@@ -53,6 +54,7 @@ export default async function KpisPage() {
 				<SectionInsights
 					variant="sales_marketing"
 					items={data.insights.sales_marketing ?? []}
+					periodId={data.kpiDataPeriod}
 				/>
 				{data.salesMarketingDashboard.payload ? (
 					<VendasMarketingCharts
@@ -65,6 +67,8 @@ export default async function KpisPage() {
 							views: data.current["marketing_views"] ?? null,
 							followers: data.current["marketing_followers"] ?? null,
 						}}
+						weeklyInsights={data.insights.sales_marketing_weekly ?? []}
+						weeklyPeriodId={data.smPrimaryPeriod}
 					/>
 				) : null}
 			</SectionCard>
@@ -79,6 +83,7 @@ export default async function KpisPage() {
 				<SectionInsights
 					variant="retention"
 					items={data.insights.retention ?? []}
+					periodId={data.kpiDataPeriod}
 				/>
 				<RetencaoCharts charts={data.retentionCharts} />
 			</SectionCard>
@@ -93,6 +98,7 @@ export default async function KpisPage() {
 				<SectionInsights
 					variant="finance"
 					items={data.insights.finance ?? []}
+					periodId={data.kpiDataPeriod}
 				/>
 				<FinanceiroCharts charts={data.financeCharts} />
 			</SectionCard>
@@ -110,6 +116,7 @@ export default async function KpisPage() {
 				<SectionInsights
 					variant="forecast"
 					items={data.insights.forecast ?? []}
+					periodId={data.kpiDataPeriod}
 				/>
 				{data.nextMonthForecast.hasData ? (
 					<Projecao forecast={data.nextMonthForecast} />
@@ -127,7 +134,11 @@ export default async function KpisPage() {
 				badge="Desde Jul/24"
 			>
 				<RoiCardGrid data={data} />
-				<SectionInsights variant="roi" items={data.insights.roi ?? []} />
+				<SectionInsights
+					variant="roi"
+					items={data.insights.roi ?? []}
+					periodId={data.kpiDataPeriod}
+				/>
 				<RoiCharts charts={data.roiCharts} />
 			</SectionCard>
 

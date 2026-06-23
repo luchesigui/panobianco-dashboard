@@ -5,6 +5,7 @@ import { MonthlySales } from "./MonthlySales";
 import { PerformanceBySeller } from "./PerformanceBySeller";
 import styles from "./vendas-marketing.module.css";
 import { WeeklyView } from "./WeeklyView";
+import { SectionInsights } from "../SectionInsights";
 
 type Props = {
 	dashboard: KpiPageData["salesMarketingDashboard"];
@@ -16,6 +17,8 @@ type Props = {
 		views?: number | null;
 		followers?: number | null;
 	} | null;
+	weeklyInsights?: any[];
+	weeklyPeriodId?: string;
 };
 
 export function VendasMarketingCharts({
@@ -23,6 +26,8 @@ export function VendasMarketingCharts({
 	leadsGenerated,
 	salesTotal,
 	monthlyMarketing,
+	weeklyInsights,
+	weeklyPeriodId,
 }: Props) {
 	const p = dashboard.payload;
 	if (!p) return null;
@@ -41,6 +46,15 @@ export function VendasMarketingCharts({
 				primaryPayload={dashboard.primaryPayload}
 				comparisonPayload={dashboard.comparisonPayload}
 			/>
+			{weeklyInsights && weeklyPeriodId && (
+				<div style={{ marginBottom: "2rem" }}>
+					<SectionInsights
+						variant="sales_marketing_weekly"
+						items={weeklyInsights}
+						periodId={weeklyPeriodId}
+					/>
+				</div>
+			)}
 			<div className={styles.bottomGrid}>
 				<PerformanceBySeller
 					receptionists={p.receptionists}
