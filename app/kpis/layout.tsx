@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { DM_Sans, Fraunces } from "next/font/google";
 import { Navbar } from "./Navbar";
 import styles from "./layout.module.css";
+import { clsx } from "clsx";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -21,7 +22,7 @@ export default function KpisLayout({
   children: ReactNode;
 }>) {
   return (
-    <div className={`${dmSans.variable} ${fraunces.variable} ${styles.kpiShell}`}>
+    <div className={clsx(dmSans.variable, fraunces.variable, styles.kpiShell)}>
       <Navbar />
       {children}
     </div>

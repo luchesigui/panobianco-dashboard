@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions/logout";
+import { clsx } from "clsx";
 
 const NAV_LINKS = [
   { href: "/kpis", label: "Dashboard", exact: true },
@@ -32,11 +33,12 @@ export function Navbar() {
               <Link
                 key={href}
                 href={href}
-                className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={clsx(
+                  "px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors",
                   active
                     ? "bg-slate-100 text-slate-900"
                     : "text-slate-500 hover:text-slate-800 hover:bg-slate-50"
-                }`}
+                )}
               >
                 {label}
               </Link>

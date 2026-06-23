@@ -3,6 +3,7 @@ import {
 	formatCurrencySignedK,
 } from "@/lib/kpis/format";
 import styles from "./projecao.module.css";
+import { clsx } from "clsx";
 
 const BAR_ACCENTS = {
 	revenue: "#2b6cb0",
@@ -46,9 +47,10 @@ export function ProjecaoKpiCards({
 				<p className={styles.kpiValue}>{formatCompactBrl(revenueForecast)}</p>
 				<div className={styles.kpiSub}>
 					<span
-						className={`${styles.kpiDelta} ${
+						className={clsx(
+							styles.kpiDelta,
 							revenueVsBasisPct >= 0 ? styles.deltaUp : styles.deltaDown
-						}`}
+						)}
 					>
 						{revPill}
 					</span>
@@ -90,9 +92,10 @@ export function ProjecaoKpiCards({
 				) : null}
 				<div className={styles.kpiSub}>
 					<span
-						className={`${styles.kpiDelta} ${
+						className={clsx(
+							styles.kpiDelta,
 							matriculatedVsBasisPct >= 0 ? styles.deltaUp : styles.deltaDown
-						}`}
+						)}
 					>
 						{matPill}
 					</span>

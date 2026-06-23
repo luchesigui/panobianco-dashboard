@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import styles from "../page.module.css";
+import { clsx } from "clsx";
 
 export type SectionColor =
 	| "green"
@@ -65,14 +66,14 @@ export function SectionCard({
 }: SectionCardProps) {
 	const theme = THEMES[color];
 	return (
-		<section className={`${styles.themeSection} ${theme.section}`}>
+		<section className={clsx(styles.themeSection, theme.section)}>
 			<div className={styles.themeHeader}>
-				<div className={`${styles.themeIcon} ${theme.icon}`} aria-hidden>
+				<div className={clsx(styles.themeIcon, theme.icon)} aria-hidden>
 					{iconShort}
 				</div>
 				<h2>{title}</h2>
 				{badge ? (
-					<span className={`${styles.themeBadge} ${theme.badge}`}>{badge}</span>
+					<span className={clsx(styles.themeBadge, theme.badge)}>{badge}</span>
 				) : null}
 			</div>
 			{children}

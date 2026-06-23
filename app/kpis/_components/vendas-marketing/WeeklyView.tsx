@@ -1,5 +1,6 @@
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import styles from "./vendas-marketing.module.css";
+import { clsx } from "clsx";
 
 function getWeekIndexAndMonth(date: Date): { monthPeriod: string; weekIdx: number } {
 	const startOfWeek = new Date(date);
@@ -142,10 +143,9 @@ function WeeklyRow({
 				const prevVal = comparisonCells[i];
 				const isCurrentWeek = i === activeWeekIdx;
 
-				let tdClassName = styles.tdNum;
-				if (isCurrentWeek) {
-					tdClassName = `${styles.tdNum} ${styles.currentWeekCell}`;
-				}
+				const tdClassName = clsx(styles.tdNum, {
+					[styles.currentWeekCell]: isCurrentWeek,
+				});
 
 				const showComparison = isCurrentMonth && prevVal !== null;
 
@@ -162,7 +162,12 @@ function WeeklyRow({
 											: getDeltaPct(c, prevVal);
 										if (!delta) return null;
 										return (
-											<span className={`${styles.deltaBadge} ${delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral}`}>
+											<span
+												className={clsx(
+													styles.deltaBadge,
+													delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+												)}
+											>
 												{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
 											</span>
 										);
@@ -288,7 +293,7 @@ export function WeeklyView({
 				O sufixo entre parênteses no cabeçalho marca colunas cujos valores vêm do{" "}
 				<strong>mês anterior ao atual no calendário</strong> (não do mês atual). A semana destacada é a semana atual ativa.
 			</p>
-			<div className={`${styles.chartCard} ${styles.chartCardTable}`}>
+			<div className={clsx(styles.chartCard, styles.chartCardTable)}>
 				<table className={styles.weekTable}>
 					<thead>
 						<tr>
@@ -446,10 +451,9 @@ export function WeeklyView({
 										const currStr = fmtPair(v, leads[i]);
 										const prevStr = fmtPair(prevSales, prevLeads);
 
-										let tdClassName = styles.tdNum;
-										if (isCurrentWeek) {
-											tdClassName = `${styles.tdNum} ${styles.currentWeekCell}`;
-										}
+										const tdClassName = clsx(styles.tdNum, {
+											[styles.currentWeekCell]: isCurrentWeek,
+										});
 
 										const delta = getRateDelta(v, leads[i], prevSales, prevLeads);
 
@@ -461,7 +465,12 @@ export function WeeklyView({
 														<div className={styles.cellPrevRow}>
 															<span className={styles.cellPrevValLabel}>vs {prevStr}</span>
 															{delta && (
-																<span className={`${styles.deltaBadge} ${delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral}`}>
+																<span
+																	className={clsx(
+																		styles.deltaBadge,
+																		delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+																	)}
+																>
 																	{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
 																</span>
 															)}
@@ -497,10 +506,9 @@ export function WeeklyView({
 										const currStr = fmtPair(v, leadsT[i]);
 										const prevStr = fmtPair(prevSales, prevLeads);
 
-										let tdClassName = styles.tdNum;
-										if (isCurrentWeek) {
-											tdClassName = `${styles.tdNum} ${styles.currentWeekCell}`;
-										}
+										const tdClassName = clsx(styles.tdNum, {
+											[styles.currentWeekCell]: isCurrentWeek,
+										});
 
 										const delta = getRateDelta(v, leadsT[i], prevSales, prevLeads);
 
@@ -512,7 +520,12 @@ export function WeeklyView({
 														<div className={styles.cellPrevRow}>
 															<span className={styles.cellPrevValLabel}>vs {prevStr}</span>
 															{delta && (
-																<span className={`${styles.deltaBadge} ${delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral}`}>
+																<span
+																	className={clsx(
+																		styles.deltaBadge,
+																		delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+																	)}
+																>
 																	{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
 																</span>
 															)}

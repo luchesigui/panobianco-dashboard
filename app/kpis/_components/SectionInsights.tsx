@@ -4,6 +4,7 @@ import { type ReactNode, useState } from "react";
 import styles from "../page.module.css";
 import { generateAiInsightsAction } from "../actions";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { clsx } from "clsx";
 
 export type InsightVariant =
 	| "overview"
@@ -189,12 +190,13 @@ export function SectionInsights({ variant, items, periodId }: SectionInsightsPro
 
 	const showAiButton = ["overview", "sales_marketing", "sales_marketing_weekly", "retention", "finance"].includes(variant);
 
-	const cardClass = `${styles.insightCard}${
-		variant === "retention" ? ` ${styles.insightCardRetention}` : ""
-	}${variant === "roi" ? ` ${styles.insightCardRoi}` : ""}`;
-	const headerClass = `${styles.insightCardHeader} ${HEADER_VARIANT_CLASS[variant]} ${
-		CAPS_HEADER[variant] ? styles.insightHeaderCaps : ""
-	}`;
+	const cardClass = clsx(styles.insightCard, {
+		[styles.insightCardRetention]: variant === "retention",
+		[styles.insightCardRoi]: variant === "roi",
+	});
+	const headerClass = clsx(styles.insightCardHeader, HEADER_VARIANT_CLASS[variant], {
+		[styles.insightHeaderCaps]: CAPS_HEADER[variant],
+	});
 	const headerLabel = `${PREFIX_BANG[variant] ? "! " : ""}${HEADER_LABEL[variant]}`;
 
 	return (
@@ -252,17 +254,15 @@ export function SectionInsights({ variant, items, periodId }: SectionInsightsPro
 							items.map((insight, idx) => (
 								<div key={`${variant}-${idx}`} className={styles.insightItem}>
 									<div
-										className={`${styles.insightIcon} ${insightIconClass(insight.type)}`}
+										className={clsx(styles.insightIcon, insightIconClass(insight.type))}
 										aria-hidden
 									>
 										{insightGlyph(insight.type)}
 									</div>
 									<div
-										className={
-											isSingleStyle(variant, insight)
-												? styles.insightBodySingle
-												: undefined
-										}
+										className={clsx({
+											[styles.insightBodySingle]: isSingleStyle(variant, insight),
+										})}
 									>
 										{renderItemBody(variant, insight)}
 									</div>
