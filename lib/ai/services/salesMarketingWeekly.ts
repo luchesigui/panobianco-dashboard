@@ -14,22 +14,59 @@ export async function generateSalesMarketingWeeklyInsights(
     throw new Error("Dados semanais de vendas e marketing não encontrados para o período.");
   }
 
-  // Detect the last filled week in the current month (June 2026, etc.)
-  const weeksCount = sm.weekly.weekHeaders.length;
+  const primarySm = data.salesMarketingDashboard.primaryPayload || sm;
+
+  // Helper to calculate the calendar week index (0-based) for a given date
+  function getWeekIdx(date: Date): number {
+    const startOfWeek = new Date(date);
+    startOfWeek.setDate(date.getDate() - date.getDay());
+
+    const wednesday = new Date(startOfWeek);
+    wednesday.setDate(startOfWeek.getDate() + 3);
+
+    const ownerYear = wednesday.getFullYear();
+    const ownerMonthNum = wednesday.getMonth();
+
+    const firstDayOfMonth = new Date(ownerYear, ownerMonthNum, 1);
+    const firstWednesday = new Date(firstDayOfMonth);
+    const dayOfWeek = firstDayOfMonth.getDay();
+    const daysUntilWednesday = (3 - dayOfWeek + 7) % 7;
+    firstWednesday.setDate(firstDayOfMonth.getDate() + daysUntilWednesday);
+
+    const firstWeekSunday = new Date(firstWednesday);
+    firstWeekSunday.setDate(firstWednesday.getDate() - 3);
+
+    const diffMs = startOfWeek.getTime() - firstWeekSunday.getTime();
+    return Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
+  }
+
+  const today = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const currentMonthPeriod = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-01`;
+  const isCurrentMonth = periodId === currentMonthPeriod;
+
+  // Detect the last filled week in the current month using the raw unmerged primary payload
+  const weeksCount = primarySm.weekly.weekHeaders.length;
   let lastFilledWeekIdx = -1;
-  for (let i = weeksCount - 1; i >= 0; i--) {
+
+  // If analyzing the current month, limit the search to weeks before the current calendar week (we always analyze the completed previous week)
+  const maxSearchIdx = isCurrentMonth 
+    ? Math.min(weeksCount - 1, getWeekIdx(today) - 1)
+    : weeksCount - 1;
+
+  for (let i = maxSearchIdx; i >= 0; i--) {
     const hasData =
-      sm.weekly.marketing.reach[i] != null ||
-      sm.weekly.marketing.followers[i] != null ||
-      sm.weekly.funnelWeekly.closings[i] != null ||
-      sm.weekly.salesWeekly.totals[i] != null;
+      primarySm.weekly.marketing.reach[i] != null ||
+      primarySm.weekly.marketing.followers[i] != null ||
+      primarySm.weekly.funnelWeekly.closings[i] != null ||
+      primarySm.weekly.salesWeekly.totals[i] != null;
     if (hasData) {
       lastFilledWeekIdx = i;
       break;
     }
   }
 
-  const weekHeader = lastFilledWeekIdx !== -1 ? sm.weekly.weekHeaders[lastFilledWeekIdx] : "S1";
+  const weekHeader = lastFilledWeekIdx !== -1 ? primarySm.weekly.weekHeaders[lastFilledWeekIdx] : "S1";
 
   // Query raw data from the same month last year (e.g. June 2025 if current is June 2026)
   let lastYearRawData: any = null;
@@ -82,7 +119,7 @@ REGRAS COMERCIAIS IMPORTANTES (EVITE CONFUSÃO DE CONCEITOS):
     semana_foco: weekHeader,
     mes_atual_label: data.salesMarketingDashboard.calendarCurrentMonthLabel,
     mes_anterior_label: data.salesMarketingDashboard.comparisonPeriodLabel,
-    semanas_mes_atual_dados_brutos: sm.weekly,
+    semanas_mes_atual_dados_brutos: primarySm.weekly,
     semanas_mes_anterior_dados_brutos: prevSm?.weekly || null,
     dados_brutos_mes_ano_passado: lastYearRawData,
   };
