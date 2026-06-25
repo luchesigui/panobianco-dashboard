@@ -3,10 +3,15 @@
  * Weeks: weekHeaders length drives S1…Sn (typically 4–5).
  */
 export type SalesMarketingDashboardPayload = {
-  /** Opcional: cartões “Via aula experimental” / “Outros canais”. */
+  /** Opcional: cartões “Via aula experimental” / “Venda online” / “Outros canais”. */
   salesComposition?: {
     sectionTitle?: string;
     experimental: {
+      title: string;
+      value: number;
+      subtext: string;
+    };
+    online?: {
       title: string;
       value: number;
       subtext: string;

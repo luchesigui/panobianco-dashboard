@@ -36,6 +36,31 @@ export function Composicao({ composition }: Props) {
 							</div>
 						</div>
 					</article>
+					{composition.online && (
+						<article className={styles.salesCompCard}>
+							<div
+								className={styles.salesCompStripe}
+								style={{ background: "#d85a30" }}
+								aria-hidden
+							/>
+							<div>
+								<div className={styles.salesCompLabel}>
+									{composition.online.title}
+								</div>
+								<div
+									className={styles.salesCompVal}
+									style={{ color: "#d85a30" }}
+								>
+									{new Intl.NumberFormat("pt-BR").format(
+										composition.online.value,
+									)}
+								</div>
+								<div className={styles.salesCompDetail}>
+									{composition.online.subtext}
+								</div>
+							</div>
+						</article>
+					)}
 					<article className={styles.salesCompCard}>
 						<div
 							className={styles.salesCompStripe}

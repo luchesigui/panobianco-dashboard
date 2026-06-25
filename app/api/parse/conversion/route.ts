@@ -66,18 +66,26 @@ export async function POST(req: Request) {
 
     let totalLeads = 0;
     let totalSales = 0;
+    let totalOnlineSales = 0;
     const receptionistMap = new Map<string, { leads: number; sales: number }>();
 
     for (const row of rows) {
       const cadastradoPorRaw = row["Cadastrado por"];
       const conversaoRaw = row["Conversão"];
+      const contratoVendidoRaw = row["1º contrato vendido"];
 
       const cadastradoPor = typeof cadastradoPorRaw === "string" ? cadastradoPorRaw.trim() : String(cadastradoPorRaw ?? "").trim();
       const isConverted = conversaoRaw !== undefined && conversaoRaw !== null && String(conversaoRaw).trim() !== "";
+      
+      const contratoVendido = typeof contratoVendidoRaw === "string" ? contratoVendidoRaw.trim() : String(contratoVendidoRaw ?? "").trim();
+      const isOnline = isConverted && contratoVendido.toLowerCase().includes("venda online");
 
       totalLeads++;
       if (isConverted) {
         totalSales++;
+      }
+      if (isOnline) {
+        totalOnlineSales++;
       }
 
       if (cadastradoPor) {
@@ -99,6 +107,7 @@ export async function POST(req: Request) {
     const response = {
       totalLeads,
       totalSales,
+      totalOnlineSales,
       byReceptionist: byReceptionistParsed,
     };
 
@@ -145,7 +154,7 @@ export async function POST(req: Request) {
 
       // Upsert conversoes_semanais for this week
       const { error: convErr } = await supabase.from("conversoes_semanais").upsert(
-        { gym_id: gymId, period_id: periodParam, week_num: weekNum, leads: totalLeads, sales: totalSales },
+        { gym_id: gymId, period_id: periodParam, week_num: weekNum, leads: totalLeads, sales: totalSales, sales_online: totalOnlineSales },
         { onConflict: "gym_id,period_id,week_num" },
       );
       if (convErr) {
@@ -174,17 +183,18 @@ export async function POST(req: Request) {
       // Compute grand totals from all weeks for KPI values
       const { data: allConversoes } = await supabase
         .from("conversoes_semanais")
-        .select("leads,sales")
+        .select("leads,sales,sales_online")
         .eq("gym_id", gymId)
         .eq("period_id", periodParam);
 
       const leadsGrandTotal = (allConversoes ?? []).reduce((s, r) => s + (r.leads ?? 0), 0);
       const grandTotal = (allConversoes ?? []).reduce((s, r) => s + (r.sales ?? 0), 0);
+      const onlineGrandTotal = (allConversoes ?? []).reduce((s, r) => s + (r.sales_online ?? 0), 0);
 
       const saveKpisRes = await saveMonthlyKpisAction({
         gymSlug: gymParam,
         periodId: periodParam,
-        values: { leads_generated: leadsGrandTotal, sales_total: grandTotal },
+        values: { leads_generated: leadsGrandTotal, sales_total: grandTotal, vendas_online: onlineGrandTotal },
       });
       if (!saveKpisRes.ok) {
         return NextResponse.json({ error: `Erro ao salvar KPIs mensais: ${saveKpisRes.error}` }, { status: 500 });

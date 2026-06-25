@@ -158,10 +158,27 @@ export async function saveSmDashboardAction(raw: z.infer<typeof saveSmSchema>): 
     ] as const;
 
     for (const { table, data } of weeklyTables) {
+      let onlineMap = new Map<number, number>();
+      if (table === "conversoes_semanais") {
+        const { data: existing } = await supabase
+          .from("conversoes_semanais")
+          .select("week_num, sales_online")
+          .eq("gym_id", gym.id)
+          .eq("period_id", input.periodId);
+        if (existing) {
+          for (const row of existing) {
+            onlineMap.set(row.week_num, row.sales_online ?? 0);
+          }
+        }
+      }
+
       await supabase.from(table).delete().eq("gym_id", gym.id).eq("period_id", input.periodId);
       if (data.length > 0) {
         const { error } = await supabase.from(table).insert(
-          data.map((r) => ({ gym_id: gym.id, period_id: input.periodId, ...r })),
+          data.map((r) => {
+            const extra = table === "conversoes_semanais" ? { sales_online: onlineMap.get(r.week_num) ?? 0 } : {};
+            return { gym_id: gym.id, period_id: input.periodId, ...r, ...extra };
+          }),
         );
         if (error) return { ok: false, error: error.message };
       }

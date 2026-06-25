@@ -23,16 +23,17 @@ export type KpiMetaMap = Record<string, Record<string, unknown>>;
 function buildSalesComposition(
 	kpis: KpiMap,
 ): SalesMarketingDashboardPayload["salesComposition"] {
-	const ev = kpis["vendas_via_experimental"];
-	const ov = kpis["vendas_outros_canais"];
-	if (ev == null && ov == null) return undefined;
+	const ev = kpis["vendas_via_experimental"] ?? 0;
+	const online = kpis["vendas_online"] ?? 0;
+	const total = kpis["sales_total"] ?? 0;
 
-	const evVal = ev ?? 0;
-	const ovVal = ov ?? 0;
-	const total = kpis["sales_total"] ?? (evVal + ovVal);
+	if (ev === 0 && online === 0 && total === 0) return undefined;
 
-	const evPct = total > 0 ? Math.round((evVal / total) * 100) : 0;
-	const ovPct = total > 0 ? Math.round((ovVal / total) * 100) : 0;
+	const otherVal = Math.max(0, total - ev - online);
+
+	const evPct = total > 0 ? Math.round((ev / total) * 100) : 0;
+	const onlinePct = total > 0 ? Math.round((online / total) * 100) : 0;
+	const otherPct = total > 0 ? Math.round((otherVal / total) * 100) : 0;
 
 	const presentConversion = kpis["present_conversion_rate"];
 	const presentConversionStr =
@@ -44,13 +45,18 @@ function buildSalesComposition(
 		sectionTitle: "Composição das vendas",
 		experimental: {
 			title: "Via aula experimental",
-			value: evVal,
+			value: ev,
 			subtext: `${evPct}% do total${presentConversionStr}`,
+		},
+		online: {
+			title: "Venda online",
+			value: online,
+			subtext: `${onlinePct}% do total`,
 		},
 		otherChannels: {
 			title: "Outros canais",
-			value: ovVal,
-			subtext: `${ovPct}% do total · Indicação, passou na frente, sistema online, outros`,
+			value: otherVal,
+			subtext: `${otherPct}% do total · Indicação, passou na frente, outros`,
 		},
 	};
 }
@@ -1027,6 +1033,9 @@ export async function getKpiPageData(
 			if (present > 0) {
 				current["present_conversion_rate"] =
 					Math.round((closings / present) * 100 * 10) / 10;
+			}
+			if (!current["vendas_via_experimental"] || current["vendas_via_experimental"] === 0) {
+				current["vendas_via_experimental"] = closings;
 			}
 		}
 	}
