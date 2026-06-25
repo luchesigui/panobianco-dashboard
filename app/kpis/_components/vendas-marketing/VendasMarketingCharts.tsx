@@ -41,6 +41,7 @@ export function VendasMarketingCharts({
 				funnel={p.funnel}
 				weekSourcePeriod={dashboard.weekSourcePeriod}
 				calendarCurrentMonthLabel={dashboard.calendarCurrentMonthLabel}
+				primaryPeriodLabel={dashboard.primaryPeriodLabel}
 				salesTotal={salesTotal}
 				monthlyMarketing={monthlyMarketing}
 				primaryPayload={dashboard.primaryPayload}

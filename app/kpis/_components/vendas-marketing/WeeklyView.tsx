@@ -71,6 +71,8 @@ type WeeklyRowProps = {
 	mode: "int" | "decimal1" | "intCompact";
 	weekKeys: string[];
 	deltaMode?: "pct" | "abs";
+	primaryPeriodLabel?: string;
+	showWeeklyDelta?: boolean;
 };
 
 function getDeltaPct(curr: number | null, prev: number | null): { value: string; isPositive: boolean; isNegative: boolean } | null {
@@ -134,45 +136,74 @@ function WeeklyRow({
 	mode,
 	weekKeys,
 	deltaMode,
+	primaryPeriodLabel,
+	showWeeklyDelta,
 }: WeeklyRowProps) {
 	return (
 		<tr>
 			<td className={styles.tdLabel}>{label}</td>
 			{cells.map((c, i) => {
-				const isCurrentMonth = weekSources[i] === calendarCurrentMonthLabel;
+				const isPrimaryMonth = weekSources[i] === (primaryPeriodLabel || calendarCurrentMonthLabel);
 				const prevVal = comparisonCells[i];
+				const lastWeekVal = i > 0 ? cells[i - 1] : null;
 				const isCurrentWeek = i === activeWeekIdx;
 
 				const tdClassName = clsx(styles.tdNum, {
 					[styles.currentWeekCell]: isCurrentWeek,
 				});
 
-				const showComparison = isCurrentMonth && prevVal !== null;
+				const showMonthComparison = isPrimaryMonth && prevVal !== null;
+				const showWeekComparison = isPrimaryMonth && showWeeklyDelta && lastWeekVal !== null;
 
 				return (
 					<td key={`${label}-${weekKeys[i]}`} className={tdClassName}>
-						{showComparison ? (
+						{showMonthComparison || showWeekComparison ? (
 							<div className={styles.cellComparisonStack}>
 								<span className={styles.cellCurrVal}>{fmtCell(c, mode)}</span>
-								<div className={styles.cellPrevRow}>
-									<span className={styles.cellPrevVal}>{fmtCell(prevVal, mode)}</span>
-									{(() => {
-										const delta = deltaMode === "abs"
-											? getDeltaAbs(c, prevVal)
-											: getDeltaPct(c, prevVal);
-										if (!delta) return null;
-										return (
-											<span
-												className={clsx(
-													styles.deltaBadge,
-													delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
-												)}
-											>
-												{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
-											</span>
-										);
-									})()}
-								</div>
+								{showMonthComparison && (
+									<div className={styles.cellPrevRow}>
+										<span className={styles.cellPrevValLabel}>Mês:</span>
+										<span className={styles.cellPrevVal}>{fmtCell(prevVal, mode)}</span>
+										{(() => {
+											const delta = deltaMode === "abs"
+												? getDeltaAbs(c, prevVal)
+												: getDeltaPct(c, prevVal);
+											if (!delta) return null;
+											return (
+												<span
+													className={clsx(
+														styles.deltaBadge,
+														delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+													)}
+												>
+													{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+												</span>
+											);
+										})()}
+									</div>
+								)}
+								{showWeekComparison && (
+									<div className={styles.cellPrevRow}>
+										<span className={styles.cellPrevValLabel}>Sem:</span>
+										<span className={styles.cellPrevVal}>{fmtCell(lastWeekVal, mode)}</span>
+										{(() => {
+											const delta = deltaMode === "abs"
+												? getDeltaAbs(c, lastWeekVal)
+												: getDeltaPct(c, lastWeekVal);
+											if (!delta) return null;
+											return (
+												<span
+													className={clsx(
+														styles.deltaBadge,
+														delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+													)}
+												>
+													{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+												</span>
+											);
+										})()}
+									</div>
+								)}
 							</div>
 						) : (
 							<span className={styles.cellCurrVal}>{fmtCell(c, mode)}</span>
@@ -190,6 +221,7 @@ type Props = {
 	funnel: SalesMarketingDashboardPayload["funnel"];
 	weekSourcePeriod: string[];
 	calendarCurrentMonthLabel: string;
+	primaryPeriodLabel?: string;
 	salesTotal?: number | null;
 	monthlyMarketing?: {
 		reach?: number | null;
@@ -206,6 +238,7 @@ export function WeeklyView({
 	funnel,
 	weekSourcePeriod,
 	calendarCurrentMonthLabel,
+	primaryPeriodLabel,
 	salesTotal,
 	monthlyMarketing,
 	primaryPayload,
@@ -340,10 +373,12 @@ export function WeeklyView({
 							comparisonCells={padWeeks(comparisonPayload?.weekly.marketing.reach ?? [], n)}
 							weekSources={weekSources}
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
 							total={monthlyMarketing?.reach ?? mk.totals.reach}
 							mode="intCompact"
 							weekKeys={weeks}
+							showWeeklyDelta={true}
 						/>
 						<WeeklyRow
 							label="Frequência"
@@ -351,10 +386,12 @@ export function WeeklyView({
 							comparisonCells={padWeeks(comparisonPayload?.weekly.marketing.frequency ?? [], n)}
 							weekSources={weekSources}
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
 							total={monthlyMarketing?.frequency ?? mk.totals.frequency}
 							mode="decimal1"
 							weekKeys={weeks}
+							showWeeklyDelta={true}
 						/>
 						<WeeklyRow
 							label="Visualizações"
@@ -362,10 +399,12 @@ export function WeeklyView({
 							comparisonCells={padWeeks(comparisonPayload?.weekly.marketing.views ?? [], n)}
 							weekSources={weekSources}
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
 							total={monthlyMarketing?.views ?? mk.totals.views}
 							mode="intCompact"
 							weekKeys={weeks}
+							showWeeklyDelta={true}
 						/>
 						<WeeklyRow
 							label="Novos seguidores"
@@ -373,10 +412,12 @@ export function WeeklyView({
 							comparisonCells={padWeeks(comparisonPayload?.weekly.marketing.followers ?? [], n)}
 							weekSources={weekSources}
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
 							total={monthlyMarketing?.followers ?? mk.totals.followers}
 							mode="int"
 							weekKeys={weeks}
+							showWeeklyDelta={true}
 						/>
 						<tr>
 							<td className={styles.wkGroup} colSpan={n + 2}>
@@ -392,6 +433,7 @@ export function WeeklyView({
 							comparisonCells={padWeeks(comparisonPayload?.weekly.funnelWeekly.scheduled ?? [], n)}
 							weekSources={weekSources}
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
 							total={funnel.scheduled.value}
 							mode="int"
@@ -404,6 +446,7 @@ export function WeeklyView({
 							comparisonCells={padWeeks(comparisonPayload?.weekly.funnelWeekly.attendance ?? [], n)}
 							weekSources={weekSources}
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
 							total={funnel.present.value}
 							mode="int"
@@ -416,6 +459,7 @@ export function WeeklyView({
 							comparisonCells={padWeeks(comparisonPayload?.weekly.funnelWeekly.closings ?? [], n)}
 							weekSources={weekSources}
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
 							total={funnel.closings.value}
 							mode="int"
@@ -439,7 +483,7 @@ export function WeeklyView({
 								<tr key={`${row.name}-${ri}`}>
 									<td className={styles.tdLabel}>{row.name}</td>
 									{vendas.map((v, i) => {
-										const isCurrentMonth = weekSources[i] === calendarCurrentMonthLabel;
+										const isPrimaryMonth = weekSources[i] === (primaryPeriodLabel || calendarCurrentMonthLabel);
 										const isCurrentWeek = i === activeWeekIdx;
 										const prevRecepRow = comparisonPayload?.weekly.salesWeekly.byReceptionist?.find(
 											(r) => r.name === row.name
@@ -447,7 +491,7 @@ export function WeeklyView({
 										const prevLeads = prevRecepRow ? padWeeks(prevRecepRow.leadsByWeek, n)[i] : null;
 										const prevSales = prevRecepRow ? padWeeks(prevRecepRow.salesByWeek, n)[i] : null;
 
-										const showComparison = isCurrentMonth && (prevLeads !== null || prevSales !== null);
+										const showComparison = isPrimaryMonth && (prevLeads !== null || prevSales !== null);
 										const currStr = fmtPair(v, leads[i]);
 										const prevStr = fmtPair(prevSales, prevLeads);
 
@@ -497,12 +541,12 @@ export function WeeklyView({
 								<tr>
 									<td className={styles.tdLabel}>Total</td>
 									{vendasT.map((v, i) => {
-										const isCurrentMonth = weekSources[i] === calendarCurrentMonthLabel;
+										const isPrimaryMonth = weekSources[i] === (primaryPeriodLabel || calendarCurrentMonthLabel);
 										const isCurrentWeek = i === activeWeekIdx;
 										const prevLeads = comparisonPayload?.weekly.salesWeekly.leadsByWeek[i] ?? null;
 										const prevSales = comparisonPayload?.weekly.salesWeekly.totals[i] ?? null;
 
-										const showComparison = isCurrentMonth && (prevLeads !== null || prevSales !== null);
+										const showComparison = isPrimaryMonth && (prevLeads !== null || prevSales !== null);
 										const currStr = fmtPair(v, leadsT[i]);
 										const prevStr = fmtPair(prevSales, prevLeads);
 
