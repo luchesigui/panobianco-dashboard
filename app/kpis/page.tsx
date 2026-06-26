@@ -1,25 +1,52 @@
 import { getKpiPageData } from "@/lib/data/kpis";
-import { FinanceiroCardGrid } from "./_components/cards/FinanceiroCardGrid";
-import { RetencaoCardGrid } from "./_components/cards/RetencaoCardGrid";
-import { RoiCardGrid } from "./_components/cards/RoiCardGrid";
-import { VendasMarketingCardGrid } from "./_components/cards/VendasMarketingCardGrid";
-import { VisaoGeralCardGrid } from "./_components/cards/VisaoGeralCardGrid";
+import { getOverviewKpis } from "@/features/overview/parsers/get-kpis";
+import { Overview } from "@/features/overview/components";
+import { getSalesMarketingMonthlyKpis } from "@/features/sales-marketing/parsers/get-monthly-kpis";
+import { SalesAndMarketing } from "@/features/sales-marketing/components";
+import { getRetentionKpis } from "@/features/retention/parsers/get-kpis";
+import { Retention } from "@/features/retention/components";
+import { getFinanceKpis } from "@/features/finance/parsers/get-kpis";
+import { Finance } from "@/features/finance/components";
+import { Forecast } from "@/features/forecast/components";
+import { getRoiKpis } from "@/features/roi/parsers/get-kpis";
+import { Roi } from "@/features/roi/components";
 import { DashboardHeader } from "./_components/DashboardHeader";
 import { MonthSelector } from "./_components/MonthSelector";
-import { SectionCard } from "./_components/SectionCard";
-import { SectionInsights } from "./_components/SectionInsights";
-import { FinanceiroCharts } from "./_components/financeiro/FinanceiroCharts";
-import { Projecao } from "./_components/projecao/Projecao";
-import { RetencaoCharts } from "./_components/retencao/RetencaoCharts";
-import { RoiCharts } from "./_components/roi/RoiCharts";
-import { VendasMarketingCharts } from "./_components/vendas-marketing/VendasMarketingCharts";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
 export default async function KpisPage() {
 	const data = await getKpiPageData();
-	const smPrimaryShort = data.salesMarketingDashboard.primaryPeriodLabel;
+
+	const overviewKpis = getOverviewKpis({
+		current: data.current,
+		previous: data.previous,
+		currentMeta: data.currentMeta,
+	});
+
+	const salesMarketingKpis = getSalesMarketingMonthlyKpis({
+		current: data.current,
+		previous: data.previous,
+		currentMeta: data.currentMeta,
+	});
+
+	const retentionKpis = getRetentionKpis({
+		current: data.current,
+		previous: data.previous,
+		currentMeta: data.currentMeta,
+	});
+
+	const financeKpis = getFinanceKpis({
+		current: data.current,
+		previous: data.previous,
+		currentMeta: data.currentMeta,
+	});
+
+	const roiKpis = getRoiKpis({
+		current: data.current,
+		currentMeta: data.currentMeta,
+	});
 
 	return (
 		<div className={styles.page}>
@@ -30,117 +57,70 @@ export default async function KpisPage() {
 				</div>
 			</header>
 
-			<SectionCard
-				title="Visão geral"
-				color="green"
-				iconShort="VG"
-				badge={data.currentPeriodLabel}
-			>
-				<VisaoGeralCardGrid data={data} />
-				<SectionInsights
-					variant="overview"
-					items={data.insights.overview ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
-			</SectionCard>
+			<Overview
+				data={{
+					kpis: overviewKpis,
+					periodId: data.kpiDataPeriod,
+					periodLabel: data.currentPeriodLabel,
+					previousPeriodLabel: data.previousPeriodLabel,
+				}}
+			/>
 
-			<SectionCard
-				title="Vendas e marketing"
-				color="blue"
-				iconShort="VM"
-				badge={smPrimaryShort}
-			>
-				<VendasMarketingCardGrid data={data} />
-				<SectionInsights
-					variant="sales_marketing"
-					items={data.insights.sales_marketing ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
-				{data.salesMarketingDashboard.payload ? (
-					<VendasMarketingCharts
-						dashboard={data.salesMarketingDashboard}
-						leadsGenerated={data.current["leads_generated"] ?? null}
-						salesTotal={data.current["sales_total"] ?? null}
-						monthlyMarketing={{
-							reach: data.current["marketing_reach"] ?? null,
-							frequency: data.current["marketing_frequency"] ?? null,
-							views: data.current["marketing_views"] ?? null,
-							followers: data.current["marketing_followers"] ?? null,
-						}}
-						weeklyInsights={data.insights.sales_marketing_weekly ?? []}
-						weeklyPeriodId={data.smPrimaryPeriod}
-					/>
-				) : null}
-			</SectionCard>
+			<SalesAndMarketing
+				data={{
+					monthlyKpis: salesMarketingKpis,
+					dashboard: data.salesMarketingDashboard,
+					periodId: data.kpiDataPeriod,
+					weeklyPeriodId: data.smPrimaryPeriod,
+					periodLabel: data.currentPeriodLabel,
+					previousPeriodLabel: data.previousPeriodLabel,
+					leadsGenerated: data.current["leads_generated"] ?? null,
+					salesTotal: data.current["sales_total"] ?? null,
+					monthlyMarketing: {
+						reach: data.current["marketing_reach"] ?? null,
+						frequency: data.current["marketing_frequency"] ?? null,
+						views: data.current["marketing_views"] ?? null,
+						followers: data.current["marketing_followers"] ?? null,
+					},
+				}}
+			/>
 
-			<SectionCard
-				title="Retenção"
-				color="orange"
-				iconShort="R"
-				badge={data.currentPeriodLabel}
-			>
-				<RetencaoCardGrid data={data} />
-				<SectionInsights
-					variant="retention"
-					items={data.insights.retention ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
-				<RetencaoCharts charts={data.retentionCharts} />
-			</SectionCard>
+			<Retention
+				data={{
+					kpis: retentionKpis,
+					charts: data.retentionCharts,
+					periodId: data.kpiDataPeriod,
+					periodLabel: data.currentPeriodLabel,
+					previousPeriodLabel: data.previousPeriodLabel,
+				}}
+			/>
 
-			<SectionCard
-				title="Financeiro"
-				color="purple"
-				iconShort="F"
-				badge={data.currentPeriodLabel}
-			>
-				<FinanceiroCardGrid data={data} />
-				<SectionInsights
-					variant="finance"
-					items={data.insights.finance ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
-				<FinanceiroCharts charts={data.financeCharts} />
-			</SectionCard>
+			<Finance
+				data={{
+					kpis: financeKpis,
+					charts: data.financeCharts,
+					periodId: data.kpiDataPeriod,
+					periodLabel: data.currentPeriodLabel,
+					previousPeriodLabel: data.previousPeriodLabel,
+				}}
+			/>
 
-			<SectionCard
-				title="Previsão de resultado"
-				color="pink"
-				iconShort="P"
-				badge={
-					data.nextMonthForecast.hasData
-						? `Próximo: ${data.nextMonthForecast.nextPeriodLabel}`
-						: data.currentPeriodLabel
-				}
-			>
-				<SectionInsights
-					variant="forecast"
-					items={data.insights.forecast ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
-				{data.nextMonthForecast.hasData ? (
-					<Projecao forecast={data.nextMonthForecast} />
-				) : (
-					<p className={styles.subtitle}>
-						Dados insuficientes para montar a projeção do mês seguinte.
-					</p>
-				)}
-			</SectionCard>
+			<Forecast
+				data={{
+					forecast: data.nextMonthForecast,
+					periodId: data.kpiDataPeriod,
+					periodLabel: data.currentPeriodLabel,
+				}}
+			/>
 
-			<SectionCard
-				title="Retorno do investimento"
-				color="brown"
-				iconShort="RI"
-				badge="Desde Jul/24"
-			>
-				<RoiCardGrid data={data} />
-				<SectionInsights
-					variant="roi"
-					items={data.insights.roi ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
-				<RoiCharts charts={data.roiCharts} />
-			</SectionCard>
+			<Roi
+				data={{
+					kpis: roiKpis,
+					charts: data.roiCharts,
+					periodId: data.kpiDataPeriod,
+					periodLabel: data.currentPeriodLabel,
+				}}
+			/>
 
 			{data.featureOfMonth && (
 				<section className={styles.sectionPlain}>
