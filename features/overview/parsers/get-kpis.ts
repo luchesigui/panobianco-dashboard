@@ -9,27 +9,33 @@ type Input = {
 
 export function getOverviewKpis({ current, previous, currentMeta }: Input): OverviewKpis {
 	const baseStudentsMeta = currentMeta["base_students_end"];
-	const salesMeta = currentMeta["sales_total"];
-	const opResultMeta = currentMeta["operational_result"];
+	const salesTotalMeta = currentMeta["sales_total"];
+	const operationalResultMeta = currentMeta["operational_result"];
 
 	const baseStudentsValue = (current["base_students_end"] as number | undefined) ?? null;
-	const baseStudentsPrev = (previous["base_students_end"] as number | undefined) ?? null;
+	const baseStudentsPreviousValue = (previous["base_students_end"] as number | undefined) ?? null;
 
-	const salesValue = (current["sales_total"] as number | undefined) ?? null;
-	const salesPrev = (previous["sales_total"] as number | undefined) ?? null;
+	const salesTotalValue = (current["sales_total"] as number | undefined) ?? null;
+	const salesTotalPreviousValue = (previous["sales_total"] as number | undefined) ?? null;
 
-	const revenue = (current["revenue_total"] as number | undefined) ?? null;
-	const revenuePrev = (previous["revenue_total"] as number | undefined) ?? null;
+	const revenueTotalValue = (current["revenue_total"] as number | undefined) ?? null;
+	const revenueTotalPreviousValue = (previous["revenue_total"] as number | undefined) ?? null;
 
-	const expenses = (current["expenses_total"] as number | undefined) ?? null;
-	const expensesPrev = (previous["expenses_total"] as number | undefined) ?? null;
-	const opResult = revenue != null && expenses != null ? revenue - expenses : null;
-	const opResultPrev =
-		revenuePrev != null && expensesPrev != null ? revenuePrev - expensesPrev : null;
+	const expensesTotalValue = (current["expenses_total"] as number | undefined) ?? null;
+	const expensesTotalPreviousValue = (previous["expenses_total"] as number | undefined) ?? null;
+
+	const operationalResultValue =
+		revenueTotalValue != null && expensesTotalValue != null
+			? revenueTotalValue - expensesTotalValue
+			: null;
+	const operationalResultPreviousValue =
+		revenueTotalPreviousValue != null && expensesTotalPreviousValue != null
+			? revenueTotalPreviousValue - expensesTotalPreviousValue
+			: null;
 
 	const marginPercent =
-		revenue != null && revenue > 0 && opResult != null
-			? Math.round((opResult / revenue) * 1000) / 10
+		revenueTotalValue != null && revenueTotalValue > 0 && operationalResultValue != null
+			? Math.round((operationalResultValue / revenueTotalValue) * 1000) / 10
 			: null;
 
 	const baseStudentsGoal = (current["base_students_goal"] as number | undefined) ?? null;
@@ -37,28 +43,28 @@ export function getOverviewKpis({ current, previous, currentMeta }: Input): Over
 	return {
 		baseStudents: {
 			value: baseStudentsValue,
-			previous: baseStudentsPrev,
-			deltaPct: computeDeltaPct(baseStudentsValue ?? undefined, baseStudentsPrev ?? undefined),
+			previous: baseStudentsPreviousValue,
+			deltaPct: computeDeltaPct(baseStudentsValue ?? undefined, baseStudentsPreviousValue ?? undefined),
 			goal: baseStudentsGoal,
 			isPartial: baseStudentsMeta?.partial === true,
 		},
 		salesTotal: {
-			value: salesValue,
-			previous: salesPrev,
-			deltaPct: computeDeltaPct(salesValue ?? undefined, salesPrev ?? undefined),
-			goal: typeof salesMeta?.goal === "number" ? salesMeta.goal : null,
+			value: salesTotalValue,
+			previous: salesTotalPreviousValue,
+			deltaPct: computeDeltaPct(salesTotalValue ?? undefined, salesTotalPreviousValue ?? undefined),
+			goal: typeof salesTotalMeta?.goal === "number" ? salesTotalMeta.goal : null,
 		},
 		revenueTotal: {
-			value: revenue,
-			previous: revenuePrev,
-			deltaPct: computeDeltaPct(revenue ?? undefined, revenuePrev ?? undefined),
+			value: revenueTotalValue,
+			previous: revenueTotalPreviousValue,
+			deltaPct: computeDeltaPct(revenueTotalValue ?? undefined, revenueTotalPreviousValue ?? undefined),
 		},
 		operationalResult: {
-			value: opResult,
-			previous: opResultPrev,
-			deltaPct: computeDeltaPct(opResult ?? undefined, opResultPrev ?? undefined),
+			value: operationalResultValue,
+			previous: operationalResultPreviousValue,
+			deltaPct: computeDeltaPct(operationalResultValue ?? undefined, operationalResultPreviousValue ?? undefined),
 			marginPercent,
-			isRecord: opResultMeta?.record === true,
+			isRecord: operationalResultMeta?.record === true,
 		},
 	};
 }
