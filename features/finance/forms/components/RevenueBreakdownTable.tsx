@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatCurrency } from "../lib/parsers";
+import { formatCurrency } from "@/app/kpis/entrada-dados/lib/parsers";
 
 type Props = {
 	breakdown: Record<string, number>;

@@ -9,13 +9,13 @@ import {
 import { mapRevenueGroupsToCodes } from "@/lib/data/revenue-mapping";
 import type { UseKpiForm } from "../hooks/useKpiForm";
 import type { UseFormLockState } from "../hooks/useFormLockState";
-import type { UseSmDashboard } from "../hooks/useSmDashboard";
+import type { UseSalesMarketingWeeklyFormSection } from "@/features/sales-marketing/forms/hooks/useSalesMarketingWeeklyFormSection";
 import { parsePtBrNumber } from "../lib/parsers";
-import { ExpenseSection } from "./ExpenseSection";
+import { ExpenseSection } from "@/features/finance/forms/components/ExpenseSection";
+import { FunnelAndReceptionistsCard } from "@/features/sales-marketing/forms/components/FunnelAndReceptionistsCard";
+import { RevenueBreakdownTable } from "@/features/finance/forms/components/RevenueBreakdownTable";
 import { FileUploadArea } from "./FileUploadArea";
-import { FunnelAndReceptionistsCard } from "./FunnelAndReceptionistsCard";
 import { KpiFormSection } from "./KpiFormSection";
-import { RevenueBreakdownTable } from "./RevenueBreakdownTable";
 import { SaveButton } from "./SaveButton";
 
 type UploadHandle = {
@@ -25,7 +25,7 @@ type UploadHandle = {
 
 type Props = {
 	kpi: UseKpiForm;
-	sm: UseSmDashboard;
+	sm: UseSalesMarketingWeeklyFormSection;
 	lock: UseFormLockState;
 	uploads: {
 		crescimento: UploadHandle;

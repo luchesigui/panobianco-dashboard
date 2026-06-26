@@ -9,7 +9,7 @@ import {
 import { mapRevenueGroupsToCodes } from "@/lib/data/revenue-mapping";
 import { slugifyExpenseCode } from "@/lib/data/expense-mapping";
 import { saveMonthlyKpisAction } from "../actions";
-import { titleFromExpenseCode } from "../lib/expense";
+import { titleFromExpenseCode } from "@/features/finance/forms/expense";
 import { parsePtBrNumber } from "../lib/parsers";
 
 type Args = {

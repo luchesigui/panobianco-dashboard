@@ -1,5 +1,8 @@
 import { parsePtBrNumber } from "./parsers";
-import type { RecepWeekRow, WeeklyStrings } from "./types";
+import type {
+	RecepWeekRow,
+	WeeklyStrings,
+} from "@/features/sales-marketing/forms/types";
 
 export function weekMismatchMessages(
 	ws: WeeklyStrings,
@@ -18,7 +21,7 @@ export function weekMismatchMessages(
 				any = true;
 			}
 		}
-		const agg = parsePtBrNumber(ws.salesTot[i] ?? "");
+		const agg = parsePtBrNumber(ws.totalSalesWeekly[i] ?? "");
 		if (any && agg !== undefined && sumR !== agg) {
 			msgs.push(
 				`Semana ${i + 1}: soma recepcionistas (${sumR}) ≠ vendas todos canais (${agg}).`,

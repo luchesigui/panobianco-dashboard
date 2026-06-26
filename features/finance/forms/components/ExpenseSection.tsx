@@ -11,8 +11,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, LockOpen } from "lucide-react";
-import { formatCurrency, formatThousands, cleanPastedValue, parsePtBrNumber } from "../lib/parsers";
-import { FileUploadArea } from "./FileUploadArea";
+import {
+	cleanPastedValue,
+	formatCurrency,
+	formatThousands,
+	parsePtBrNumber,
+} from "@/app/kpis/entrada-dados/lib/parsers";
+import { FileUploadArea } from "@/app/kpis/entrada-dados/_components/FileUploadArea";
 
 export type ExpenseEntry = {
 	code: string;
@@ -79,11 +84,13 @@ export function ExpenseSection({
 								? formatCurrency(String(item.value))
 								: formatThousands(String(item.value));
 
-							const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-								const pastedText = e.clipboardData.getData("text");
+							const handlePaste = (
+								event: React.ClipboardEvent<HTMLInputElement>,
+							) => {
+								const pastedText = event.clipboardData.getData("text");
 								const cleanedValue = cleanPastedValue(pastedText, false);
 								if (cleanedValue !== pastedText) {
-									e.preventDefault();
+									event.preventDefault();
 									const parsed = parsePtBrNumber(cleanedValue) ?? 0;
 									onChange(item.code, parsed);
 								}

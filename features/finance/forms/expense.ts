@@ -11,13 +11,10 @@ export const EXPENSE_LABEL_MAP: Record<string, string> = {
 
 export function titleFromExpenseCode(code: string): string {
 	if (code in EXPENSE_LABEL_MAP) return EXPENSE_LABEL_MAP[code] ?? code;
-	const raw = code
-		.replace(/^expense_/, "")
-		.replace(/_/g, " ")
-		.trim();
+	const raw = code.replace(/^expense_/, "").replace(/_/g, " ").trim();
 	if (!raw) return code;
 	return raw
 		.split(" ")
-		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 		.join(" ");
 }

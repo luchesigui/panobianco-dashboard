@@ -3,11 +3,11 @@ export type WeeklyStrings = {
 	frequency: string[];
 	views: string[];
 	followers: string[];
-	sch: string[];
-	att: string[];
-	clo: string[];
-	leadsTot: string[];
-	salesTot: string[];
+	scheduledWeekly: string[];
+	attendanceWeekly: string[];
+	closingsWeekly: string[];
+	totalLeadsWeekly: string[];
+	totalSalesWeekly: string[];
 };
 
 export type RecepWeekRow = {
@@ -35,8 +35,8 @@ export type RecepMonthRow = {
 };
 
 export type SalesComposition = {
-	expV: string;
-	expS: string;
-	othV: string;
-	othS: string;
+	experimentalClassValue: string;
+	experimentalClassSubtext: string;
+	otherChannelsValue: string;
+	otherChannelsSubtext: string;
 };
