@@ -1,33 +1,8 @@
-import { clsx } from "clsx";
 import { SALES_VM_BAR } from "@/lib/kpis/card-bar-colors";
-import { formatDeltaPill, formatValue } from "@/lib/kpis/format";
+import { formatValue } from "@/lib/kpis/format";
+import { DeltaPill } from "@/components/kpis/DeltaPill";
 import styles from "@/app/kpis/page.module.css";
 import type { SalesMarketingMonthlyKpis, SmKpiCard } from "../types";
-
-type DeltaPillProps = {
-	kpi: SmKpiCard;
-	vsLabel: string | undefined;
-};
-
-function DeltaPill({ kpi, vsLabel }: DeltaPillProps) {
-	const pct = kpi.overrideDeltaPct ?? kpi.deltaPct;
-	if (pct == null) return null;
-	const label = formatDeltaPill(pct, false);
-	const tail = vsLabel ? ` vs ${vsLabel}` : " vs período anterior";
-	const cls = clsx(styles.kpiDelta, {
-		[styles.deltaUp]: pct > 0,
-		[styles.deltaDown]: pct < 0,
-		[styles.deltaNeutral]: pct === 0,
-	});
-	return (
-		<div className={styles.kpiSub}>
-			<span className={cls}>
-				{label}
-				{tail}
-			</span>
-		</div>
-	);
-}
 
 type Props = {
 	kpis: SalesMarketingMonthlyKpis;
@@ -51,7 +26,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 						{`Meta ${salesTotal.goal} (${salesTotal.goalPct}%)`}
 					</p>
 				)}
-				<DeltaPill kpi={salesTotal} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={salesTotal.deltaPct} overrideDeltaPct={salesTotal.overrideDeltaPct} vsLabel={vsLabel} />
 				<div className={styles.kpiBar} style={{ background: SALES_VM_BAR.sales_total }} />
 			</article>
 
@@ -63,7 +38,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				{noShowRate.detailLine && (
 					<p className={styles.kpiMetaLine}>{noShowRate.detailLine}</p>
 				)}
-				<DeltaPill kpi={noShowRate} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={noShowRate.deltaPct} overrideDeltaPct={noShowRate.overrideDeltaPct} vsLabel={vsLabel} />
 				<div className={styles.kpiBar} style={{ background: SALES_VM_BAR.no_show_rate }} />
 			</article>
 
@@ -77,7 +52,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				{presentConversionRate.detailLine && (
 					<p className={styles.kpiMetaLine}>{presentConversionRate.detailLine}</p>
 				)}
-				<DeltaPill kpi={presentConversionRate} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={presentConversionRate.deltaPct} overrideDeltaPct={presentConversionRate.overrideDeltaPct} vsLabel={vsLabel} />
 				<div
 					className={styles.kpiBar}
 					style={{ background: SALES_VM_BAR.present_conversion_rate }}
@@ -91,7 +66,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 						? new Intl.NumberFormat("pt-BR").format(leadsGenerated.value)
 						: "N/A"}
 				</p>
-				<DeltaPill kpi={leadsGenerated} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={leadsGenerated.deltaPct} overrideDeltaPct={leadsGenerated.overrideDeltaPct} vsLabel={vsLabel} />
 				<div
 					className={styles.kpiBar}
 					style={{ background: SALES_VM_BAR.leads_generated }}
@@ -107,7 +82,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				{avgTicket.breakdownLine && (
 					<p className={styles.kpiMetaLine}>{avgTicket.breakdownLine}</p>
 				)}
-				<DeltaPill kpi={avgTicket} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={avgTicket.deltaPct} overrideDeltaPct={avgTicket.overrideDeltaPct} vsLabel={vsLabel} />
 				<div className={styles.kpiBar} style={{ background: SALES_VM_BAR.avg_ticket }} />
 			</article>
 
@@ -117,7 +92,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				{cacPerSale.detailLine && (
 					<p className={styles.kpiMetaLine}>{cacPerSale.detailLine}</p>
 				)}
-				<DeltaPill kpi={cacPerSale} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={cacPerSale.deltaPct} overrideDeltaPct={cacPerSale.overrideDeltaPct} vsLabel={vsLabel} />
 				<div className={styles.kpiBar} style={{ background: SALES_VM_BAR.cac_per_sale }} />
 			</article>
 
@@ -129,7 +104,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				{metaAdsInvestment.detailLine && (
 					<p className={styles.kpiMetaLine}>{metaAdsInvestment.detailLine}</p>
 				)}
-				<DeltaPill kpi={metaAdsInvestment} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={metaAdsInvestment.deltaPct} overrideDeltaPct={metaAdsInvestment.overrideDeltaPct} vsLabel={vsLabel} />
 				<div
 					className={styles.kpiBar}
 					style={{ background: SALES_VM_BAR.meta_ads_investment }}
@@ -146,7 +121,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				{instagramTotalReach.detailLine && (
 					<p className={styles.kpiMetaLine}>{instagramTotalReach.detailLine}</p>
 				)}
-				<DeltaPill kpi={instagramTotalReach} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={instagramTotalReach.deltaPct} overrideDeltaPct={instagramTotalReach.overrideDeltaPct} vsLabel={vsLabel} />
 				<div
 					className={styles.kpiBar}
 					style={{ background: SALES_VM_BAR.instagram_total_reach ?? "#534ab7" }}

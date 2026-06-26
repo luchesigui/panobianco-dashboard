@@ -1,42 +1,13 @@
-import { clsx } from "clsx";
 import { barColor } from "@/lib/kpis/card-bar-colors";
 import {
 	formatCompactBrl,
 	formatCompactBrlOneDecimal,
 	formatCurrencySignedK,
-	formatDeltaPill,
 	formatValue,
 } from "@/lib/kpis/format";
+import { DeltaPill } from "@/components/kpis/DeltaPill";
 import styles from "@/app/kpis/page.module.css";
 import type { FinanceKpiCard, FinanceKpis } from "../types";
-
-type DeltaPillProps = {
-	kpi: FinanceKpiCard;
-	vsLabel: string | undefined;
-	invert?: boolean;
-};
-
-function DeltaPill({ kpi, vsLabel, invert = false }: DeltaPillProps) {
-	const pct = kpi.overrideDeltaPct ?? kpi.deltaPct;
-	if (pct == null) return null;
-	const label = formatDeltaPill(pct, true);
-	const tail = vsLabel ? ` vs ${vsLabel}` : " vs período anterior";
-	const isPositive = pct > 0;
-	const isGood = invert ? !isPositive : isPositive;
-	const cls = clsx(styles.kpiDelta, {
-		[styles.deltaUp]: pct !== 0 && isGood,
-		[styles.deltaDown]: pct !== 0 && !isGood,
-		[styles.deltaNeutral]: pct === 0,
-	});
-	return (
-		<div className={styles.kpiSub}>
-			<span className={cls}>
-				{label}
-				{tail}
-			</span>
-		</div>
-	);
-}
 
 type Props = {
 	kpis: FinanceKpis;
@@ -60,7 +31,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				<p className={styles.kpiValue}>
 					{revenueTotal.value != null ? formatCompactBrl(revenueTotal.value) : "N/A"}
 				</p>
-				<DeltaPill kpi={revenueTotal} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={revenueTotal.deltaPct} overrideDeltaPct={revenueTotal.overrideDeltaPct} vsLabel={vsLabel} integerPct />
 				<div className={styles.kpiBar} style={{ background: barColor("revenue_total") }} />
 			</article>
 
@@ -70,7 +41,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 					{expensesTotal.value != null ? formatCompactBrl(expensesTotal.value) : "N/A"}
 				</p>
 				<div className={styles.kpiSub}>
-					<DeltaPill kpi={expensesTotal} vsLabel={vsLabel} invert />
+					<DeltaPill deltaPct={expensesTotal.deltaPct} overrideDeltaPct={expensesTotal.overrideDeltaPct} vsLabel={vsLabel} invert integerPct />
 					{expensesTotal.deltaAbsLine && (
 						<span className={styles.kpiMetaMuted}> {expensesTotal.deltaAbsLine}</span>
 					)}
@@ -93,7 +64,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 						margem {operationalResult.marginPercent.toFixed(1).replace(".", ",")}%
 					</p>
 				)}
-				<DeltaPill kpi={operationalResult} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={operationalResult.deltaPct} overrideDeltaPct={operationalResult.overrideDeltaPct} vsLabel={vsLabel} integerPct />
 				<div
 					className={styles.kpiBar}
 					style={{ background: barColor("operational_result") }}
@@ -203,7 +174,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 						{matriculatedRevenue.pctOfTotal.toFixed(1).replace(".", ",")}% do total
 					</p>
 				)}
-				<DeltaPill kpi={matriculatedRevenue} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={matriculatedRevenue.deltaPct} overrideDeltaPct={matriculatedRevenue.overrideDeltaPct} vsLabel={vsLabel} integerPct />
 				{matriculatedRevenue.breakdown && (
 					<p className={styles.kpiDetailLine}>
 						Recorrente {formatCompactBrlOneDecimal(matriculatedRevenue.breakdown.recorrente)}{" "}
@@ -227,7 +198,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 						{wellhubRevenue.pctOfTotal.toFixed(1).replace(".", ",")}% do total
 					</p>
 				)}
-				<DeltaPill kpi={wellhubRevenue} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={wellhubRevenue.deltaPct} overrideDeltaPct={wellhubRevenue.overrideDeltaPct} vsLabel={vsLabel} integerPct />
 				<div
 					className={styles.kpiBar}
 					style={{ background: barColor("wellhub_revenue") }}
@@ -246,7 +217,7 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 						{totalpassRevenue.pctOfTotal.toFixed(1).replace(".", ",")}% do total
 					</p>
 				)}
-				<DeltaPill kpi={totalpassRevenue} vsLabel={vsLabel} />
+				<DeltaPill deltaPct={totalpassRevenue.deltaPct} overrideDeltaPct={totalpassRevenue.overrideDeltaPct} vsLabel={vsLabel} integerPct />
 				<div
 					className={styles.kpiBar}
 					style={{ background: barColor("totalpass_revenue") }}

@@ -1,37 +1,12 @@
-import { clsx } from "clsx";
 import { KPI_BAR } from "@/lib/kpis/card-bar-colors";
 import {
 	abbreviatePeriodLabel,
 	formatCompactBrl,
 	formatCurrencySignedK,
-	formatDeltaPill,
 } from "@/lib/kpis/format";
+import { DeltaPill } from "@/components/kpis/DeltaPill";
 import styles from "@/app/kpis/page.module.css";
 import type { OverviewKpis } from "../types";
-
-type DeltaPillProps = {
-	deltaPct: number | null;
-	vsLabel: string | undefined;
-};
-
-function DeltaPill({ deltaPct, vsLabel }: DeltaPillProps) {
-	if (deltaPct == null) return null;
-	const label = formatDeltaPill(deltaPct, false);
-	const tail = vsLabel ? ` vs ${vsLabel}` : " vs período anterior";
-	const cls = clsx(styles.kpiDelta, {
-		[styles.deltaUp]: deltaPct > 0,
-		[styles.deltaDown]: deltaPct < 0,
-		[styles.deltaNeutral]: deltaPct === 0,
-	});
-	return (
-		<div className={styles.kpiSub}>
-			<span className={cls}>
-				{label}
-				{tail}
-			</span>
-		</div>
-	);
-}
 
 type Props = {
 	kpis: OverviewKpis;
