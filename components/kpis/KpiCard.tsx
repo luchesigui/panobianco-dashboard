@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { formatDeltaPill } from "@/lib/kpis/format";
 import styles from "./KpiCard.module.css";
 
@@ -25,14 +25,13 @@ type CardProps = {
 
 function Card({ accentColor, className, children }: CardProps) {
 	return (
-		<article className={`${styles.card}${className ? ` ${className}` : ""}`}>
+		<article
+			className={`${styles.card}${className ? ` ${className}` : ""}`}
+			style={accentColor != null ? ({ "--kpi-bar-color": accentColor } as CSSProperties) : undefined}
+		>
 			{children}
 			{accentColor != null ? (
-				<span
-					className={styles.accentBar}
-					style={{ background: accentColor }}
-					aria-hidden
-				/>
+				<span className={styles.accentBar} aria-hidden />
 			) : null}
 		</article>
 	);
@@ -51,7 +50,7 @@ function MainNumber({ children }: { children: ReactNode }) {
 }
 
 type SubdescriptionProps = {
-	tone?: "default" | "muted" | "danger";
+	tone?: "default" | "muted" | "danger" | "detail";
 	children: ReactNode;
 };
 
@@ -59,7 +58,16 @@ function Subdescription({ tone = "default", children }: SubdescriptionProps) {
 	const cls = [styles.subdescription];
 	if (tone === "muted") cls.push(styles.subdescriptionMuted);
 	if (tone === "danger") cls.push(styles.subdescriptionDanger);
+	if (tone === "detail") cls.push(styles.subdescriptionDetail);
 	return <p className={cls.join(" ")}>{children}</p>;
+}
+
+function PillRow({ children }: { children: ReactNode }) {
+	return <div className={styles.pillRow}>{children}</div>;
+}
+
+function MutedText({ children }: { children: ReactNode }) {
+	return <span className={styles.subdescriptionMuted}>{children}</span>;
 }
 
 type PillProps =
@@ -110,6 +118,8 @@ export const KpiCard = Object.assign(Card, {
 	MainNumber,
 	Subdescription,
 	Pill,
+	PillRow,
+	MutedText,
 });
 
 export type { PillTone };

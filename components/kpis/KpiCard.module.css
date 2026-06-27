@@ -90,4 +90,9 @@
 	left: 0;
 	right: 0;
 	height: 3px;
+	background: var(--kpi-bar-color);
+}
+
+.subdescriptionDetail {
+	margin-top: 6px;
 }

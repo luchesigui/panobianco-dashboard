@@ -7,10 +7,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { FunnelState, RecepMonthRow } from "../lib/types";
+import { FileUploadArea } from "@/app/kpis/entrada-dados/_components/FileUploadArea";
+import type { FunnelState, RecepMonthRow } from "../types";
 import { FunnelSection } from "./FunnelSection";
 import { ReceptionistMonthTable } from "./ReceptionistMonthTable";
-import { FileUploadArea } from "./FileUploadArea";
 
 type Props = {
 	funnel: FunnelState;
@@ -58,10 +58,7 @@ export function FunnelAndReceptionistsCard({
 			</CardHeader>
 			<CardContent className="space-y-6">
 				<FunnelSection funnel={funnel} onChange={onFunnelChange} />
-				<ReceptionistMonthTable
-					rows={recepMonth}
-					onChange={onRecepMonthChange}
-				/>
+				<ReceptionistMonthTable rows={recepMonth} onChange={onRecepMonthChange} />
 			</CardContent>
 		</Card>
 	);

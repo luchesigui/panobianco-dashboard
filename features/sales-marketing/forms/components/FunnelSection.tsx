@@ -2,9 +2,11 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { FunnelState } from "../lib/types";
-
-import { cleanPastedValue, formatThousands } from "../lib/parsers";
+import type { FunnelState } from "../types";
+import {
+	cleanPastedValue,
+	formatThousands,
+} from "@/app/kpis/entrada-dados/lib/parsers";
 
 type Props = {
 	funnel: FunnelState;
@@ -25,7 +27,7 @@ export function FunnelSection({ funnel, onChange }: Props) {
 			</p>
 			<div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
 				{FUNNEL_FIELDS.map(([key, label]) => {
-					const val = funnel[key].value;
+					const value = funnel[key].value;
 					return (
 						<div key={key} className="flex flex-col gap-1.5">
 							<Label
@@ -38,7 +40,7 @@ export function FunnelSection({ funnel, onChange }: Props) {
 								id={`funnel-${key}`}
 								type="text"
 								inputMode="numeric"
-								value={formatThousands(val)}
+								value={formatThousands(value)}
 								onPaste={(e) => {
 									const pastedText = e.clipboardData.getData("text");
 									const cleanedValue = cleanPastedValue(pastedText, false);

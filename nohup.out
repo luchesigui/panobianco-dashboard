@@ -1,0 +1,59 @@
+[hermes] install stamp: d6269da7fdfe (main) from local
+(node:89821) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `Hermes --trace-deprecation ...` to show where the warning was created)
+Error occurred in handler for 'hermes:api': Error: connect ECONNREFUSED 127.0.0.1:58944
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -61,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 58944
+}
+Error occurred in handler for 'hermes:api': Error: connect ECONNREFUSED 127.0.0.1:58944
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1705:16) {
+  errno: -61,
+  code: 'ECONNREFUSED',
+  syscall: 'connect',
+  address: '127.0.0.1',
+  port: 58944
+}
+✓ Desktop packaged app is up to date (content stamp matches)
+→ Launching packaged Hermes Desktop: /Users/luchesigui/.hermes/hermes-agent/apps/desktop/release/mac-arm64/Hermes.app/Contents/MacOS/Hermes
+Traceback (most recent call last):
+  File "/Users/luchesigui/.hermes/hermes-agent/venv/bin/hermes", line 10, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/Users/luchesigui/.hermes/hermes-agent/hermes_cli/main.py", line 13226, in main
+    args.func(args)
+  File "/Users/luchesigui/.hermes/hermes-agent/hermes_cli/main.py", line 5629, in cmd_gui
+    launch_result = subprocess.run([str(packaged_executable)], cwd=desktop_dir, env=env, check=False)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/luchesigui/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/subprocess.py", line 550, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/luchesigui/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/subprocess.py", line 1201, in communicate
+    self.wait()
+  File "/Users/luchesigui/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/subprocess.py", line 1264, in wait
+    return self._wait(timeout=timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/luchesigui/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/subprocess.py", line 2053, in _wait
+    (pid, sts) = self._try_wait(0)
+                 ^^^^^^^^^^^^^^^^^
+  File "/Users/luchesigui/.local/share/uv/python/cpython-3.11.15-macos-aarch64-none/lib/python3.11/subprocess.py", line 2011, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+[hermes] install stamp: d6269da7fdfe (main) from local
+(node:90434) [DEP0180] DeprecationWarning: fs.Stats constructor is deprecated.
+(Use `Hermes --trace-deprecation ...` to show where the warning was created)
+[90434:0625/114450.056951:ERROR:content/browser/network_service_instance_impl.cc:610] Network service crashed or was terminated, restarting service.
+Error sending from webFrameMain:  Error: Render frame was disposed before WebFrameMain could be accessed
+    at s.send (node:electron/js2c/browser_init:2:103455)
+    at b.send (node:electron/js2c/browser_init:2:87820)
+    at sendBackendExit (/Users/luchesigui/.hermes/hermes-agent/apps/desktop/release/mac-arm64/Hermes.app/Contents/Resources/app.asar/electron/main.cjs:3601:15)
+    at ChildProcess.<anonymous> (/Users/luchesigui/.hermes/hermes-agent/apps/desktop/release/mac-arm64/Hermes.app/Contents/Resources/app.asar/electron/main.cjs:5274:7)
+    at Object.onceWrapper (node:events:631:26)
+    at ChildProcess.emit (node:events:509:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:295:12)
+✓ Desktop packaged app is up to date (content stamp matches)
+→ Launching packaged Hermes Desktop: /Users/luchesigui/.hermes/hermes-agent/apps/desktop/release/mac-arm64/Hermes.app/Contents/MacOS/Hermes

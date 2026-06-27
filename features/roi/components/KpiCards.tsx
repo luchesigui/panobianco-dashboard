@@ -1,5 +1,6 @@
 import { barColor } from "@/lib/kpis/card-bar-colors";
 import { formatCompactBrl } from "@/lib/kpis/format";
+import { KpiCard } from "@/components/kpis/KpiCard";
 import styles from "@/app/kpis/page.module.css";
 import type { RoiKpis } from "../types";
 
@@ -10,76 +11,62 @@ export function KpiCards({ kpis }: Props) {
 
 	return (
 		<div className={styles.kpiGrid}>
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>{totalInvested.title}</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("total_invested")}>
+				<KpiCard.Title>{totalInvested.title}</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{totalInvested.value != null ? formatCompactBrl(totalInvested.value) : "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{totalInvested.subline && (
-					<p className={styles.kpiMetaLine}>{totalInvested.subline}</p>
+					<KpiCard.Subdescription>{totalInvested.subline}</KpiCard.Subdescription>
 				)}
 				{totalInvested.detailLine && (
-					<p className={styles.kpiDetailLine}>{totalInvested.detailLine}</p>
+					<KpiCard.Subdescription tone="detail">
+						{totalInvested.detailLine}
+					</KpiCard.Subdescription>
 				)}
-				<div
-					className={styles.kpiBar}
-					style={{ background: barColor("total_invested") }}
-				/>
-			</article>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>{cashBalance.title}</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("cash_balance")}>
+				<KpiCard.Title>{cashBalance.title}</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{cashBalance.value != null ? formatCompactBrl(cashBalance.value) : "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{cashBalance.subline && (
-					<p className={styles.kpiMetaLine}>{cashBalance.subline}</p>
+					<KpiCard.Subdescription>{cashBalance.subline}</KpiCard.Subdescription>
 				)}
 				{cashBalance.pctPill && (
-					<div className={styles.kpiSub}>
-						<span className={`${styles.kpiDelta} ${styles.deltaUp}`}>
-							{cashBalance.pctPill}
-						</span>
-					</div>
+					<KpiCard.Pill tone="good" label={cashBalance.pctPill} />
 				)}
-				<div
-					className={styles.kpiBar}
-					style={{ background: barColor("cash_balance") }}
-				/>
-			</article>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>{recoveryBalance.title}</span>
-				<p className={styles.kpiValue}>
-					{recoveryBalance.value != null ? formatCompactBrl(recoveryBalance.value) : "N/A"}
-				</p>
+			<KpiCard accentColor={barColor("recovery_balance")}>
+				<KpiCard.Title>{recoveryBalance.title}</KpiCard.Title>
+				<KpiCard.MainNumber>
+					{recoveryBalance.value != null
+						? formatCompactBrl(recoveryBalance.value)
+						: "N/A"}
+				</KpiCard.MainNumber>
 				{recoveryBalance.subline && (
-					<p className={styles.kpiMetaLine}>{recoveryBalance.subline}</p>
+					<KpiCard.Subdescription>{recoveryBalance.subline}</KpiCard.Subdescription>
 				)}
-				<div
-					className={styles.kpiBar}
-					style={{ background: barColor("recovery_balance") }}
-				/>
-			</article>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Payback estimado</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("roi_payback_months")}>
+				<KpiCard.Title>Payback estimado</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{paybackMonths.value != null
 						? `${Math.round(paybackMonths.value)} meses`
 						: "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{paybackMonths.subline && (
-					<p className={styles.kpiMetaLine}>{paybackMonths.subline}</p>
+					<KpiCard.Subdescription>{paybackMonths.subline}</KpiCard.Subdescription>
 				)}
 				{paybackMonths.detailLine && (
-					<p className={styles.kpiDetailLine}>{paybackMonths.detailLine}</p>
+					<KpiCard.Subdescription tone="detail">
+						{paybackMonths.detailLine}
+					</KpiCard.Subdescription>
 				)}
-				<div
-					className={styles.kpiBar}
-					style={{ background: barColor("roi_payback_months") }}
-				/>
-			</article>
+			</KpiCard>
 		</div>
 	);
 }

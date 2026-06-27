@@ -2,8 +2,11 @@
 
 import React from "react";
 import { Input } from "@/components/ui/input";
-import type { RecepWeekRow, WeeklyStrings } from "../lib/types";
-import { cleanPastedValue, formatThousands } from "../lib/parsers";
+import type { RecepWeekRow, WeeklyStrings } from "../types";
+import {
+	cleanPastedValue,
+	formatThousands,
+} from "@/app/kpis/entrada-dados/lib/parsers";
 
 type Props = {
 	weekHeaders: string[];
@@ -31,9 +34,9 @@ const MARKETING_ROWS = [
 ] as const;
 
 const FUNNEL_ROWS = [
-	["Agendadas", "sch"],
-	["Presenças", "att"],
-	["Fechamentos", "clo"],
+	["Agendadas", "scheduledWeekly"],
+	["Presenças", "attendanceWeekly"],
+	["Fechamentos", "closingsWeekly"],
 ] as const;
 
 export function WeeklyDataGrid({
@@ -44,7 +47,7 @@ export function WeeklyDataGrid({
 	onMatrixChange,
 	onRecepCellChange,
 }: Props) {
-	const nWeeks = weekHeaders.length;
+	const weekCount = weekHeaders.length;
 
 	return (
 		<div className="overflow-x-auto">
@@ -54,44 +57,44 @@ export function WeeklyDataGrid({
 						<th className="text-left text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-2.5 min-w-36">
 							Métrica
 						</th>
-						{weekHeaders.map((h) => (
+						{weekHeaders.map((header) => (
 							<th
-								key={h}
+								key={header}
 								className="text-center text-xs font-semibold text-slate-500 bg-slate-50 border border-slate-200 px-3 py-2.5"
 							>
-								{h}
+								{header}
 							</th>
 						))}
 					</tr>
 				</thead>
 				<tbody>
-					{MARKETING_ROWS.map(([label, key], ri) => {
-						const isFreq = key === "frequency";
+					{MARKETING_ROWS.map(([label, key], rowIndex) => {
+						const isFrequency = key === "frequency";
 						return (
 							<tr key={key} className="hover:bg-slate-50/50">
 								<td className="text-xs font-medium text-slate-600 border border-slate-200 px-3 py-1.5 bg-slate-50/70">
 									{label}
 								</td>
-								{weeklyStr[key].map((cell, wi) => (
+								{weeklyStr[key].map((cell, weekIdx) => (
 									<td
-										key={`${key}-${weekHeaders[wi] ?? wi}`}
+										key={`${key}-${weekHeaders[weekIdx] ?? weekIdx}`}
 										className="border border-slate-200 px-1.5 py-1.5"
 									>
 										<Input
-											value={isFreq ? cell : formatThousands(cell)}
+											value={isFrequency ? cell : formatThousands(cell)}
 											onPaste={(e) => {
 												const pastedText = e.clipboardData.getData("text");
 												const cleanedValue = cleanPastedValue(
 													pastedText,
-													isFreq,
+													isFrequency,
 												);
 												if (cleanedValue !== pastedText) {
 													e.preventDefault();
-													onMatrixChange(key, wi, cleanedValue);
+													onMatrixChange(key, weekIdx, cleanedValue);
 												}
 											}}
-											onChange={(e) => onMatrixChange(key, wi, e.target.value)}
-											tabIndex={wi * gridTotalRows + ri + 1}
+											onChange={(e) => onMatrixChange(key, weekIdx, e.target.value)}
+											tabIndex={weekIdx * gridTotalRows + rowIndex + 1}
 											className="w-20 h-8 text-right text-sm bg-white border-slate-200"
 										/>
 									</td>
@@ -101,20 +104,20 @@ export function WeeklyDataGrid({
 					})}
 					<tr>
 						<td
-							colSpan={nWeeks + 1}
+							colSpan={weekCount + 1}
 							className="text-xs font-semibold uppercase tracking-wide text-slate-400 bg-slate-100 border border-slate-200 px-3 py-2"
 						>
 							Funil semanal
 						</td>
 					</tr>
-					{FUNNEL_ROWS.map(([label, key], ri) => (
+					{FUNNEL_ROWS.map(([label, key], rowIndex) => (
 						<tr key={key} className="hover:bg-slate-50/50">
 							<td className="text-xs font-medium text-slate-600 border border-slate-200 px-3 py-1.5 bg-slate-50/70">
 								{label}
 							</td>
-							{weeklyStr[key].map((cell, wi) => (
+							{weeklyStr[key].map((cell, weekIdx) => (
 								<td
-									key={`${key}-${weekHeaders[wi] ?? wi}`}
+									key={`${key}-${weekHeaders[weekIdx] ?? weekIdx}`}
 									className="border border-slate-200 px-1.5 py-1.5"
 								>
 									<Input
@@ -124,11 +127,11 @@ export function WeeklyDataGrid({
 											const cleanedValue = cleanPastedValue(pastedText, false);
 											if (cleanedValue !== pastedText) {
 												e.preventDefault();
-												onMatrixChange(key, wi, cleanedValue);
+												onMatrixChange(key, weekIdx, cleanedValue);
 											}
 										}}
-										onChange={(e) => onMatrixChange(key, wi, e.target.value)}
-										tabIndex={wi * gridTotalRows + (ri + 4) + 1}
+										onChange={(e) => onMatrixChange(key, weekIdx, e.target.value)}
+										tabIndex={weekIdx * gridTotalRows + (rowIndex + 4) + 1}
 										className="w-20 h-8 text-right text-sm bg-white border-slate-200"
 									/>
 								</td>
@@ -137,17 +140,17 @@ export function WeeklyDataGrid({
 					))}
 					<tr>
 						<td
-							colSpan={nWeeks + 1}
+							colSpan={weekCount + 1}
 							className="text-xs font-semibold uppercase tracking-wide text-slate-400 bg-slate-100 border border-slate-200 px-3 py-2"
 						>
 							Vendas — por recepcionista
 						</td>
 					</tr>
-					{recepWeekRows.map((row, ri) => (
+					{recepWeekRows.map((row, rowIndex) => (
 						<React.Fragment key={row.id}>
 							<tr>
 								<td
-									colSpan={nWeeks + 1}
+									colSpan={weekCount + 1}
 									className="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-50/80 border border-slate-200 px-3 py-1.5"
 								>
 									{row.name}
@@ -157,33 +160,25 @@ export function WeeklyDataGrid({
 								<td className="border border-slate-200 px-3 py-1.5 bg-white text-[10px] font-medium text-slate-400 uppercase tracking-tight min-w-36">
 									Cadastrados
 								</td>
-								{row.leads.map((cell, wi) => (
+								{row.leads.map((cell, weekIdx) => (
 									<td
-										key={`${row.id}-leads-w${wi}`}
+										key={`${row.id}-leads-w${weekIdx}`}
 										className="border border-slate-200 px-1.5 py-1.5"
 									>
 										<Input
 											value={formatThousands(cell)}
 											onPaste={(e) => {
 												const pastedText = e.clipboardData.getData("text");
-												const cleanedValue = cleanPastedValue(
-													pastedText,
-													false,
-												);
+												const cleanedValue = cleanPastedValue(pastedText, false);
 												if (cleanedValue !== pastedText) {
 													e.preventDefault();
-													onRecepCellChange(
-														row.id,
-														"leads",
-														wi,
-														cleanedValue,
-													);
+													onRecepCellChange(row.id, "leads", weekIdx, cleanedValue);
 												}
 											}}
 											onChange={(e) =>
-												onRecepCellChange(row.id, "leads", wi, e.target.value)
+												onRecepCellChange(row.id, "leads", weekIdx, e.target.value)
 											}
-											tabIndex={wi * gridTotalRows + (ri * 2 + 7) + 1}
+											tabIndex={weekIdx * gridTotalRows + (rowIndex * 2 + 7) + 1}
 											className="w-20 h-8 text-right text-sm bg-white border-slate-200"
 										/>
 									</td>
@@ -193,33 +188,25 @@ export function WeeklyDataGrid({
 								<td className="border border-slate-200 px-3 py-1.5 bg-white text-[10px] font-medium text-slate-400 uppercase tracking-tight min-w-36">
 									Convertidos
 								</td>
-								{row.sales.map((cell, wi) => (
+								{row.sales.map((cell, weekIdx) => (
 									<td
-										key={`${row.id}-sales-w${wi}`}
+										key={`${row.id}-sales-w${weekIdx}`}
 										className="border border-slate-200 px-1.5 py-1.5"
 									>
 										<Input
 											value={formatThousands(cell)}
 											onPaste={(e) => {
 												const pastedText = e.clipboardData.getData("text");
-												const cleanedValue = cleanPastedValue(
-													pastedText,
-													false,
-												);
+												const cleanedValue = cleanPastedValue(pastedText, false);
 												if (cleanedValue !== pastedText) {
 													e.preventDefault();
-													onRecepCellChange(
-														row.id,
-														"sales",
-														wi,
-														cleanedValue,
-													);
+													onRecepCellChange(row.id, "sales", weekIdx, cleanedValue);
 												}
 											}}
 											onChange={(e) =>
-												onRecepCellChange(row.id, "sales", wi, e.target.value)
+												onRecepCellChange(row.id, "sales", weekIdx, e.target.value)
 											}
-											tabIndex={wi * gridTotalRows + (ri * 2 + 8) + 1}
+											tabIndex={weekIdx * gridTotalRows + (rowIndex * 2 + 8) + 1}
 											className="w-20 h-8 text-right text-sm bg-white border-slate-200"
 										/>
 									</td>
@@ -229,7 +216,7 @@ export function WeeklyDataGrid({
 					))}
 					<tr>
 						<td
-							colSpan={nWeeks + 1}
+							colSpan={weekCount + 1}
 							className="text-xs font-semibold uppercase tracking-wide text-slate-400 bg-slate-100 border border-slate-200 px-3 py-2"
 						>
 							Vendas (todos canais)
@@ -239,9 +226,9 @@ export function WeeklyDataGrid({
 						<td className="text-[10px] font-medium text-slate-400 border border-slate-200 px-3 py-1.5 bg-white uppercase tracking-tight">
 							Total Cadastrados
 						</td>
-						{weeklyStr.leadsTot.map((cell, wi) => (
+						{weeklyStr.totalLeadsWeekly.map((cell, weekIdx) => (
 							<td
-								key={`leadsTot-${weekHeaders[wi] ?? wi}`}
+								key={`totalLeadsWeekly-${weekHeaders[weekIdx] ?? weekIdx}`}
 								className="border border-slate-200 px-1.5 py-1.5"
 							>
 								<Input
@@ -251,14 +238,14 @@ export function WeeklyDataGrid({
 										const cleanedValue = cleanPastedValue(pastedText, false);
 										if (cleanedValue !== pastedText) {
 											e.preventDefault();
-											onMatrixChange("leadsTot", wi, cleanedValue);
+											onMatrixChange("totalLeadsWeekly", weekIdx, cleanedValue);
 										}
 									}}
 									onChange={(e) =>
-										onMatrixChange("leadsTot", wi, e.target.value)
+										onMatrixChange("totalLeadsWeekly", weekIdx, e.target.value)
 									}
 									tabIndex={
-										wi * gridTotalRows + (7 + recepWeekRows.length * 2) + 1
+										weekIdx * gridTotalRows + (7 + recepWeekRows.length * 2) + 1
 									}
 									className="w-20 h-8 text-right text-sm bg-white border-slate-200"
 								/>
@@ -269,9 +256,9 @@ export function WeeklyDataGrid({
 						<td className="text-[10px] font-medium text-slate-400 border border-slate-200 px-3 py-1.5 bg-white uppercase tracking-tight">
 							Total Convertidos
 						</td>
-						{weeklyStr.salesTot.map((cell, wi) => (
+						{weeklyStr.totalSalesWeekly.map((cell, weekIdx) => (
 							<td
-								key={`salesTot-${weekHeaders[wi] ?? wi}`}
+								key={`totalSalesWeekly-${weekHeaders[weekIdx] ?? weekIdx}`}
 								className="border border-slate-200 px-1.5 py-1.5"
 							>
 								<Input
@@ -281,14 +268,16 @@ export function WeeklyDataGrid({
 										const cleanedValue = cleanPastedValue(pastedText, false);
 										if (cleanedValue !== pastedText) {
 											e.preventDefault();
-											onMatrixChange("salesTot", wi, cleanedValue);
+											onMatrixChange("totalSalesWeekly", weekIdx, cleanedValue);
 										}
 									}}
 									onChange={(e) =>
-										onMatrixChange("salesTot", wi, e.target.value)
+										onMatrixChange("totalSalesWeekly", weekIdx, e.target.value)
 									}
 									tabIndex={
-										wi * gridTotalRows + (7 + recepWeekRows.length * 2 + 1) + 1
+										weekIdx * gridTotalRows +
+										(7 + recepWeekRows.length * 2 + 1) +
+										1
 									}
 									className="w-20 h-8 text-right text-sm bg-white border-slate-200"
 								/>

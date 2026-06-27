@@ -4,14 +4,14 @@ import type { Consultora } from "@/app/kpis/configuracoes/actions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { GymOption } from "@/lib/data/entrada-load";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
+import { SalesMarketingTab } from "@/features/sales-marketing/forms/components/SalesMarketingTab";
+import { useSalesMarketingWeeklyFormSection } from "@/features/sales-marketing/forms/hooks/useSalesMarketingWeeklyFormSection";
 import { MonthlyTab } from "./_components/MonthlyTab";
 import { PageHeader } from "./_components/PageHeader";
-import { SalesMarketingTab } from "./_components/SalesMarketingTab";
 import { StatusAlert } from "./_components/StatusAlert";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useFormLockState } from "./hooks/useFormLockState";
 import { useKpiForm } from "./hooks/useKpiForm";
-import { useSmDashboard } from "./hooks/useSmDashboard";
 import { useStatusMessage } from "./hooks/useStatusMessage";
 import { parsePtBrNumber } from "./lib/parsers";
 
@@ -46,7 +46,7 @@ export function EntradaDadosForm({
 		onErr: status.showErr,
 	});
 
-	const sm = useSmDashboard({
+	const sm = useSalesMarketingWeeklyFormSection({
 		initialSmPayload,
 		initialConsultoras,
 		gymSlug: initialGymSlug,

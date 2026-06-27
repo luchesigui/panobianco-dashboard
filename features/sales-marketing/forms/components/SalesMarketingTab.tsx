@@ -7,13 +7,13 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import type { UseSmDashboard } from "../hooks/useSmDashboard";
-import { SaveButton } from "./SaveButton";
+import { FileUploadArea } from "@/app/kpis/entrada-dados/_components/FileUploadArea";
+import { SaveButton } from "@/app/kpis/entrada-dados/_components/SaveButton";
+import type { UseSalesMarketingWeeklyFormSection } from "../hooks/useSalesMarketingWeeklyFormSection";
 import { WeeklyDataGrid } from "./WeeklyDataGrid";
-import { FileUploadArea } from "./FileUploadArea";
 
 type Props = {
-	sm: UseSmDashboard;
+	sm: UseSalesMarketingWeeklyFormSection;
 	onUploadFile?: (file: File) => void;
 	uploading?: boolean;
 };

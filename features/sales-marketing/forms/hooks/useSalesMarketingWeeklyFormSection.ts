@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Consultora } from "@/app/kpis/configuracoes/actions";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
-import { saveSmDashboardAction } from "../actions";
+import { saveSmDashboardAction } from "../actions/save-sm-dashboard";
 import {
 	assembleSmPayload,
 	buildWeeklyStrings,
@@ -12,13 +12,13 @@ import {
 	funnelToState,
 	recepMonthFromConsultoras,
 	recepRowsFromConsultoras,
-} from "../lib/payloads";
+} from "../payloads";
 import type {
 	FunnelState,
 	RecepMonthRow,
 	RecepWeekRow,
 	WeeklyStrings,
-} from "../lib/types";
+} from "../types";
 
 type Args = {
 	initialSmPayload: SalesMarketingDashboardPayload;
@@ -35,7 +35,7 @@ type Args = {
 	onErr: (text: string) => void;
 };
 
-export function useSmDashboard({
+export function useSalesMarketingWeeklyFormSection({
 	initialSmPayload,
 	initialConsultoras,
 	gymSlug,
@@ -53,11 +53,11 @@ export function useSmDashboard({
 	const [funnel, setFunnel] = useState<FunnelState>(() =>
 		funnelToState(initialSmPayload),
 	);
-	const [comp] = useState(() => compFromPayload(initialSmPayload));
+	const [salesComposition] = useState(() => compFromPayload(initialSmPayload));
 	const [recepMonth, setRecepMonth] = useState<RecepMonthRow[]>(() =>
 		recepMonthFromConsultoras(initialConsultoras, initialSmPayload),
 	);
-	const [recLabel] = useState(
+	const [receptionistsPeriodLabel] = useState(
 		() => initialSmPayload.receptionistsPeriodLabel ?? "",
 	);
 	const [weeklyStr, setWeeklyStr] = useState<WeeklyStrings>(() =>
@@ -68,7 +68,7 @@ export function useSmDashboard({
 	);
 
 	const weekHeaders = smPayload.weekly.weekHeaders;
-	const nWeeks = weekHeaders.length;
+	const weekCount = weekHeaders.length;
 	const smGridTotalRows = 9 + recepWeekRows.length * 2;
 
 	const setFunnelField = useCallback(
@@ -106,11 +106,11 @@ export function useSmDashboard({
 			value: string,
 		) => {
 			setRecepWeekRows((prev) =>
-				prev.map((rw) => {
-					if (rw.id !== rowId) return rw;
-					const wk = [...rw[type]];
-					wk[weekIdx] = value;
-					return { ...rw, [type]: wk };
+				prev.map((row) => {
+					if (row.id !== rowId) return row;
+					const week = [...row[type]];
+					week[weekIdx] = value;
+					return { ...row, [type]: week };
 				}),
 			);
 		},
@@ -118,16 +118,28 @@ export function useSmDashboard({
 	);
 
 	const applyConversion = useCallback((json: Record<string, unknown>) => {
-		const byRecep = Array.isArray(json.byReceptionist)
+		const byReceptionist = Array.isArray(json.byReceptionist)
 			? (json.byReceptionist as { name: string; leads: number; sales: number }[])
 			: [];
 
-		setRecepMonth((prev) => {
-			return prev.map((row) => {
-				const rowFirstName = row.name.trim().split(/\s+/)[0]?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
-				const matched = byRecep.find((r) => {
-					const rFirstName = r.name.trim().split(/\s+/)[0]?.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || "";
-					return rFirstName === rowFirstName;
+		setRecepMonth((prev) =>
+			prev.map((row) => {
+				const rowFirstName =
+					row.name
+						.trim()
+						.split(/\s+/)[0]
+						?.toLowerCase()
+						.normalize("NFD")
+						.replace(/[̀-ͯ]/g, "") ?? "";
+				const matched = byReceptionist.find((receptionist) => {
+					const receptionistFirstName =
+						receptionist.name
+							.trim()
+							.split(/\s+/)[0]
+							?.toLowerCase()
+							.normalize("NFD")
+							.replace(/[̀-ͯ]/g, "") ?? "";
+					return receptionistFirstName === rowFirstName;
 				});
 				if (matched) {
 					return {
@@ -137,8 +149,8 @@ export function useSmDashboard({
 					};
 				}
 				return row;
-			});
-		});
+			}),
+		);
 
 		if (typeof json.totalSales === "number") {
 			setFunnel((prev) => ({
@@ -150,91 +162,90 @@ export function useSmDashboard({
 
 	const applyWeeklyConversion = useCallback(
 		(json: Record<string, unknown>) => {
-			const byRecep = Array.isArray(json.byReceptionist)
-				? (json.byReceptionist as { name: string; leads: number; sales: number }[])
+			const byReceptionist = Array.isArray(json.byReceptionist)
+				? (json.byReceptionist as {
+						name: string;
+						leads: number;
+						sales: number;
+					}[])
 				: [];
 
-			let targetWeekIdx = 0;
-			const n = weekHeaders.length;
-			for (let w = 0; w < n; w++) {
-				const hasData = recepWeekRows.some((r) => {
-					const l = r.leads[w];
-					const s = r.sales[w];
+			let targetWeekIndex = 0;
+			for (let weekIdx = 0; weekIdx < weekCount; weekIdx++) {
+				const hasData = recepWeekRows.some((row) => {
+					const leads = row.leads[weekIdx];
+					const sales = row.sales[weekIdx];
 					return (
-						(l && l !== "0" && l.trim() !== "") ||
-						(s && s !== "0" && s.trim() !== "")
+						(leads && leads !== "0" && leads.trim() !== "") ||
+						(sales && sales !== "0" && sales.trim() !== "")
 					);
 				});
 				if (!hasData) {
-					targetWeekIdx = w;
+					targetWeekIndex = weekIdx;
 					break;
 				}
 			}
 
-			setRecepWeekRows((prev) => {
-				return prev.map((row) => {
+			setRecepWeekRows((prev) =>
+				prev.map((row) => {
 					const rowFirstName =
 						row.name
 							.trim()
 							.split(/\s+/)[0]
 							?.toLowerCase()
 							.normalize("NFD")
-							.replace(/[\u0300-\u036f]/g, "") || "";
-					const matched = byRecep.find((r) => {
-						const rFirstName =
-							r.name
+							.replace(/[̀-ͯ]/g, "") ?? "";
+					const matched = byReceptionist.find((receptionist) => {
+						const receptionistFirstName =
+							receptionist.name
 								.trim()
 								.split(/\s+/)[0]
 								?.toLowerCase()
 								.normalize("NFD")
-								.replace(/[\u0300-\u036f]/g, "") || "";
-						return rFirstName === rowFirstName;
+								.replace(/[̀-ͯ]/g, "") ?? "";
+						return receptionistFirstName === rowFirstName;
 					});
 					if (matched) {
 						const newLeads = [...row.leads];
-						newLeads[targetWeekIdx] = String(matched.leads);
+						newLeads[targetWeekIndex] = String(matched.leads);
 						const newSales = [...row.sales];
-						newSales[targetWeekIdx] = String(matched.sales);
-						return {
-							...row,
-							leads: newLeads,
-							sales: newSales,
-						};
+						newSales[targetWeekIndex] = String(matched.sales);
+						return { ...row, leads: newLeads, sales: newSales };
 					}
 					return row;
-				});
-			});
+				}),
+			);
 
 			setWeeklyStr((prev) => {
-				const newLeadsTot = [...prev.leadsTot];
+				const newTotalLeadsWeekly = [...prev.totalLeadsWeekly];
 				if (typeof json.totalLeads === "number") {
-					newLeadsTot[targetWeekIdx] = String(json.totalLeads);
+					newTotalLeadsWeekly[targetWeekIndex] = String(json.totalLeads);
 				}
-				const newSalesTot = [...prev.salesTot];
+				const newTotalSalesWeekly = [...prev.totalSalesWeekly];
 				if (typeof json.totalSales === "number") {
-					newSalesTot[targetWeekIdx] = String(json.totalSales);
+					newTotalSalesWeekly[targetWeekIndex] = String(json.totalSales);
 				}
-				const newClo = [...prev.clo];
+				const newClosingsWeekly = [...prev.closingsWeekly];
 				if (
-					!newClo[targetWeekIdx] ||
-					newClo[targetWeekIdx] === "0" ||
-					newClo[targetWeekIdx].trim() === ""
+					!newClosingsWeekly[targetWeekIndex] ||
+					newClosingsWeekly[targetWeekIndex] === "0" ||
+					newClosingsWeekly[targetWeekIndex].trim() === ""
 				) {
 					if (typeof json.totalSales === "number") {
-						newClo[targetWeekIdx] = String(json.totalSales);
+						newClosingsWeekly[targetWeekIndex] = String(json.totalSales);
 					}
 				}
 				return {
 					...prev,
-					leadsTot: newLeadsTot,
-					salesTot: newSalesTot,
-					clo: newClo,
+					totalLeadsWeekly: newTotalLeadsWeekly,
+					totalSalesWeekly: newTotalSalesWeekly,
+					closingsWeekly: newClosingsWeekly,
 				};
 			});
 
-			return targetWeekIdx;
+			return targetWeekIndex;
 		},
-		[weekHeaders, recepWeekRows],
+		[weekCount, recepWeekRows],
 	);
 
 	const handleSaveSm = useCallback(async () => {
@@ -247,21 +258,21 @@ export function useSmDashboard({
 				weeklyStr,
 				recepWeekRows,
 				recepMonth,
-				recLabel,
-				comp,
+				receptionistsPeriodLabel,
+				salesComposition,
 				monthlyMarketing,
 			);
-			const res = await saveSmDashboardAction({
+			const result = await saveSmDashboardAction({
 				gymSlug,
 				periodId,
 				payload: assembled,
 			});
-			if (res.ok) {
+			if (result.ok) {
 				onOk("Payload vendas/marketing gravado.");
 				router.refresh();
 				return true;
 			}
-			onErr(res.error);
+			onErr(result.error);
 			return false;
 		} finally {
 			setSaving(false);
@@ -273,8 +284,8 @@ export function useSmDashboard({
 		weeklyStr,
 		recepWeekRows,
 		recepMonth,
-		recLabel,
-		comp,
+		receptionistsPeriodLabel,
+		salesComposition,
 		gymSlug,
 		periodId,
 		onOk,
@@ -292,7 +303,7 @@ export function useSmDashboard({
 		recepWeekRows,
 		updateRecepWeekCell,
 		weekHeaders,
-		nWeeks,
+		weekCount,
 		smGridTotalRows,
 		saving,
 		handleSaveSm,
@@ -301,4 +312,6 @@ export function useSmDashboard({
 	};
 }
 
-export type UseSmDashboard = ReturnType<typeof useSmDashboard>;
+export type UseSalesMarketingWeeklyFormSection = ReturnType<
+	typeof useSalesMarketingWeeklyFormSection
+>;
