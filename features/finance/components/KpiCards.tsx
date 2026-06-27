@@ -5,9 +5,10 @@ import {
 	formatCurrencySignedK,
 	formatValue,
 } from "@/lib/kpis/format";
+import { KpiCard } from "@/components/kpis/KpiCard";
 import { DeltaPill } from "@/components/kpis/DeltaPill";
 import styles from "@/app/kpis/page.module.css";
-import type { FinanceKpiCard, FinanceKpis } from "../types";
+import type { FinanceKpis } from "../types";
 
 type Props = {
 	kpis: FinanceKpis;
@@ -27,28 +28,37 @@ type RevenueWithPercentageOfTotalCardProps = {
 	vsLabel: string | undefined;
 };
 
-function RevenueWithPercentageOfTotalCard({ label, barKey, kpi, vsLabel }: RevenueWithPercentageOfTotalCardProps) {
+function RevenueWithPercentageOfTotalCard({
+	label,
+	barKey,
+	kpi,
+	vsLabel,
+}: RevenueWithPercentageOfTotalCardProps) {
 	return (
-		<article className={styles.kpiCard}>
-			<span className={styles.kpiLabel}>{label}</span>
-			<p className={styles.kpiValue}>
+		<KpiCard accentColor={barColor(barKey)}>
+			<KpiCard.Title>{label}</KpiCard.Title>
+			<KpiCard.MainNumber>
 				{kpi.value != null ? formatCompactBrl(kpi.value) : "N/A"}
-			</p>
+			</KpiCard.MainNumber>
 			{kpi.pctOfTotal != null && (
-				<p className={styles.kpiMetaLine}>
+				<KpiCard.Subdescription>
 					{kpi.pctOfTotal.toFixed(1).replace(".", ",")}% do total
-				</p>
+				</KpiCard.Subdescription>
 			)}
-			<DeltaPill deltaPct={kpi.deltaPct} overrideDeltaPct={kpi.overrideDeltaPct} vsLabel={vsLabel} integerPct />
+			<DeltaPill
+				deltaPct={kpi.deltaPct}
+				overrideDeltaPct={kpi.overrideDeltaPct}
+				vsLabel={vsLabel}
+				integerPct
+			/>
 			{kpi.breakdown && (
-				<p className={styles.kpiDetailLine}>
+				<KpiCard.Subdescription tone="detail">
 					Recorrente {formatCompactBrlOneDecimal(kpi.breakdown.recorrente)}{" "}
-					· Anual {formatCompactBrlOneDecimal(kpi.breakdown.anual)} ·
-					Mensal {formatCompactBrlOneDecimal(kpi.breakdown.mensal)}
-				</p>
+					· Anual {formatCompactBrlOneDecimal(kpi.breakdown.anual)} · Mensal{" "}
+					{formatCompactBrlOneDecimal(kpi.breakdown.mensal)}
+				</KpiCard.Subdescription>
 			)}
-			<div className={styles.kpiBar} style={{ background: barColor(barKey) }} />
-		</article>
+		</KpiCard>
 	);
 }
 
@@ -62,21 +72,28 @@ type AccumulatedCardProps = {
 	aportesLine?: string | null;
 };
 
-function AccumulatedCard({ label, barKey, displayValue, subline, deltaPill, footnote, aportesLine }: AccumulatedCardProps) {
+function AccumulatedCard({
+	label,
+	barKey,
+	displayValue,
+	subline,
+	deltaPill,
+	footnote,
+	aportesLine,
+}: AccumulatedCardProps) {
 	return (
-		<article className={styles.kpiCard}>
-			<span className={styles.kpiLabel}>{label}</span>
-			<p className={styles.kpiValue}>{displayValue}</p>
-			{subline && <p className={styles.kpiMetaLine}>{subline}</p>}
-			{deltaPill && (
-				<div className={styles.kpiSub}>
-					<span className={`${styles.kpiDelta} ${styles.deltaUp}`}>{deltaPill}</span>
-				</div>
+		<KpiCard accentColor={barColor(barKey)}>
+			<KpiCard.Title>{label}</KpiCard.Title>
+			<KpiCard.MainNumber>{displayValue}</KpiCard.MainNumber>
+			{subline && <KpiCard.Subdescription>{subline}</KpiCard.Subdescription>}
+			{deltaPill && <KpiCard.Pill tone="good" label={deltaPill} />}
+			{footnote && (
+				<KpiCard.Subdescription tone="detail">{footnote}</KpiCard.Subdescription>
 			)}
-			{footnote && <p className={styles.kpiDetailLine}>{footnote}</p>}
-			{aportesLine && <p className={styles.kpiDetailLine}>{aportesLine}</p>}
-			<div className={styles.kpiBar} style={{ background: barColor(barKey) }} />
-		</article>
+			{aportesLine && (
+				<KpiCard.Subdescription tone="detail">{aportesLine}</KpiCard.Subdescription>
+			)}
+		</KpiCard>
 	);
 }
 
@@ -109,81 +126,102 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 
 	return (
 		<div className={styles.kpiGrid}>
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Receita total</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("revenue_total")}>
+				<KpiCard.Title>Receita total</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{revenueTotal.value != null ? formatCompactBrl(revenueTotal.value) : "N/A"}
-				</p>
-				<DeltaPill deltaPct={revenueTotal.deltaPct} overrideDeltaPct={revenueTotal.overrideDeltaPct} vsLabel={vsLabel} integerPct />
-				<div className={styles.kpiBar} style={{ background: barColor("revenue_total") }} />
-			</article>
+				</KpiCard.MainNumber>
+				<DeltaPill
+					deltaPct={revenueTotal.deltaPct}
+					overrideDeltaPct={revenueTotal.overrideDeltaPct}
+					vsLabel={vsLabel}
+					integerPct
+				/>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Despesa total</span>
-				<p className={styles.kpiValue}>
-					{expensesTotal.value != null ? formatCompactBrl(expensesTotal.value) : "N/A"}
-				</p>
-				<div className={styles.kpiSub}>
-					<DeltaPill deltaPct={expensesTotal.deltaPct} overrideDeltaPct={expensesTotal.overrideDeltaPct} vsLabel={vsLabel} invert integerPct />
+			<KpiCard accentColor={barColor("expenses_total")}>
+				<KpiCard.Title>Despesa total</KpiCard.Title>
+				<KpiCard.MainNumber>
+					{expensesTotal.value != null
+						? formatCompactBrl(expensesTotal.value)
+						: "N/A"}
+				</KpiCard.MainNumber>
+				<KpiCard.PillRow>
+					<DeltaPill
+						deltaPct={expensesTotal.deltaPct}
+						overrideDeltaPct={expensesTotal.overrideDeltaPct}
+						vsLabel={vsLabel}
+						invert
+						integerPct
+					/>
 					{expensesTotal.deltaAbsLine && (
-						<span className={styles.kpiMetaMuted}> {expensesTotal.deltaAbsLine}</span>
+						<KpiCard.MutedText>{expensesTotal.deltaAbsLine}</KpiCard.MutedText>
 					)}
-				</div>
-				<div className={styles.kpiBar} style={{ background: barColor("expenses_total") }} />
-			</article>
+				</KpiCard.PillRow>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Resultado operacional</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("operational_result")}>
+				<KpiCard.Title>Resultado operacional</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{operationalResult.value != null
 						? formatCurrencySignedK(operationalResult.value)
 						: "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{operationalResult.marginPercent != null && (
-					<p className={styles.kpiMetaLine}>
+					<KpiCard.Subdescription>
 						margem {operationalResult.marginPercent.toFixed(1).replace(".", ",")}%
-					</p>
+					</KpiCard.Subdescription>
 				)}
-				<DeltaPill deltaPct={operationalResult.deltaPct} overrideDeltaPct={operationalResult.overrideDeltaPct} vsLabel={vsLabel} integerPct />
-				<div className={styles.kpiBar} style={{ background: barColor("operational_result") }} />
-			</article>
+				<DeltaPill
+					deltaPct={operationalResult.deltaPct}
+					overrideDeltaPct={operationalResult.overrideDeltaPct}
+					vsLabel={vsLabel}
+					integerPct
+				/>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Imposto NF emitido</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("invoice_tax_nf")}>
+				<KpiCard.Title>Imposto NF emitido</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{invoiceTaxNf.value != null
 						? invoiceTaxNf.isApproximate
 							? "~R$ 0"
 							: formatValue(invoiceTaxNf.value, "currency")
 						: "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{invoiceTaxNf.pctRevenueLine && (
-					<p className={styles.kpiMetaLine}>{invoiceTaxNf.pctRevenueLine}</p>
+					<KpiCard.Subdescription>{invoiceTaxNf.pctRevenueLine}</KpiCard.Subdescription>
 				)}
 				{invoiceTaxNf.refLine && (
-					<p className={styles.kpiMetaDanger}>{invoiceTaxNf.refLine}</p>
+					<KpiCard.Subdescription tone="danger">
+						{invoiceTaxNf.refLine}
+					</KpiCard.Subdescription>
 				)}
 				{invoiceTaxNf.footnote && (
-					<p className={styles.kpiDetailLine}>{invoiceTaxNf.footnote}</p>
+					<KpiCard.Subdescription tone="detail">
+						{invoiceTaxNf.footnote}
+					</KpiCard.Subdescription>
 				)}
-				<div className={styles.kpiBar} style={{ background: barColor("invoice_tax_nf") }} />
-			</article>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Resultado se 100% NF</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("operational_result_100pct_nf")}>
+				<KpiCard.Title>Resultado se 100% NF</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{operationalResult100PctNf.value != null
 						? formatCurrencySignedK(operationalResult100PctNf.value)
 						: "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{operationalResult100PctNf.marginLine && (
-					<p className={styles.kpiMetaLine}>{operationalResult100PctNf.marginLine}</p>
+					<KpiCard.Subdescription>
+						{operationalResult100PctNf.marginLine}
+					</KpiCard.Subdescription>
 				)}
 				{operationalResult100PctNf.taxTheoryLine && (
-					<p className={styles.kpiDetailLine}>{operationalResult100PctNf.taxTheoryLine}</p>
+					<KpiCard.Subdescription tone="detail">
+						{operationalResult100PctNf.taxTheoryLine}
+					</KpiCard.Subdescription>
 				)}
-				<div className={styles.kpiBar} style={{ background: barColor("operational_result_100pct_nf") }} />
-			</article>
+			</KpiCard>
 
 			<AccumulatedCard
 				label="Acumulado sem aportes"
@@ -224,25 +262,20 @@ export function KpiCards({ kpis, vsLabel }: Props) {
 				vsLabel={vsLabel}
 			/>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Royalties (validação)</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor={barColor("royalties_validation")}>
+				<KpiCard.Title>Royalties (validação)</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{royaltiesValidation.value != null
 						? formatCompactBrlOneDecimal(royaltiesValidation.value)
 						: "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{royaltiesValidation.pctLine && (
-					<p className={styles.kpiMetaLine}>{royaltiesValidation.pctLine}</p>
+					<KpiCard.Subdescription>{royaltiesValidation.pctLine}</KpiCard.Subdescription>
 				)}
 				{royaltiesValidation.shortfallPill && (
-					<div className={styles.kpiSub}>
-						<span className={`${styles.kpiDelta} ${styles.deltaDown}`}>
-							{royaltiesValidation.shortfallPill}
-						</span>
-					</div>
+					<KpiCard.Pill tone="bad" label={royaltiesValidation.shortfallPill} />
 				)}
-				<div className={styles.kpiBar} style={{ background: barColor("royalties_validation") }} />
-			</article>
+			</KpiCard>
 		</div>
 	);
 }

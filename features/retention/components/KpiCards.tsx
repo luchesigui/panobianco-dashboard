@@ -1,5 +1,5 @@
-import { clsx } from "clsx";
-import { formatCompactBrlOneDecimal, formatDeltaPill } from "@/lib/kpis/format";
+import { formatCompactBrlOneDecimal } from "@/lib/kpis/format";
+import { KpiCard } from "@/components/kpis/KpiCard";
 import styles from "@/app/kpis/page.module.css";
 import type { RetentionKpis } from "../types";
 
@@ -12,108 +12,83 @@ export function KpiCards({ kpis, previousPeriodLabel }: Props) {
 	const { baseStudents, openDefault, recoveryRate, renewals, exits } = kpis;
 	const vsLabel = previousPeriodLabel;
 
-	const exitPct = exits.deltaPct;
-	const exitPill =
-		exitPct != null
-			? {
-					label: formatDeltaPill(exitPct, false),
-					cls: clsx(styles.kpiDelta, {
-						[styles.deltaUp]: exitPct < 0,
-						[styles.deltaDown]: exitPct > 0,
-						[styles.deltaNeutral]: exitPct === 0,
-					}),
-					tail: vsLabel ? ` vs ${vsLabel}` : " vs período anterior",
-				}
-			: null;
-
 	return (
 		<div className={renewals !== null ? styles.retentionGrid : styles.kpiGrid}>
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Base de alunos</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor="#0f6e56">
+				<KpiCard.Title>Base de alunos</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{baseStudents.value != null
 						? `${new Intl.NumberFormat("pt-BR").format(baseStudents.value)}${baseStudents.isPartial ? "*" : ""}`
 						: "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{baseStudents.pendingNote && (
-					<p className={styles.kpiMetaLine}>{`*${baseStudents.pendingNote}`}</p>
+					<KpiCard.Subdescription>{`*${baseStudents.pendingNote}`}</KpiCard.Subdescription>
 				)}
-				<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
-			</article>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Inadimpl. em aberto</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor="#a32d2d">
+				<KpiCard.Title>Inadimpl. em aberto</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{openDefault.count != null
 						? new Intl.NumberFormat("pt-BR").format(openDefault.count)
 						: "N/A"}
-				</p>
+				</KpiCard.MainNumber>
 				{openDefault.value != null && (
-					<p className={styles.kpiMetaLine}>
+					<KpiCard.Subdescription>
 						{formatCompactBrlOneDecimal(openDefault.value)} em aberto
-					</p>
+					</KpiCard.Subdescription>
 				)}
-				<div className={styles.kpiBar} style={{ background: "#a32d2d" }} />
-			</article>
+			</KpiCard>
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Taxa recuperação</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor="#0f6e56">
+				<KpiCard.Title>Taxa recuperação</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{recoveryRate.pct != null ? `${recoveryRate.pct}%` : "N/A"}
-				</p>
-				<p className={styles.kpiMetaLine}>
+				</KpiCard.MainNumber>
+				<KpiCard.Subdescription>
 					{recoveryRate.recovered} de {recoveryRate.total}
-				</p>
+				</KpiCard.Subdescription>
 				{recoveryRate.pill3d && (
-					<div className={styles.kpiSub}>
-						<span className={`${styles.kpiDelta} ${styles.deltaUp}`}>
-							{recoveryRate.pill3d}
-						</span>
-					</div>
+					<KpiCard.Pill tone="good" label={recoveryRate.pill3d} />
 				)}
-				<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
-			</article>
+			</KpiCard>
 
 			{renewals !== null && (
-				<article className={styles.kpiCard}>
-					<span className={styles.kpiLabel}>Renovações</span>
-					<p className={styles.kpiValue}>
+				<KpiCard accentColor="#0f6e56">
+					<KpiCard.Title>Renovações</KpiCard.Title>
+					<KpiCard.MainNumber>
 						{new Intl.NumberFormat("pt-BR").format(renewals.value)}
-					</p>
+					</KpiCard.MainNumber>
 					{renewals.nonRenewed != null ? (
-						<p className={styles.kpiMetaLine}>
+						<KpiCard.Subdescription>
 							{renewals.renewalRatePct != null
 								? `${renewals.renewalRatePct.toFixed(1).replace(".", ",")}% taxa de renov.`
 								: "0% taxa"}
-						</p>
+						</KpiCard.Subdescription>
 					) : (
-						<p className={styles.kpiMetaLine}>Contratos renovados</p>
+						<KpiCard.Subdescription>Contratos renovados</KpiCard.Subdescription>
 					)}
-					<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
-				</article>
+				</KpiCard>
 			)}
 
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Saídas</span>
-				<p className={styles.kpiValue}>
+			<KpiCard accentColor="#a32d2d">
+				<KpiCard.Title>Saídas</KpiCard.Title>
+				<KpiCard.MainNumber>
 					{exits.current != null
 						? new Intl.NumberFormat("pt-BR").format(exits.current)
 						: "N/A"}
-				</p>
-				<div className={styles.kpiSub}>
-					{exitPill ? (
-						<>
-							<span className={exitPill.cls}>{exitPill.label}</span>
-							{exitPill.tail}
-						</>
-					) : (
-						<span className={`${styles.kpiDelta} ${styles.deltaNeutral}`}>
-							Sem comparativo
-						</span>
-					)}
-				</div>
-				<div className={styles.kpiBar} style={{ background: "#a32d2d" }} />
-			</article>
+				</KpiCard.MainNumber>
+				{exits.deltaPct != null ? (
+					<KpiCard.Pill
+						value={exits.deltaPct}
+						tone="invert"
+						pctAsInteger={false}
+						suffix={vsLabel ? ` vs ${vsLabel}` : " vs período anterior"}
+					/>
+				) : (
+					<KpiCard.Pill tone="neutral" label="Sem comparativo" />
+				)}
+			</KpiCard>
 		</div>
 	);
 }
