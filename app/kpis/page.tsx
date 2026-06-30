@@ -17,9 +17,120 @@ import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
 
-export default async function KpisPage() {
+function getWeekIndexAndMonth(date: Date) {
+	const startOfWeek = new Date(date);
+	startOfWeek.setDate(date.getDate() - date.getDay());
+
+	const wednesday = new Date(startOfWeek);
+	wednesday.setDate(startOfWeek.getDate() + 3);
+
+	const ownerYear = wednesday.getFullYear();
+	const ownerMonthNum = wednesday.getMonth(); // 0-based
+
+	const ownerMonthPeriod = `${ownerYear}-${String(ownerMonthNum + 1).padStart(2, "0")}-01`;
+
+	const firstDayOfMonth = new Date(ownerYear, ownerMonthNum, 1);
+	const firstWednesday = new Date(firstDayOfMonth);
+	const dayOfWeek = firstDayOfMonth.getDay();
+	const daysUntilWednesday = (3 - dayOfWeek + 7) % 7;
+	firstWednesday.setDate(firstDayOfMonth.getDate() + daysUntilWednesday);
+
+	const firstWeekSunday = new Date(firstWednesday);
+	firstWeekSunday.setDate(firstWednesday.getDate() - 3);
+
+	const diffMs = startOfWeek.getTime() - firstWeekSunday.getTime();
+	const diffWeeks = Math.round(diffMs / (7 * 24 * 60 * 60 * 1000));
+
+	return {
+		monthPeriod: ownerMonthPeriod,
+		weekIdx: diffWeeks,
+	};
+}
+
+function getDefaultActiveWeekIdx(p: any, dashboard: any): number {
+	if (!p || !p.weekly) return 0;
+	const weeks = p.weekly.weekHeaders;
+	const n = weeks.length;
+	let activeWeekIdx = -1;
+
+	const today = new Date();
+	const { monthPeriod, weekIdx } = getWeekIndexAndMonth(today);
+	const mShort = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+	const parts = monthPeriod.split("-").map(Number);
+	const formattedPeriodLabel = `${mShort[parts[1] - 1]}/${String(parts[0]).slice(-2)}`; // e.g. "Jun/26"
+
+	if (dashboard.calendarCurrentMonthLabel === formattedPeriodLabel) {
+		activeWeekIdx = weekIdx;
+	} else if (dashboard.primaryPayload?.weekly) {
+		const pw = dashboard.primaryPayload.weekly;
+		for (let i = n - 1; i >= 0; i--) {
+			const hasData =
+				pw.marketing.reach[i] != null ||
+				pw.marketing.frequency[i] != null ||
+				pw.marketing.views[i] != null ||
+				pw.marketing.followers[i] != null ||
+				pw.funnelWeekly.scheduled[i] != null ||
+				pw.funnelWeekly.attendance[i] != null ||
+				pw.funnelWeekly.closings[i] != null ||
+				pw.salesWeekly.totals[i] != null;
+			if (hasData) {
+				activeWeekIdx = i;
+				break;
+			}
+		}
+	}
+
+	if (activeWeekIdx === -1) {
+		for (let i = n - 1; i >= 0; i--) {
+			const hasData =
+				p.weekly.marketing.reach[i] != null ||
+				p.weekly.marketing.frequency[i] != null ||
+				p.weekly.marketing.views[i] != null ||
+				p.weekly.followers[i] != null ||
+				p.funnelWeekly.scheduled[i] != null ||
+				p.funnelWeekly.attendance[i] != null ||
+				p.funnelWeekly.closings[i] != null ||
+				p.salesWeekly.totals[i] != null;
+			if (hasData) {
+				activeWeekIdx = i;
+				break;
+			}
+		}
+	}
+
+	if (activeWeekIdx === -1 || activeWeekIdx >= n) {
+		activeWeekIdx = 0;
+	}
+	return activeWeekIdx;
+}
+
+type Props = {
+	searchParams?: Promise<Record<string, string | string[] | undefined>>;
+};
+
+export default async function KpisPage({ searchParams }: Props) {
+	const sp = searchParams ? await searchParams : {};
 	const data = await getKpiPageData();
 	const smPrimaryShort = data.salesMarketingDashboard.primaryPeriodLabel;
+
+	// Determine active week header
+	const smPayload = data.salesMarketingDashboard.payload;
+	let activeWeekHeader = "S1";
+	if (smPayload && smPayload.weekly) {
+		const defaultIdx = getDefaultActiveWeekIdx(smPayload, data.salesMarketingDashboard);
+		const defaultWeek = smPayload.weekly.weekHeaders[defaultIdx] || "S1";
+		
+		const spWeek = typeof sp.week === "string" ? sp.week : undefined;
+		activeWeekHeader = spWeek && smPayload.weekly.weekHeaders.includes(spWeek)
+			? spWeek
+			: defaultWeek;
+	}
+
+	// Filter weekly insights for the selected week
+	const rawWeeklyInsights = data.insights.sales_marketing_weekly ?? [];
+	const weeklyInsights = rawWeeklyInsights.filter(
+		(item) => item.meta_json?.week_header === activeWeekHeader
+	);
 
 	return (
 		<div className={styles.page}>
@@ -67,8 +178,15 @@ export default async function KpisPage() {
 							views: data.current["marketing_views"] ?? null,
 							followers: data.current["marketing_followers"] ?? null,
 						}}
-						weeklyInsights={data.insights.sales_marketing_weekly ?? []}
+						previousMonthlyMarketing={{
+							reach: data.previous["marketing_reach"] ?? null,
+							frequency: data.previous["marketing_frequency"] ?? null,
+							views: data.previous["marketing_views"] ?? null,
+							followers: data.previous["marketing_followers"] ?? null,
+						}}
+						weeklyInsights={weeklyInsights}
 						weeklyPeriodId={data.smPrimaryPeriod}
+						activeWeekHeader={activeWeekHeader}
 					/>
 				) : null}
 			</SectionCard>

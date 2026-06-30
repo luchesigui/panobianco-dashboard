@@ -5,8 +5,12 @@ import { PROMPT_MASTER, runAnalysis } from "./base";
 export async function generateSalesMarketingWeeklyInsights(
   data: KpiPageData,
   apiKey: string,
-  periodId: string
-): Promise<Array<{ type: string; title: string; body: string }>> {
+  periodId: string,
+  weekHeader?: string
+): Promise<{
+  insights: Array<{ type: string; title: string; body: string }>;
+  weekHeader: string;
+}> {
   const sm = data.salesMarketingDashboard.payload;
   const prevSm = data.salesMarketingDashboard.comparisonPayload;
   
@@ -45,28 +49,37 @@ export async function generateSalesMarketingWeeklyInsights(
   const currentMonthPeriod = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-01`;
   const isCurrentMonth = periodId === currentMonthPeriod;
 
-  // Detect the last filled week in the current month using the raw unmerged primary payload
   const weeksCount = primarySm.weekly.weekHeaders.length;
-  let lastFilledWeekIdx = -1;
+  let targetWeekHeader = weekHeader;
+  let targetWeekIdx = -1;
 
-  // If analyzing the current month, limit the search to weeks before the current calendar week (we always analyze the completed previous week)
-  const maxSearchIdx = isCurrentMonth 
-    ? Math.min(weeksCount - 1, getWeekIdx(today) - 1)
-    : weeksCount - 1;
-
-  for (let i = maxSearchIdx; i >= 0; i--) {
-    const hasData =
-      primarySm.weekly.marketing.reach[i] != null ||
-      primarySm.weekly.marketing.followers[i] != null ||
-      primarySm.weekly.funnelWeekly.closings[i] != null ||
-      primarySm.weekly.salesWeekly.totals[i] != null;
-    if (hasData) {
-      lastFilledWeekIdx = i;
-      break;
-    }
+  if (targetWeekHeader) {
+    targetWeekIdx = primarySm.weekly.weekHeaders.indexOf(targetWeekHeader);
   }
 
-  const weekHeader = lastFilledWeekIdx !== -1 ? primarySm.weekly.weekHeaders[lastFilledWeekIdx] : "S1";
+  if (targetWeekIdx === -1) {
+    // Detect the last filled week in the current month using the raw unmerged primary payload
+    // If analyzing the current month, limit the search to weeks before the current calendar week (we always analyze the completed previous week)
+    const maxSearchIdx = isCurrentMonth 
+      ? Math.min(weeksCount - 1, getWeekIdx(today) - 1)
+      : weeksCount - 1;
+
+    let lastFilledWeekIdx = -1;
+    for (let i = maxSearchIdx; i >= 0; i--) {
+      const hasData =
+        primarySm.weekly.marketing.reach[i] != null ||
+        primarySm.weekly.marketing.followers[i] != null ||
+        primarySm.weekly.funnelWeekly.closings[i] != null ||
+        primarySm.weekly.salesWeekly.totals[i] != null;
+      if (hasData) {
+        lastFilledWeekIdx = i;
+        break;
+      }
+    }
+
+    targetWeekIdx = lastFilledWeekIdx !== -1 ? lastFilledWeekIdx : 0;
+    targetWeekHeader = primarySm.weekly.weekHeaders[targetWeekIdx];
+  }
 
   // Query raw data from the same month last year (e.g. June 2025 if current is June 2026)
   let lastYearRawData: any = null;
@@ -104,7 +117,7 @@ export async function generateSalesMarketingWeeklyInsights(
   const systemPrompt = `${PROMPT_MASTER}
 
 Você está analisando a seção VENDAS E MARKETING SEMANAL.
-Foco principal de análise: Semana ${weekHeader} do mês de ${data.salesMarketingDashboard.calendarCurrentMonthLabel}.
+Foco principal de análise: Semana ${targetWeekHeader} do mês de ${data.salesMarketingDashboard.calendarCurrentMonthLabel}.
 
 Seu objetivo é analisar as flutuações de tráfego pago (Instagram/Meta Ads) semana a semana, a constância do funil semanal (agendadas, comparecimentos e fechamentos) e as oscilações de conversão WoW.
 
@@ -116,7 +129,7 @@ REGRAS COMERCIAIS IMPORTANTES (EVITE CONFUSÃO DE CONCEITOS):
 `;
 
   const payload = {
-    semana_foco: weekHeader,
+    semana_foco: targetWeekHeader,
     mes_atual_label: data.salesMarketingDashboard.calendarCurrentMonthLabel,
     mes_anterior_label: data.salesMarketingDashboard.comparisonPeriodLabel,
     semanas_mes_atual_dados_brutos: primarySm.weekly,
@@ -124,12 +137,21 @@ REGRAS COMERCIAIS IMPORTANTES (EVITE CONFUSÃO DE CONCEITOS):
     dados_brutos_mes_ano_passado: lastYearRawData,
   };
 
+  const prevWeekHeader = targetWeekIdx > 0 ? primarySm.weekly.weekHeaders[targetWeekIdx - 1] : null;
+
   const userPrompt = `
 Aqui estão os dados brutos semanais das campanhas e do funil de vendas em formato JSON:
 ${JSON.stringify(payload, null, 2)}
 
-Faça uma análise focando principalmente na semana de foco (${weekHeader}) e compare com a mesma semana do mês anterior, com as outras semanas preenchidas deste mês e com os dados do ano passado (se houver). Gere de 3 a 5 insights específicos.
+Faça uma análise altamente focada e específica sobre o desempenho da semana ${targetWeekHeader} de ${payload.mes_atual_label}.
+Compare obrigatoriamente a semana de foco com os seguintes períodos/contextos:
+1. Semana anterior (semana passada) deste mesmo mês (semana ${prevWeekHeader || "não disponível"}).
+2. Mesma semana do mês anterior (semana ${targetWeekHeader} de ${payload.mes_anterior_label}).
+3. Desempenho geral do mês como um todo, focando na comparação direta do desempenho desta semana de foco contra o desempenho médio semanal das métricas do mês atual.
+
+Gere de 3 a 5 insights muito específicos, práticos e acionáveis. Cada insight deve explicar com precisão o que mudou nessas comparações e sugerir uma ação prática corretiva ou de aceleração. Evite generalidades.
 `;
 
-  return runAnalysis(systemPrompt, userPrompt, apiKey);
+  const insights = await runAnalysis(systemPrompt, userPrompt, apiKey);
+  return { insights, weekHeader: targetWeekHeader || "S1" };
 }

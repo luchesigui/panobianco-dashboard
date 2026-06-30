@@ -17,8 +17,15 @@ type Props = {
 		views?: number | null;
 		followers?: number | null;
 	} | null;
+	previousMonthlyMarketing?: {
+		reach?: number | null;
+		frequency?: number | null;
+		views?: number | null;
+		followers?: number | null;
+	} | null;
 	weeklyInsights?: any[];
 	weeklyPeriodId?: string;
+	activeWeekHeader: string;
 };
 
 export function VendasMarketingCharts({
@@ -26,11 +33,25 @@ export function VendasMarketingCharts({
 	leadsGenerated,
 	salesTotal,
 	monthlyMarketing,
+	previousMonthlyMarketing,
 	weeklyInsights,
 	weeklyPeriodId,
+	activeWeekHeader,
 }: Props) {
 	const p = dashboard.payload;
 	if (!p) return null;
+
+	const hasCurrentWeeklyData = dashboard.primaryPeriodLabel === dashboard.calendarCurrentMonthLabel;
+
+	const dbComparisonTotals = {
+		reach: hasCurrentWeeklyData ? (monthlyMarketing?.reach ?? null) : (previousMonthlyMarketing?.reach ?? null),
+		frequency: hasCurrentWeeklyData ? (monthlyMarketing?.frequency ?? null) : (previousMonthlyMarketing?.frequency ?? null),
+		views: hasCurrentWeeklyData ? (monthlyMarketing?.views ?? null) : (previousMonthlyMarketing?.views ?? null),
+		followers: hasCurrentWeeklyData ? (monthlyMarketing?.followers ?? null) : (previousMonthlyMarketing?.followers ?? null),
+		scheduled: hasCurrentWeeklyData ? (dashboard.primaryPayload?.funnel.scheduled.value ?? null) : (dashboard.comparisonPayload?.funnel.scheduled.value ?? null),
+		attendance: hasCurrentWeeklyData ? (dashboard.primaryPayload?.funnel.present.value ?? null) : (dashboard.comparisonPayload?.funnel.present.value ?? null),
+		closings: hasCurrentWeeklyData ? (dashboard.primaryPayload?.funnel.closings.value ?? null) : (dashboard.comparisonPayload?.funnel.closings.value ?? null),
+	};
 
 	return (
 		<div className={styles.deepRoot}>
@@ -46,6 +67,14 @@ export function VendasMarketingCharts({
 				monthlyMarketing={monthlyMarketing}
 				primaryPayload={dashboard.primaryPayload}
 				comparisonPayload={dashboard.comparisonPayload}
+				activeWeekHeader={activeWeekHeader}
+				comparisonTotalReach={dbComparisonTotals.reach}
+				comparisonTotalFrequency={dbComparisonTotals.frequency}
+				comparisonTotalViews={dbComparisonTotals.views}
+				comparisonTotalFollowers={dbComparisonTotals.followers}
+				comparisonTotalScheduled={dbComparisonTotals.scheduled}
+				comparisonTotalAttendance={dbComparisonTotals.attendance}
+				comparisonTotalClosings={dbComparisonTotals.closings}
 			/>
 			{weeklyInsights && weeklyPeriodId && (
 				<div style={{ marginBottom: "2rem" }}>
@@ -53,6 +82,7 @@ export function VendasMarketingCharts({
 						variant="sales_marketing_weekly"
 						items={weeklyInsights}
 						periodId={weeklyPeriodId}
+						weekOfMonth={activeWeekHeader}
 					/>
 				</div>
 			)}

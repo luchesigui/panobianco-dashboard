@@ -148,7 +148,7 @@ export type KpiPageData = {
 	retentionCharts: RetentionChartPayload;
 	insights: Record<
 		string,
-		Array<{ type: string; title: string; body: string }>
+		Array<{ type: string; title: string; body: string; meta_json?: any }>
 	>;
 	analysis: Array<{ section: string; analysis: string; category: string }>;
 	featureOfMonth: {
@@ -1139,6 +1139,7 @@ export async function getKpiPageData(
 			type: row.insight_type,
 			title: row.title,
 			body: row.body,
+			meta_json: row.meta_json,
 		});
 	}
 

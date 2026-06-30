@@ -22,7 +22,8 @@ function mapType(t: string): string {
 
 export async function generateAiInsightsAction(
   periodId: string,
-  category: string
+  category: string,
+  weekHeader?: string
 ): Promise<{ ok: boolean; error?: string }> {
   try {
     const supabase = getServiceSupabase();
@@ -65,13 +66,16 @@ export async function generateAiInsightsAction(
 
     // 4. Dispatch to the specific analysis service
     let insights: Array<{ type: string; title: string; body: string }> = [];
+    let resolvedWeekHeader: string | undefined = weekHeader;
 
     if (category === "overview") {
       insights = await generateOverviewInsights(data, apiKey);
     } else if (category === "sales_marketing") {
       insights = await generateSalesMarketingMonthlyInsights(data, apiKey);
     } else if (category === "sales_marketing_weekly") {
-      insights = await generateSalesMarketingWeeklyInsights(data, apiKey, periodId);
+      const res = await generateSalesMarketingWeeklyInsights(data, apiKey, periodId, weekHeader);
+      insights = res.insights;
+      resolvedWeekHeader = res.weekHeader;
     } else if (category === "retention") {
       insights = await generateRetentionInsights(data, apiKey);
     } else if (category === "finance") {
@@ -81,14 +85,20 @@ export async function generateAiInsightsAction(
     }
 
     // 5. Save generated insights into Supabase
-    // Clear old insights under this scope/category/period
-    const { error: deleteError } = await supabase
+    // Clear old insights under this scope/category/period and weekHeader if applicable
+    const deleteQuery = supabase
       .from("kpi_insights")
       .delete()
       .eq("gym_id", gymId)
       .eq("period_id", periodId)
       .eq("category", category)
       .eq("insight_scope", "kpi");
+
+    if (category === "sales_marketing_weekly" && resolvedWeekHeader) {
+      deleteQuery.eq("meta_json->>week_header", resolvedWeekHeader);
+    }
+
+    const { error: deleteError } = await deleteQuery;
 
     if (deleteError) {
       console.error("Erro ao deletar insights antigos:", deleteError);
@@ -105,7 +115,7 @@ export async function generateAiInsightsAction(
       title: (insight.title || "").trim(),
       body: (insight.body || "").trim(),
       sort_order: idx + 1,
-      meta_json: {},
+      meta_json: category === "sales_marketing_weekly" && resolvedWeekHeader ? { week_header: resolvedWeekHeader } : {},
     }));
 
     if (newRows.length > 0) {

@@ -1,6 +1,7 @@
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
 import styles from "./vendas-marketing.module.css";
 import { clsx } from "clsx";
+import Link from "next/link";
 
 function getWeekIndexAndMonth(date: Date): { monthPeriod: string; weekIdx: number } {
 	const startOfWeek = new Date(date);
@@ -68,6 +69,7 @@ type WeeklyRowProps = {
 	calendarCurrentMonthLabel: string;
 	activeWeekIdx: number;
 	total: number | null;
+	comparisonTotal?: number | null;
 	mode: "int" | "decimal1" | "intCompact";
 	weekKeys: string[];
 	deltaMode?: "pct" | "abs";
@@ -82,8 +84,8 @@ function getDeltaPct(curr: number | null, prev: number | null): { value: string;
 	const formatted = pct > 0 ? `+${pct.toFixed(1)}%` : `${pct.toFixed(1)}%`;
 	return {
 		value: formatted.replace(".", ","),
-		isPositive: pct > 0,
-		isNegative: pct < 0,
+		isPositive: pct > 0.01,
+		isNegative: pct < -0.01,
 	};
 }
 
@@ -133,6 +135,7 @@ function WeeklyRow({
 	calendarCurrentMonthLabel,
 	activeWeekIdx,
 	total,
+	comparisonTotal,
 	mode,
 	weekKeys,
 	deltaMode,
@@ -155,63 +158,71 @@ function WeeklyRow({
 				const showMonthComparison = isPrimaryMonth && prevVal !== null;
 				const showWeekComparison = isPrimaryMonth && showWeeklyDelta && lastWeekVal !== null;
 
+				const currStr = fmtCell(c, mode);
+				const weekRateStr = showWeekComparison ? ` (vs ${fmtCell(lastWeekVal, mode)})` : "";
+				
+				const prevStr = showMonthComparison ? `vs ${fmtCell(prevVal, mode)}` : "";
+				const delta = showMonthComparison
+					? (deltaMode === "abs" ? getDeltaAbs(c, prevVal) : getDeltaPct(c, prevVal))
+					: null;
+
 				return (
 					<td key={`${label}-${weekKeys[i]}`} className={tdClassName}>
-						{showMonthComparison || showWeekComparison ? (
-							<div className={styles.cellComparisonStack}>
-								<span className={styles.cellCurrVal}>{fmtCell(c, mode)}</span>
-								{showMonthComparison && (
-									<div className={styles.cellPrevRow}>
-										<span className={styles.cellPrevValLabel}>Mês:</span>
-										<span className={styles.cellPrevVal}>{fmtCell(prevVal, mode)}</span>
-										{(() => {
-											const delta = deltaMode === "abs"
-												? getDeltaAbs(c, prevVal)
-												: getDeltaPct(c, prevVal);
-											if (!delta) return null;
-											return (
-												<span
-													className={clsx(
-														styles.deltaBadge,
-														delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
-													)}
-												>
-													{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
-												</span>
-											);
-										})()}
-									</div>
-								)}
-								{showWeekComparison && (
-									<div className={styles.cellPrevRow}>
-										<span className={styles.cellPrevValLabel}>Sem:</span>
-										<span className={styles.cellPrevVal}>{fmtCell(lastWeekVal, mode)}</span>
-										{(() => {
-											const delta = deltaMode === "abs"
-												? getDeltaAbs(c, lastWeekVal)
-												: getDeltaPct(c, lastWeekVal);
-											if (!delta) return null;
-											return (
-												<span
-													className={clsx(
-														styles.deltaBadge,
-														delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
-													)}
-												>
-													{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
-												</span>
-											);
-										})()}
-									</div>
-								)}
-							</div>
-						) : (
-							<span className={styles.cellCurrVal}>{fmtCell(c, mode)}</span>
-						)}
+						<div className={styles.cellA}>
+							<span className={styles.cellANum}>{currStr}{weekRateStr}</span>
+							{showMonthComparison && (
+								<div className={styles.cellASub}>
+									<span className={styles.cellAPrev}>{prevStr}</span>
+									{delta && (
+										<span
+											className={clsx(
+												styles.deltaBadge,
+												delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+											)}
+										>
+											{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+										</span>
+									)}
+								</div>
+							)}
+						</div>
 					</td>
 				);
 			})}
-			<td className={styles.tdTotal}>{fmtCell(total, mode)}</td>
+			<td className={styles.tdTotal}>
+				{(() => {
+					if (total === null) return "—";
+					
+					const showTotalComparison = comparisonTotal !== null && comparisonTotal !== undefined;
+					const currStr = fmtCell(total, mode);
+					const prevStr = showTotalComparison ? `vs ${fmtCell(comparisonTotal, mode)}` : "";
+					
+					const delta = showTotalComparison
+						? (deltaMode === "abs" ? getDeltaAbs(total, comparisonTotal) : getDeltaPct(total, comparisonTotal))
+						: null;
+
+					return (
+						<div className={styles.cellA}>
+							<span className={styles.cellANum}>{currStr}</span>
+							{showTotalComparison && (
+								<div className={styles.cellASub}>
+									<span className={styles.cellAPrev}>{prevStr}</span>
+									{delta && (
+										<span
+											className={clsx(
+												styles.deltaBadge,
+												delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+											)}
+										>
+											{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+										</span>
+									)}
+								</div>
+							)}
+						</div>
+					);
+				})()}
+			</td>
 		</tr>
 	);
 }
@@ -231,6 +242,14 @@ type Props = {
 	} | null;
 	primaryPayload?: SalesMarketingDashboardPayload | null;
 	comparisonPayload?: SalesMarketingDashboardPayload | null;
+	activeWeekHeader: string;
+	comparisonTotalReach?: number | null;
+	comparisonTotalFrequency?: number | null;
+	comparisonTotalViews?: number | null;
+	comparisonTotalFollowers?: number | null;
+	comparisonTotalScheduled?: number | null;
+	comparisonTotalAttendance?: number | null;
+	comparisonTotalClosings?: number | null;
 };
 
 export function WeeklyView({
@@ -243,6 +262,14 @@ export function WeeklyView({
 	monthlyMarketing,
 	primaryPayload,
 	comparisonPayload,
+	activeWeekHeader,
+	comparisonTotalReach,
+	comparisonTotalFrequency,
+	comparisonTotalViews,
+	comparisonTotalFollowers,
+	comparisonTotalScheduled,
+	comparisonTotalAttendance,
+	comparisonTotalClosings,
 }: Props) {
 	const weeks = w.weekHeaders;
 	const n = weeks.length;
@@ -264,8 +291,25 @@ export function WeeklyView({
 	const cloW = padWeeks(fw.closings, n);
 	const salesW = padWeeks(w.salesWeekly.totals, n);
 
-	// Detect active week index (calendar week if current month is displayed, else last week with data)
-	let activeWeekIdx = -1;
+	const currentMonthLabel = primaryPeriodLabel || calendarCurrentMonthLabel;
+
+	// Calculate funnel sums on the fly using cells from current month columns only
+	const calculatedSchTotal = schW.reduce((acc: number, v, i) => acc + (weekSources[i] === currentMonthLabel ? (v ?? 0) : 0), 0);
+	const calculatedAttTotal = attW.reduce((acc: number, v, i) => acc + (weekSources[i] === currentMonthLabel ? (v ?? 0) : 0), 0);
+	const calculatedCloTotal = cloW.reduce((acc: number, v, i) => acc + (weekSources[i] === currentMonthLabel ? (v ?? 0) : 0), 0);
+
+	// Calculate marketing sums/averages on the fly using cells from current month columns only
+	const calculatedReachTotal = reachW.reduce((acc: number, v, i) => acc + (weekSources[i] === currentMonthLabel ? (v ?? 0) : 0), 0);
+	const calculatedViewsTotal = viewsW.reduce((acc: number, v, i) => acc + (weekSources[i] === currentMonthLabel ? (v ?? 0) : 0), 0);
+	const calculatedFollowersTotal = folW.reduce((acc: number, v, i) => acc + (weekSources[i] === currentMonthLabel ? (v ?? 0) : 0), 0);
+	const calculatedFreqTotal = (() => {
+		const currentMonthFreqs = freqW.filter((v, i) => weekSources[i] === currentMonthLabel && typeof v === "number" && !Number.isNaN(v)) as number[];
+		if (currentMonthFreqs.length === 0) return 0;
+		return currentMonthFreqs.reduce((a: number, b) => a + b, 0) / currentMonthFreqs.length;
+	})();
+
+	// Detect calendar current week index to show "Atual" badge
+	let calendarWeekIdx = -1;
 
 	const today = new Date();
 	const { monthPeriod, weekIdx } = getWeekIndexAndMonth(today);
@@ -274,48 +318,10 @@ export function WeeklyView({
 	const formattedPeriodLabel = `${mShort[parts[1] - 1]}/${String(parts[0]).slice(-2)}`; // e.g. "Jun/26"
 
 	if (calendarCurrentMonthLabel === formattedPeriodLabel) {
-		activeWeekIdx = weekIdx;
-	} else if (primaryPayload?.weekly) {
-		const pw = primaryPayload.weekly;
-		for (let i = n - 1; i >= 0; i--) {
-			const hasData =
-				pw.marketing.reach[i] != null ||
-				pw.marketing.frequency[i] != null ||
-				pw.marketing.views[i] != null ||
-				pw.marketing.followers[i] != null ||
-				pw.funnelWeekly.scheduled[i] != null ||
-				pw.funnelWeekly.attendance[i] != null ||
-				pw.funnelWeekly.closings[i] != null ||
-				pw.salesWeekly.totals[i] != null;
-			if (hasData) {
-				activeWeekIdx = i;
-				break;
-			}
-		}
+		calendarWeekIdx = weekIdx;
 	}
 
-	// Fallback: latest week in the merged table with data
-	if (activeWeekIdx === -1) {
-		for (let i = n - 1; i >= 0; i--) {
-			const hasData =
-				w.marketing.reach[i] != null ||
-				w.marketing.frequency[i] != null ||
-				w.marketing.views[i] != null ||
-				w.marketing.followers[i] != null ||
-				w.funnelWeekly.scheduled[i] != null ||
-				w.funnelWeekly.attendance[i] != null ||
-				w.funnelWeekly.closings[i] != null ||
-				w.salesWeekly.totals[i] != null;
-			if (hasData) {
-				activeWeekIdx = i;
-				break;
-			}
-		}
-	}
-
-	if (activeWeekIdx === -1) {
-		activeWeekIdx = 0; // fallback to S1
-	}
+	const activeWeekIdx = weeks.includes(activeWeekHeader) ? weeks.indexOf(activeWeekHeader) : 0;
 
 	return (
 		<>
@@ -324,7 +330,7 @@ export function WeeklyView({
 			</h3>
 			<p className={styles.weekPeriodHint}>
 				O sufixo entre parênteses no cabeçalho marca colunas cujos valores vêm do{" "}
-				<strong>mês anterior ao atual no calendário</strong> (não do mês atual). A semana destacada é a semana atual ativa.
+				<strong>mês anterior ao atual no calendário</strong> (não do mês atual). A semana destacada é a semana selecionada ativa.
 			</p>
 			<div className={clsx(styles.chartCard, styles.chartCardTable)}>
 				<table className={styles.weekTable}>
@@ -337,24 +343,31 @@ export function WeeklyView({
 									colPeriod !== calendarCurrentMonthLabel
 										? colPeriod.slice(0, 3).toLowerCase()
 										: null;
-								const isCurrent = i === activeWeekIdx;
+								const isSelected = h === activeWeekHeader;
+								const isCalendarCurrent = i === calendarWeekIdx;
 								let thClassName = undefined;
-								if (isCurrent) {
+								if (isSelected) {
 									thClassName = styles.currentWeekHeader;
 								}
 								return (
-									<th key={h} className={thClassName}>
-										<div className={styles.thHeaderWrapper}>
-											<span>
-												{h}
-												{suffix ? (
-													<span className={styles.weekMonthSuffix}> ({suffix})</span>
-												) : null}
-											</span>
-											{isCurrent && (
-												<span className={styles.currentWeekBadge}>Atual</span>
-											)}
-										</div>
+									<th key={h} className={clsx(thClassName, styles.clickableTh)}>
+										<Link
+											href={`/kpis?week=${h}`}
+											scroll={false}
+											className={styles.thLink}
+										>
+											<div className={styles.thHeaderWrapper}>
+												<span>
+													{h}
+													{suffix ? (
+														<span className={styles.weekMonthSuffix}> ({suffix})</span>
+													) : null}
+												</span>
+												{isCalendarCurrent && (
+													<span className={styles.currentWeekBadge}>Atual</span>
+												)}
+											</div>
+										</Link>
 									</th>
 								);
 							})}
@@ -375,7 +388,8 @@ export function WeeklyView({
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
 							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
-							total={monthlyMarketing?.reach ?? mk.totals.reach}
+							total={calculatedReachTotal}
+							comparisonTotal={comparisonTotalReach}
 							mode="intCompact"
 							weekKeys={weeks}
 							showWeeklyDelta={true}
@@ -388,7 +402,8 @@ export function WeeklyView({
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
 							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
-							total={monthlyMarketing?.frequency ?? mk.totals.frequency}
+							total={calculatedFreqTotal}
+							comparisonTotal={comparisonTotalFrequency}
 							mode="decimal1"
 							weekKeys={weeks}
 							showWeeklyDelta={true}
@@ -401,7 +416,8 @@ export function WeeklyView({
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
 							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
-							total={monthlyMarketing?.views ?? mk.totals.views}
+							total={calculatedViewsTotal}
+							comparisonTotal={comparisonTotalViews}
 							mode="intCompact"
 							weekKeys={weeks}
 							showWeeklyDelta={true}
@@ -414,7 +430,8 @@ export function WeeklyView({
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
 							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
-							total={monthlyMarketing?.followers ?? mk.totals.followers}
+							total={calculatedFollowersTotal}
+							comparisonTotal={comparisonTotalFollowers}
 							mode="int"
 							weekKeys={weeks}
 							showWeeklyDelta={true}
@@ -435,7 +452,8 @@ export function WeeklyView({
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
 							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
-							total={funnel.scheduled.value}
+							total={calculatedSchTotal}
+							comparisonTotal={comparisonTotalScheduled}
 							mode="int"
 							weekKeys={weeks}
 							deltaMode="abs"
@@ -448,7 +466,8 @@ export function WeeklyView({
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
 							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
-							total={funnel.present.value}
+							total={calculatedAttTotal}
+							comparisonTotal={comparisonTotalAttendance}
 							mode="int"
 							weekKeys={weeks}
 							deltaMode="abs"
@@ -461,7 +480,8 @@ export function WeeklyView({
 							calendarCurrentMonthLabel={calendarCurrentMonthLabel}
 							primaryPeriodLabel={primaryPeriodLabel}
 							activeWeekIdx={activeWeekIdx}
-							total={funnel.closings.value}
+							total={calculatedCloTotal}
+							comparisonTotal={comparisonTotalClosings}
 							mode="int"
 							weekKeys={weeks}
 							deltaMode="abs"
@@ -477,8 +497,6 @@ export function WeeklyView({
 						{(w.salesWeekly.byReceptionist ?? []).map((row, ri) => {
 							const leads = padWeeks(row.leadsByWeek, n);
 							const vendas = padWeeks(row.salesByWeek, n);
-							const fmtPair = (v: number | null, l: number | null) =>
-								v == null && l == null ? "—" : `${v ?? "—"}/${l ?? "—"}`;
 							return (
 								<tr key={`${row.name}-${ri}`}>
 									<td className={styles.tdLabel}>{row.name}</td>
@@ -492,8 +510,12 @@ export function WeeklyView({
 										const prevSales = prevRecepRow ? padWeeks(prevRecepRow.salesByWeek, n)[i] : null;
 
 										const showComparison = isPrimaryMonth && (prevLeads !== null || prevSales !== null);
-										const currStr = fmtPair(v, leads[i]);
-										const prevStr = fmtPair(prevSales, prevLeads);
+										
+										const currStr = v == null && leads[i] == null ? "—" : `${v ?? 0}/${leads[i] ?? 0}`;
+										const currRate = leads[i] && leads[i] > 0 ? `${((v ?? 0) / leads[i] * 100).toFixed(1).replace(".", ",")}%` : "—";
+
+										const prevStr = prevSales == null && prevLeads == null ? "—" : `${prevSales ?? 0}/${prevLeads ?? 0}`;
+										const prevRate = prevLeads && prevLeads > 0 ? `${((prevSales ?? 0) / prevLeads * 100).toFixed(1).replace(".", ",")}%` : "—";
 
 										const tdClassName = clsx(styles.tdNum, {
 											[styles.currentWeekCell]: isCurrentWeek,
@@ -501,13 +523,16 @@ export function WeeklyView({
 
 										const delta = getRateDelta(v, leads[i], prevSales, prevLeads);
 
+										const rateStr = currRate !== "—" ? ` (${currRate})` : "";
+										const prevRateStr = prevRate !== "—" ? ` (${prevRate})` : "";
+
 										return (
 											<td key={`${row.name}-${weeks[i]}`} className={tdClassName}>
-												{showComparison ? (
-													<div className={styles.cellComparisonStack}>
-														<span className={styles.cellCurrVal}>{currStr}</span>
-														<div className={styles.cellPrevRow}>
-															<span className={styles.cellPrevValLabel}>vs {prevStr}</span>
+												<div className={styles.cellA}>
+													<span className={styles.cellANum}>{currStr}{rateStr}</span>
+													{showComparison && (
+														<div className={styles.cellASub}>
+															<span className={styles.cellAPrev}>vs {prevStr}{prevRateStr}</span>
 															{delta && (
 																<span
 																	className={clsx(
@@ -519,15 +544,54 @@ export function WeeklyView({
 																</span>
 															)}
 														</div>
-													</div>
-												) : (
-													<span className={styles.cellCurrVal}>{currStr}</span>
-												)}
+													)}
+												</div>
 											</td>
 										);
 									})}
 									<td className={styles.tdTotal}>
-										{fmtPair(row.salesTotal, row.leadsTotal)}
+										{(() => {
+											const leadsTotal = row.leadsTotal;
+											const salesTotal = row.salesTotal;
+											if (salesTotal == null && leadsTotal == null) return "—";
+
+											const prevRecepRow = comparisonPayload?.weekly.salesWeekly.byReceptionist?.find(
+												(r) => r.name === row.name
+											);
+											const prevLeads = prevRecepRow ? prevRecepRow.leadsTotal : null;
+											const prevSales = prevRecepRow ? prevRecepRow.salesTotal : null;
+
+											const currRate = leadsTotal && leadsTotal > 0 ? `${((salesTotal ?? 0) / leadsTotal * 100).toFixed(1).replace(".", ",")}%` : "—";
+											const prevRate = prevLeads && prevLeads > 0 ? `${((prevSales ?? 0) / prevLeads * 100).toFixed(1).replace(".", ",")}%` : "—";
+
+											const currStr = `${salesTotal ?? 0}/${leadsTotal ?? 0}`;
+											const prevStr = prevSales == null && prevLeads == null ? null : `${prevSales ?? 0}/${prevLeads ?? 0}`;
+
+											const delta = getRateDelta(salesTotal, leadsTotal, prevSales, prevLeads);
+											const rateStr = currRate !== "—" ? ` (${currRate})` : "";
+											const prevRateStr = prevRate !== "—" ? ` (${prevRate})` : "";
+
+											return (
+												<div className={styles.cellA}>
+													<span className={styles.cellANum}>{currStr}{rateStr}</span>
+													{prevStr && (
+														<div className={styles.cellASub}>
+															<span className={styles.cellAPrev}>vs {prevStr}{prevRateStr}</span>
+															{delta && (
+																<span
+																	className={clsx(
+																		styles.deltaBadge,
+																		delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+																	)}
+																>
+																	{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+																</span>
+															)}
+														</div>
+													)}
+												</div>
+											);
+										})()}
 									</td>
 								</tr>
 							);
@@ -535,8 +599,6 @@ export function WeeklyView({
 						{(() => {
 							const leadsT = padWeeks(w.salesWeekly.leadsByWeek, n);
 							const vendasT = salesW;
-							const fmtPair = (v: number | null, l: number | null) =>
-								v == null && l == null ? "—" : `${v ?? "—"}/${l ?? "—"}`;
 							return (
 								<tr>
 									<td className={styles.tdLabel}>Total</td>
@@ -547,8 +609,12 @@ export function WeeklyView({
 										const prevSales = comparisonPayload?.weekly.salesWeekly.totals[i] ?? null;
 
 										const showComparison = isPrimaryMonth && (prevLeads !== null || prevSales !== null);
-										const currStr = fmtPair(v, leadsT[i]);
-										const prevStr = fmtPair(prevSales, prevLeads);
+
+										const currStr = v == null && leadsT[i] == null ? "—" : `${v ?? 0}/${leadsT[i] ?? 0}`;
+										const currRate = leadsT[i] && leadsT[i] > 0 ? `${((v ?? 0) / leadsT[i] * 100).toFixed(1).replace(".", ",")}%` : "—";
+
+										const prevStr = prevSales == null && prevLeads == null ? "—" : `${prevSales ?? 0}/${prevLeads ?? 0}`;
+										const prevRate = prevLeads && prevLeads > 0 ? `${((prevSales ?? 0) / prevLeads * 100).toFixed(1).replace(".", ",")}%` : "—";
 
 										const tdClassName = clsx(styles.tdNum, {
 											[styles.currentWeekCell]: isCurrentWeek,
@@ -556,13 +622,16 @@ export function WeeklyView({
 
 										const delta = getRateDelta(v, leadsT[i], prevSales, prevLeads);
 
+										const rateStr = currRate !== "—" ? ` (${currRate})` : "";
+										const prevRateStr = prevRate !== "—" ? ` (${prevRate})` : "";
+
 										return (
 											<td key={`total-${weeks[i]}`} className={tdClassName}>
-												{showComparison ? (
-													<div className={styles.cellComparisonStack}>
-														<span className={styles.cellCurrVal}>{currStr}</span>
-														<div className={styles.cellPrevRow}>
-															<span className={styles.cellPrevValLabel}>vs {prevStr}</span>
+												<div className={styles.cellA}>
+													<span className={styles.cellANum}>{currStr}{rateStr}</span>
+													{showComparison && (
+														<div className={styles.cellASub}>
+															<span className={styles.cellAPrev}>vs {prevStr}{prevRateStr}</span>
 															{delta && (
 																<span
 																	className={clsx(
@@ -574,15 +643,51 @@ export function WeeklyView({
 																</span>
 															)}
 														</div>
-													</div>
-												) : (
-													<span className={styles.cellCurrVal}>{currStr}</span>
-												)}
+													)}
+												</div>
 											</td>
 										);
 									})}
 									<td className={styles.tdTotal}>
-										{fmtPair(salesTotal ?? w.salesWeekly.grandTotal, w.salesWeekly.leadsGrandTotal)}
+										{(() => {
+											const leadsGrand = w.salesWeekly.leadsGrandTotal;
+											const salesGrand = salesTotal ?? w.salesWeekly.grandTotal;
+											if (salesGrand == null && leadsGrand == null) return "—";
+
+											const prevLeads = comparisonPayload?.weekly.salesWeekly.leadsGrandTotal ?? null;
+											const prevSales = comparisonPayload?.weekly.salesWeekly.grandTotal ?? null;
+
+											const currRate = leadsGrand && leadsGrand > 0 ? `${((salesGrand ?? 0) / leadsGrand * 100).toFixed(1).replace(".", ",")}%` : "—";
+											const prevRate = prevLeads && prevLeads > 0 ? `${((prevSales ?? 0) / prevLeads * 100).toFixed(1).replace(".", ",")}%` : "—";
+
+											const currStr = `${salesGrand ?? 0}/${leadsGrand ?? 0}`;
+											const prevStr = prevSales == null && prevLeads == null ? null : `${prevSales ?? 0}/${prevLeads ?? 0}`;
+
+											const delta = getRateDelta(salesGrand, leadsGrand, prevSales, prevLeads);
+											const rateStr = currRate !== "—" ? ` (${currRate})` : "";
+											const prevRateStr = prevRate !== "—" ? ` (${prevRate})` : "";
+
+											return (
+												<div className={styles.cellA}>
+													<span className={styles.cellANum}>{currStr}{rateStr}</span>
+													{prevStr && (
+														<div className={styles.cellASub}>
+															<span className={styles.cellAPrev}>vs {prevStr}{prevRateStr}</span>
+															{delta && (
+																<span
+																	className={clsx(
+																		styles.deltaBadge,
+																		delta.isPositive ? styles.deltaUp : delta.isNegative ? styles.deltaDown : styles.deltaNeutral
+																	)}
+																>
+																	{delta.isPositive ? "▲" : delta.isNegative ? "▼" : ""}{delta.value}
+																</span>
+															)}
+														</div>
+													)}
+												</div>
+											);
+										})()}
 									</td>
 								</tr>
 							);

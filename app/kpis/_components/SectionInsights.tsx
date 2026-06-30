@@ -166,9 +166,10 @@ type SectionInsightsProps = {
 	variant: InsightVariant;
 	items: InsightItem[];
 	periodId: string;
+	weekOfMonth?: string;
 };
 
-export function SectionInsights({ variant, items, periodId }: SectionInsightsProps) {
+export function SectionInsights({ variant, items, periodId, weekOfMonth }: SectionInsightsProps) {
 	const [isGenerating, setIsGenerating] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -177,7 +178,7 @@ export function SectionInsights({ variant, items, periodId }: SectionInsightsPro
 		setIsGenerating(true);
 		setErrorMsg(null);
 		try {
-			const res = await generateAiInsightsAction(periodId, variant);
+			const res = await generateAiInsightsAction(periodId, variant, weekOfMonth);
 			if (!res.ok) {
 				setErrorMsg(res.error || "Erro na geração dos insights.");
 			}
@@ -197,7 +198,9 @@ export function SectionInsights({ variant, items, periodId }: SectionInsightsPro
 	const headerClass = clsx(styles.insightCardHeader, HEADER_VARIANT_CLASS[variant], {
 		[styles.insightHeaderCaps]: CAPS_HEADER[variant],
 	});
-	const headerLabel = `${PREFIX_BANG[variant] ? "! " : ""}${HEADER_LABEL[variant]}`;
+	const headerLabel = variant === "sales_marketing_weekly" && weekOfMonth
+		? `Insights — Semana ${weekOfMonth}`
+		: `${PREFIX_BANG[variant] ? "! " : ""}${HEADER_LABEL[variant]}`;
 
 	return (
 		<div className={styles.insightsWrap}>

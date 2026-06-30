@@ -86,7 +86,7 @@ export async function callLlm(
           "X-Title": "Panobianco Dashboard",
         },
         body: JSON.stringify({
-          model: "openrouter/owl-alpha",
+          model: "openrouter/free",
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },

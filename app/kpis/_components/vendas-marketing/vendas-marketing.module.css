@@ -189,7 +189,7 @@
 	color: var(--text-tertiary, #9c9b96);
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
-	padding: 8px 10px;
+	padding: 0;
 	border-bottom: 1px solid var(--border, rgba(0, 0, 0, 0.08));
 	text-align: center;
 }
@@ -518,4 +518,58 @@ th.currentWeekHeader {
 	background: var(--bg-elevated, #eeede8);
 	color: var(--text-secondary, #6b6a65);
 }
+
+.thLink {
+	display: block;
+	width: 100%;
+	height: 100%;
+	color: inherit;
+	text-decoration: none;
+	padding: 8px 10px;
+	box-sizing: border-box;
+}
+
+.clickableTh {
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.clickableTh:hover {
+	background-color: rgba(24, 95, 165, 0.06) !important;
+}
+
+.clickableTh.currentWeekHeader:hover {
+	background-color: var(--blue-light, #e6f1fb) !important;
+}
+
+/* Cell A layout */
+.cellA {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2px;
+	width: 100%;
+}
+
+.cellANum {
+	font-weight: 600;
+	font-size: 12px;
+	color: var(--text-primary, #1a1a18);
+}
+
+.cellASub {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	font-size: 9px;
+	color: var(--text-tertiary, #9c9b96);
+}
+
+.cellAPrev {
+	font-size: 9px;
+	color: var(--text-tertiary, #9c9b96);
+}
+
+
 
