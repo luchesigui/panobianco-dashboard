@@ -159,7 +159,11 @@ export function MonthlyTab({
 					const filteredBreakdown = Object.fromEntries(
 						Object.entries(kpi.recebimentosBreakdown).filter(([name]) => {
 							const lower = name.toLowerCase();
-							return !lower.includes("wellhub") && !lower.includes("totalpass");
+							return (
+								!lower.includes("wellhub") &&
+								!lower.includes("totalpass") &&
+								!lower.includes("total pass")
+							);
 						})
 					);
 

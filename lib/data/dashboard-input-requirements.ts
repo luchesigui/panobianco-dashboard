@@ -101,6 +101,8 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
 export const ALL_KPI_CODES_FOR_MONTH = [
   "revenue_total",
   "expenses_total",
+  "matriculated_revenue",
+  "products_revenue",
   ...new Set(KPI_FORM_GROUPS.flatMap((g) => g.fields.map((f) => f.code))),
 ];
 

@@ -16,7 +16,7 @@ export function mapRevenueGroupsToCodes(
 			wellhub += value;
 			continue;
 		}
-		if (lower.includes("totalpass")) {
+		if (lower.includes("totalpass") || lower.includes("total pass")) {
 			totalpass += value;
 			continue;
 		}

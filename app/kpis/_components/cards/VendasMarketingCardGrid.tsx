@@ -66,7 +66,6 @@ function metaLines(cardKey: string, meta: KpiMeta): string[] {
 }
 
 export function VendasMarketingCardGrid({ data }: { data: KpiPageData }) {
-	const smComparisonShort = data.salesMarketingDashboard.comparisonPeriodLabel;
 	const fallbackVsLabel = abbreviatePeriodLabel(data.previousPeriodLabel);
 	return (
 		<div className={styles.kpiGrid}>
@@ -74,7 +73,7 @@ export function VendasMarketingCardGrid({ data }: { data: KpiPageData }) {
 				const current = data.current[card.key];
 				const previous = data.previous[card.key];
 				const meta = data.currentMeta[card.key];
-				const deltaVsLabel = smComparisonShort ?? fallbackVsLabel;
+				const deltaVsLabel = fallbackVsLabel;
 				const metaObj = meta ?? {};
 				const deltaOpts =
 					card.key === "sales_total" &&

@@ -651,7 +651,9 @@ export function WeeklyView({
 									<td className={styles.tdTotal}>
 										{(() => {
 											const leadsGrand = w.salesWeekly.leadsGrandTotal;
-											const salesGrand = salesTotal ?? w.salesWeekly.grandTotal;
+											const salesGrand = (primaryPeriodLabel === calendarCurrentMonthLabel)
+												? w.salesWeekly.grandTotal
+												: (salesTotal ?? w.salesWeekly.grandTotal);
 											if (salesGrand == null && leadsGrand == null) return "—";
 
 											const prevLeads = comparisonPayload?.weekly.salesWeekly.leadsGrandTotal ?? null;

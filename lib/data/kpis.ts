@@ -409,14 +409,21 @@ function buildNextMonthForecast(
 	const expenseSubline = `Fixo ~R$ ${fixoK}k · Variável ~R$ ${varK}k`;
 
 	let matriculatedSubline: string | null = null;
-	const mm = currentMeta.matriculated_revenue as
-		| { recorrente?: number; anual?: number; mensal?: number }
-		| undefined;
+	const revMeta = currentMeta.revenue_total ?? {};
+	const breakdown = revMeta.breakdown as Record<string, number> | undefined;
+	let recVal = 0;
+	let anuVal = 0;
+	let menVal = 0;
+	if (breakdown && typeof breakdown === "object") {
+		for (const [name, val] of Object.entries(breakdown)) {
+			const lower = name.toLowerCase();
+			if (lower.includes("recorrente")) recVal += val;
+			else if (lower.includes("anual")) anuVal += val;
+			else if (lower.includes("mensal") || lower.includes("mensalidade")) menVal += val;
+		}
+	}
 	if (
-		mm &&
-		typeof mm.recorrente === "number" &&
-		typeof mm.anual === "number" &&
-		typeof mm.mensal === "number" &&
+		(recVal > 0 || anuVal > 0 || menVal > 0) &&
 		matBasis > 0
 	) {
 		const s = matriculatedForecast / matBasis;
@@ -426,7 +433,7 @@ function buildNextMonthForecast(
 				? `R$ ${Math.round(k)}k`
 				: `R$ ${k.toFixed(1).replace(".", ",")}k`;
 		};
-		matriculatedSubline = `Recorrente ${fmt(mm.recorrente * s)} · Anual ${fmt(mm.anual * s)} · Mensal ${fmt(mm.mensal * s)}`;
+		matriculatedSubline = `Recorrente ${fmt(recVal * s)} · Anual ${fmt(anuVal * s)} · Mensal ${fmt(menVal * s)}`;
 	}
 
 	const basisLabel = `${toLabel(currentPeriod)} (real)`;
@@ -654,13 +661,27 @@ export async function getKpiPageData(
 	const thirdPeriod = getOffsetMonth(kpiDataPeriod, -2);
 
 	// Resolve the weekly sales & marketing primary/comparison periods
-	const hasCurrentWeeklyData = smPayloads[0] && hasAnySmData(smPayloads[0]);
+	const smPrimaryPeriod = currentMonthPeriod;
+	const smComparisonPeriod = prevMonthPeriod;
 
-	const smPrimaryPeriod = hasCurrentWeeklyData ? currentMonthPeriod : prevMonthPeriod;
-	const smComparisonPeriod = hasCurrentWeeklyData ? prevMonthPeriod : prev2MonthPeriod;
-
-	const primaryPayload = hasCurrentWeeklyData ? smPayloads[0] : smPayloads[1];
-	const comparisonPayload = hasCurrentWeeklyData ? buildSmPayload(smComparisonPeriod) : buildSmPayload(smComparisonPeriod);
+	const primaryPayload = smPayloads[0] ?? assemblePayloadFromNormalized({
+		funilMensal: null,
+		marketingSemanal: [],
+		funilSemanal: [],
+		conversoesSemanal: [],
+		recepcaoSemanal: [],
+		consultoras: consultorasForAssembler,
+		periodLabel: toLabel(currentMonthPeriod),
+	});
+	const comparisonPayload = buildSmPayload(smComparisonPeriod) ?? assemblePayloadFromNormalized({
+		funilMensal: null,
+		marketingSemanal: [],
+		funilSemanal: [],
+		conversoesSemanal: [],
+		recepcaoSemanal: [],
+		consultoras: consultorasForAssembler,
+		periodLabel: toLabel(smComparisonPeriod),
+	});
 
 	// Load insights for the resolved periods (separate query after resolution)
 	const fetchInsightPeriods = Array.from(new Set([kpiDataPeriod, smPrimaryPeriod]));
@@ -848,70 +869,8 @@ export async function getKpiPageData(
 	}
 
 	if (smDashboardPayload) {
-		const consultorasList = (consultorasRes.data ?? []) as Array<{ name: string; monthly_goal: number }>;
-		const goalByName = new Map(consultorasList.map(c => [c.name, c.monthly_goal]));
-
-		let receptionistsList: SalesMarketingDashboardPayload["receptionists"] = [];
-		let receptionistsPeriodLabel = "";
-
-		// Check if the current calendar month (June 2026, which is smPayloads[0]) has any weekly receptionist data
-		const JuneRecepRows = smPayloads[0]?.weekly?.salesWeekly?.byReceptionist ?? [];
-		const JuneHasRecepData = JuneRecepRows.some(
-			(r) => r.leadsByWeek.some((l) => l != null && l > 0) || r.salesByWeek.some((s) => s != null && s > 0)
-		);
-
-		if (JuneHasRecepData) {
-			receptionistsList = JuneRecepRows.map((r) => {
-				let leads = 0;
-				let sales = 0;
-				let hasAny = false;
-				for (let i = 0; i < 5; i++) {
-					const lw = r.leadsByWeek[i];
-					const sw = r.salesByWeek[i];
-					if (lw != null || sw != null) {
-						leads += (lw ?? 0);
-						sales += (sw ?? 0);
-						hasAny = true;
-					}
-				}
-				return {
-					name: r.name,
-					leads: hasAny ? leads : null,
-					sales: hasAny ? sales : null,
-					goal: goalByName.get(r.name) ?? 0,
-					conversion_pct: (hasAny && leads > 0) ? Math.round((sales / leads) * 100 * 10) / 10 : 0,
-				};
-			});
-			receptionistsPeriodLabel = toLabel(currentMonthPeriod);
-		} else {
-			// Fallback: sum May weekly data (smPayloads[1])
-			const MayRecepRows = smPayloads[1]?.weekly?.salesWeekly?.byReceptionist ?? [];
-			receptionistsList = MayRecepRows.map((r) => {
-				let leads = 0;
-				let sales = 0;
-				let hasAny = false;
-				for (let i = 0; i < 5; i++) {
-					const lw = r.leadsByWeek[i];
-					const sw = r.salesByWeek[i];
-					if (lw != null || sw != null) {
-						leads += (lw ?? 0);
-						sales += (sw ?? 0);
-						hasAny = true;
-					}
-				}
-				return {
-					name: r.name,
-					leads: hasAny ? leads : null,
-					sales: hasAny ? sales : null,
-					goal: goalByName.get(r.name) ?? 0,
-					conversion_pct: (hasAny && leads > 0) ? Math.round((sales / leads) * 100 * 10) / 10 : 0,
-				};
-			});
-			receptionistsPeriodLabel = toLabel(prevMonthPeriod);
-		}
-
-		smDashboardPayload.receptionists = receptionistsList;
-		smDashboardPayload.receptionistsPeriodLabel = receptionistsPeriodLabel;
+		smDashboardPayload.receptionists = primaryPayload.receptionists;
+		smDashboardPayload.receptionistsPeriodLabel = toLabel(smPrimaryPeriod);
 
 		// Force the monthly funnel & composition to come from the resolved general KPI payload (e.g. May/26)
 		let monthlyFunnelSource = smPayloads[1]; // May
@@ -949,6 +908,8 @@ export async function getKpiPageData(
 	const previous: KpiMap = {};
 	const previousPrevious: KpiMap = {};
 	const currentMeta: KpiMetaMap = {};
+	const previousMeta: KpiMetaMap = {};
+	const previousPreviousMeta: KpiMetaMap = {};
 
 	for (const row of valuesRes.data) {
 		const code = defIdToCode.get(row.kpi_definition_id);
@@ -962,9 +923,88 @@ export async function getKpiPageData(
 				currentMeta[code] = meta as Record<string, unknown>;
 			}
 		}
-		if (previousPeriod && rowPeriod === previousPeriod) previous[code] = value;
-		if (thirdPeriod && rowPeriod === thirdPeriod)
+		if (previousPeriod && rowPeriod === previousPeriod) {
+			previous[code] = value;
+			const meta = row.meta_json;
+			if (meta && typeof meta === "object" && !Array.isArray(meta)) {
+				previousMeta[code] = meta as Record<string, unknown>;
+			}
+		}
+		if (thirdPeriod && rowPeriod === thirdPeriod) {
 			previousPrevious[code] = value;
+			const meta = row.meta_json;
+			if (meta && typeof meta === "object" && !Array.isArray(meta)) {
+				previousPreviousMeta[code] = meta as Record<string, unknown>;
+			}
+		}
+	}
+
+	// Dynamic calculation of matriculated_revenue, products_revenue, and avg_ticket from metadata breakdown
+	const computeDynamicRevenuesAndTicket = (
+		map: KpiMap,
+		metaMap: KpiMetaMap,
+		isCurrent: boolean,
+	) => {
+		const revMeta = metaMap["revenue_total"] ?? {};
+		const breakdown = revMeta.breakdown as Record<string, number> | undefined;
+
+		let recorrente = 0;
+		let anual = 0;
+		let mensal = 0;
+		let boutique = 0;
+		let lanchonete = 0;
+		let hasBreakdown = false;
+
+		if (breakdown && typeof breakdown === "object") {
+			hasBreakdown = true;
+			for (const [name, val] of Object.entries(breakdown)) {
+				const lower = name.toLowerCase();
+				if (lower.includes("recorrente")) {
+					recorrente += val;
+				} else if (lower.includes("anual")) {
+					anual += val;
+				} else if (lower.includes("mensal") || lower.includes("mensalidade")) {
+					mensal += val;
+				} else if (lower.includes("boutique")) {
+					boutique += val;
+				} else if (lower.includes("lanchonete")) {
+					lanchonete += val;
+				}
+			}
+		}
+
+		if (hasBreakdown) {
+			map["matriculated_revenue"] = recorrente + anual + mensal;
+			map["products_revenue"] = boutique + lanchonete;
+		}
+
+		// Calculate avg_ticket using formula: (revenue_total - wellhub_revenue - totalpass_revenue) / base_students_end
+		const rev = map["revenue_total"];
+		const wh = map["wellhub_revenue"] ?? 0;
+		const tp = map["totalpass_revenue"] ?? 0;
+		const base = map["base_students_end"];
+
+		if (rev != null && base != null && base > 0) {
+			const avg = Math.round((rev - wh - tp) / base);
+			map["avg_ticket"] = avg;
+
+			if (isCurrent) {
+				metaMap["avg_ticket"] = {
+					...(metaMap["avg_ticket"] ?? {}),
+					partial: true,
+				};
+			}
+		}
+	};
+
+	computeDynamicRevenuesAndTicket(current, currentMeta, true);
+	computeDynamicRevenuesAndTicket(previous, previousMeta, false);
+	computeDynamicRevenuesAndTicket(previousPrevious, previousPreviousMeta, false);
+
+	if (currentMeta["avg_ticket"]) {
+		delete currentMeta["avg_ticket"].breakdown_line;
+		delete currentMeta["avg_ticket"].meta_line;
+		delete currentMeta["avg_ticket"].goal_brl;
 	}
 
 	if (

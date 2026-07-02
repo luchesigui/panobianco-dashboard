@@ -48,9 +48,9 @@ export function VendasMarketingCharts({
 		frequency: hasCurrentWeeklyData ? (monthlyMarketing?.frequency ?? null) : (previousMonthlyMarketing?.frequency ?? null),
 		views: hasCurrentWeeklyData ? (monthlyMarketing?.views ?? null) : (previousMonthlyMarketing?.views ?? null),
 		followers: hasCurrentWeeklyData ? (monthlyMarketing?.followers ?? null) : (previousMonthlyMarketing?.followers ?? null),
-		scheduled: hasCurrentWeeklyData ? (dashboard.primaryPayload?.funnel.scheduled.value ?? null) : (dashboard.comparisonPayload?.funnel.scheduled.value ?? null),
-		attendance: hasCurrentWeeklyData ? (dashboard.primaryPayload?.funnel.present.value ?? null) : (dashboard.comparisonPayload?.funnel.present.value ?? null),
-		closings: hasCurrentWeeklyData ? (dashboard.primaryPayload?.funnel.closings.value ?? null) : (dashboard.comparisonPayload?.funnel.closings.value ?? null),
+		scheduled: dashboard.comparisonPayload?.funnel.scheduled.value ?? null,
+		attendance: dashboard.comparisonPayload?.funnel.present.value ?? null,
+		closings: dashboard.comparisonPayload?.funnel.closings.value ?? null,
 	};
 
 	return (

@@ -159,55 +159,9 @@ export function mergeSmWeeklyWithPeriodSource(
   }
 
   const c = normalizeSmPayloadWeeks(structuredClone(primary as SalesMarketingDashboardPayload));
-  const p = normalizeSmPayloadWeeks(structuredClone(fallback as SalesMarketingDashboardPayload));
-  const weekSourcePeriodId: string[] = [];
+  const weekSourcePeriodId = Array.from({ length: W }, () => primaryPeriodId);
 
-  const cw = c.weekly;
-  const pw = p.weekly;
-
-  for (let i = 0; i < W; i++) {
-    const hasData = columnHasWeeklyData(cw, i);
-    weekSourcePeriodId.push(hasData ? primaryPeriodId : fbId);
-
-    if (!hasData) {
-      cw.marketing.reach[i] = pw.marketing.reach[i];
-      cw.marketing.frequency[i] = pw.marketing.frequency[i];
-      cw.marketing.views[i] = pw.marketing.views[i];
-      cw.marketing.followers[i] = pw.marketing.followers[i];
-      cw.funnelWeekly.scheduled[i] = pw.funnelWeekly.scheduled[i];
-      cw.funnelWeekly.attendance[i] = pw.funnelWeekly.attendance[i];
-      cw.funnelWeekly.closings[i] = pw.funnelWeekly.closings[i];
-      cw.salesWeekly.leadsByWeek[i] = pw.salesWeekly.leadsByWeek[i];
-      cw.salesWeekly.totals[i] = pw.salesWeekly.totals[i];
-
-      if (cw.salesWeekly.byReceptionist?.length) {
-        for (const row of cw.salesWeekly.byReceptionist) {
-          const prevRow = pw.salesWeekly.byReceptionist?.find((r) => r.name === row.name);
-          row.leadsByWeek[i] = prevRow?.leadsByWeek[i] ?? null;
-          row.salesByWeek[i] = prevRow?.salesByWeek[i] ?? null;
-        }
-      } else if (pw.salesWeekly.byReceptionist?.length) {
-        cw.salesWeekly.byReceptionist = cw.salesWeekly.byReceptionist ?? [];
-        for (const prevRow of pw.salesWeekly.byReceptionist) {
-          let row = cw.salesWeekly.byReceptionist.find((r) => r.name === prevRow.name);
-          if (!row) {
-            row = {
-              name: prevRow.name,
-              leadsByWeek: Array(W).fill(null),
-              leadsTotal: 0,
-              salesByWeek: Array(W).fill(null),
-              salesTotal: 0,
-            };
-            cw.salesWeekly.byReceptionist.push(row);
-          }
-          row.leadsByWeek[i] = prevRow.leadsByWeek[i];
-          row.salesByWeek[i] = prevRow.salesByWeek[i];
-        }
-      }
-    }
-  }
-
-  recomputeWeeklyTotals(cw);
+  recomputeWeeklyTotals(c.weekly);
 
   return { merged: c, weekSourcePeriodId };
 }

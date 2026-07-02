@@ -146,6 +146,7 @@ async function runTests() {
     { "Centro de receita": "Totalpass", "Valor baixa": "400,00" },
     { "Centro de receita": "Venda de Água", "Valor baixa": "150,00" },
     { "Centro de receita": "Receita Desconhecida", "Descrição": "Repasse Wellhub Maio/2026", "Valor baixa": "500,00" },
+    { "Centro de receita": "Receita Desconhecida 2", "Descrição": "Repasse Total Pass Maio/2026", "Valor baixa": "250,00" },
   ];
 
   // Test save=false
@@ -154,11 +155,12 @@ async function runTests() {
     const res = await recebimentosHandler(req);
     assert(res.status === 200, "Recebimentos save=false status 200");
     const json = await res.json();
-    assert(json.total === 3350, `Recebimentos total correct (got ${json.total}, expected 3350)`);
+    assert(json.total === 3600, `Recebimentos total correct (got ${json.total}, expected 3600)`);
     assert(json.groups["Matriculado - Mensalidade"] === 1500, "Matriculado correct");
     assert(json.groups["Wellhub - Repasse"] === 800, "Wellhub - Repasse correct");
     assert(json.groups["Receita Wellhub"] === 500, "Receita Wellhub from description correct");
     assert(json.groups["Totalpass"] === 400, "Totalpass correct");
+    assert(json.groups["Total Pass"] === 250, "Total Pass from description correct");
     assert(json.groups["Venda de Água"] === 150, "Products correct");
   }
 
@@ -189,9 +191,9 @@ async function runTests() {
     assert(call.data.periodId === "2026-05-01", "Period matches");
     assert(call.data.values.matriculated_revenue === 1500, "Matriculated revenue saved");
     assert(call.data.values.wellhub_revenue === 1300, `Wellhub revenue saved (got ${call.data.values.wellhub_revenue}, expected 1300)`);
-    assert(call.data.values.totalpass_revenue === 400, "Totalpass revenue saved");
+    assert(call.data.values.totalpass_revenue === 650, `Totalpass revenue saved (got ${call.data.values.totalpass_revenue}, expected 650)`);
     assert(call.data.values.products_revenue === 150, "Products revenue saved");
-    assert(call.data.values.revenue_total === 3350, "Revenue total saved");
+    assert(call.data.values.revenue_total === 3600, "Revenue total saved");
   }
 
   // Test save=true Authorized with INTEGRATION_TOKEN

@@ -60,7 +60,7 @@ export function assemblePayloadFromNormalized({
   consultoras: ConsultoraRef[];
   periodLabel: string;
 }): SalesMarketingDashboardPayload {
-  if (!funilMensal && !marketingSemanal.length && !funilSemanal.length && !conversoesSemanal.length && !recepcaoSemanal.length) {
+  if (!funilMensal && !marketingSemanal.length && !funilSemanal.length && !conversoesSemanal.length && !recepcaoSemanal.length && !consultoras.length) {
     return createDefaultSmPayload(periodLabel);
   }
 

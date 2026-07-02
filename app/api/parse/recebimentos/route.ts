@@ -79,6 +79,11 @@ export async function POST(req: Request) {
 
       if (rowDescription.toLowerCase().includes("wellhub")) {
         center = "Receita Wellhub";
+      } else if (
+        rowDescription.toLowerCase().includes("totalpass") ||
+        rowDescription.toLowerCase().includes("total pass")
+      ) {
+        center = "Total Pass";
       }
 
       if (!center) continue;
