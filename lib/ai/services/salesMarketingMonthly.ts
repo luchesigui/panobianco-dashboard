@@ -21,7 +21,7 @@ REGRAS COMERCIAIS IMPORTANTES (EVITE CONFUSÃO DE CONCEITOS):
     periodo_atual: data.currentPeriodLabel,
     kpis_mes_atual: data.current,
     kpis_mes_anterior: data.previous,
-    painel_comercial_e_marketing: data.salesMarketingDashboard.payload,
+    painel_comercial_e_marketing: data.salesMarketingDashboard.previousPayload,
   };
 
   const userPrompt = `

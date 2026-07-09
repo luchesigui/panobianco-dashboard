@@ -159,6 +159,7 @@ export type KpiPageData = {
 	} | null;
 	salesMarketingDashboard: {
 		payload: SalesMarketingDashboardPayload | null;
+		previousPayload: SalesMarketingDashboardPayload | null;
 		primaryPayload: SalesMarketingDashboardPayload | null;
 		comparisonPayload: SalesMarketingDashboardPayload | null;
 		monthlySalesChart: MonthlySalesBar[];
@@ -889,12 +890,63 @@ export async function getKpiPageData(
 		}
 	}
 
+	let prevSmDashboardPayload: SalesMarketingDashboardPayload | null = null;
+	const prevPrimaryPayload = smPayloads[1] ?? assemblePayloadFromNormalized({
+		funilMensal: null,
+		marketingSemanal: [],
+		funilSemanal: [],
+		conversoesSemanal: [],
+		recepcaoSemanal: [],
+		consultoras: consultorasForAssembler,
+		periodLabel: toLabel(prevMonthPeriod),
+	});
+	const prevComparisonPayload = smPayloads[2] ?? assemblePayloadFromNormalized({
+		funilMensal: null,
+		marketingSemanal: [],
+		funilSemanal: [],
+		conversoesSemanal: [],
+		recepcaoSemanal: [],
+		consultoras: consultorasForAssembler,
+		periodLabel: toLabel(prev2MonthPeriod),
+	});
+
+	if (prevPrimaryPayload || prevComparisonPayload) {
+		const mergedResult = mergeSmWeeklyWithPeriodSource(
+			prevPrimaryPayload,
+			prevComparisonPayload,
+			prevMonthPeriod,
+			prevComparisonPayload ? prev2MonthPeriod : null,
+		);
+		prevSmDashboardPayload = mergedResult.merged;
+	}
+
+	if (prevSmDashboardPayload) {
+		prevSmDashboardPayload.receptionists = prevPrimaryPayload.receptionists;
+		prevSmDashboardPayload.receptionistsPeriodLabel = toLabel(prevMonthPeriod);
+
+		let monthlyFunnelSource = smPayloads[1];
+		if (!monthlyFunnelSource || isExperimentalFunnelEmpty(monthlyFunnelSource.funnel)) {
+			monthlyFunnelSource = smPayloads[2];
+		}
+		if (!monthlyFunnelSource || isExperimentalFunnelEmpty(monthlyFunnelSource.funnel)) {
+			monthlyFunnelSource = smPayloads[3];
+		}
+
+		if (monthlyFunnelSource) {
+			prevSmDashboardPayload.funnel = structuredClone(monthlyFunnelSource.funnel);
+			if (monthlyFunnelSource.salesComposition) {
+				prevSmDashboardPayload.salesComposition = structuredClone(monthlyFunnelSource.salesComposition);
+			}
+		}
+	}
+
 	const primaryPeriodLabel = toLabel(smPrimaryPeriod);
 	const comparisonPeriodLabel =
 		comparisonPayload != null ? toLabel(smComparisonPeriod) : null;
 
 	const salesMarketingDashboard = {
 		payload: smDashboardPayload,
+		previousPayload: prevSmDashboardPayload,
 		primaryPayload: primaryPayload ? normalizeSmPayloadWeeks(structuredClone(primaryPayload)) : null,
 		comparisonPayload: comparisonPayload ? normalizeSmPayloadWeeks(structuredClone(comparisonPayload)) : null,
 		monthlySalesChart,

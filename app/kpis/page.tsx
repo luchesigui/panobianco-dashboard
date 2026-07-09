@@ -111,7 +111,7 @@ type Props = {
 export default async function KpisPage({ searchParams }: Props) {
 	const sp = searchParams ? await searchParams : {};
 	const data = await getKpiPageData();
-	const smPrimaryShort = data.salesMarketingDashboard.primaryPeriodLabel;
+	const smPrimaryShort = data.currentPeriodLabel;
 
 	// Determine active week header
 	const smPayload = data.salesMarketingDashboard.payload;
