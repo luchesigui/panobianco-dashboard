@@ -151,8 +151,8 @@ export function EntradaDadosForm({
 	const monthlySaving = kpi.saving || sm.saving;
 
 	return (
-		<div className="min-h-screen bg-slate-50">
-			<div className="max-w-4xl mx-auto px-6 py-10 pb-20">
+		<div className="min-h-screen bg-transparent">
+			<div className="max-w-5xl mx-auto px-6 py-10 pb-20">
 				<PageHeader
 					gyms={gyms}
 					gymSlug={initialGymSlug}
@@ -162,16 +162,16 @@ export function EntradaDadosForm({
 				<StatusAlert message={status.message} />
 
 				<Tabs defaultValue="semanal">
-					<TabsList className="mb-6 bg-slate-100 p-1 rounded-lg h-auto">
+					<TabsList className="mb-6 h-auto rounded-full bg-white/80 p-1 shadow-sm ring-1 ring-black/10">
 						<TabsTrigger
 							value="semanal"
-							className="px-6 py-2 rounded-md text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+							className="rounded-full px-6 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-slate-500 data-[state=active]:bg-[#ff6100] data-[state=active]:text-white data-[state=active]:shadow-sm"
 						>
 							Semanal
 						</TabsTrigger>
 						<TabsTrigger
 							value="mensal"
-							className="px-6 py-2 rounded-md text-sm font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm"
+							className="rounded-full px-6 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-slate-500 data-[state=active]:bg-[#ff6100] data-[state=active]:text-white data-[state=active]:shadow-sm"
 						>
 							Mensal
 						</TabsTrigger>

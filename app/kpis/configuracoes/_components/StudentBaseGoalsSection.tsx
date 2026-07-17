@@ -33,8 +33,8 @@ const MONTHS_PT = [
 
 export function StudentBaseGoalsSection({ studentBaseGoals }: Props) {
 	return (
-		<Card className="shadow-sm border-slate-200">
-			<CardHeader className="pb-4 border-b border-slate-100">
+		<Card className="border-black/10 bg-white/90 shadow-sm">
+			<CardHeader className="pb-3">
 				<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
 					Meta de Base de Alunos
 				</CardTitle>

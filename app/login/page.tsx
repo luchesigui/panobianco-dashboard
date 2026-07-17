@@ -37,18 +37,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <Card className="w-full max-w-sm shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-[#f7f6f3] bg-[radial-gradient(90%_55%_at_50%_0%,rgba(255,97,0,0.10),transparent_62%),radial-gradient(120%_60%_at_50%_115%,rgba(73,41,26,0.12),transparent_68%)] px-6">
+      <Card className="w-full max-w-sm border-black/10 bg-white/90 shadow-md">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-8 h-8 rounded-md bg-emerald-700 flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-8 h-8 bg-[#ff6100] flex items-center justify-center text-white text-sm font-black [clip-path:polygon(28%_0,100%_0,100%_100%,0_100%,0_22%)]">
               P
             </div>
-            <span className="text-base font-semibold text-slate-900 tracking-tight">
+            <span className="text-sm font-extrabold text-slate-950 tracking-[0.08em] uppercase">
               Panobianco
             </span>
           </div>
-          <CardTitle className="text-lg font-semibold text-slate-800">
+          <CardTitle className="text-lg font-black uppercase tracking-tight text-slate-900">
             Entrar no dashboard
           </CardTitle>
         </CardHeader>
@@ -77,7 +77,7 @@ export default function LoginPage() {
             {error && (
               <p className="text-sm text-red-600">{error}</p>
             )}
-            <Button type="submit" disabled={loading} className="mt-1">
+            <Button type="submit" disabled={loading} className="mt-1 rounded-full bg-[#ff6100] font-extrabold uppercase tracking-[0.06em] text-white hover:bg-[#ff4b00]">
               {loading ? "Entrando…" : "Entrar"}
             </Button>
           </form>

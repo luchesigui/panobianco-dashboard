@@ -1,41 +1,54 @@
-/* Design tokens scoped to KPI page (reference: Dashboard_Panobianco_Estrategico.html) */
+/* Design tokens scoped to KPI page (source: panobianco-design-tokens) */
 .page {
+	--pb-orange: #ff6100;
+	--pb-orange-deep: #ff4b00;
+	--pb-orange-burnt: #dc5302;
+	--pb-ember: #722b01;
+	--pb-ember-dark: #49291a;
+	--pb-ink: #15191a;
+	--pb-charcoal: #1d1d1b;
+	--pb-charcoal-2: #1c2021;
+	--pb-tile: #212322;
+	--pb-nav: #2b0d00;
+	--pb-steel: #4b4f50;
+	--pb-steel-dark: #0d0f0e;
+	--pb-text-on-orange: #1a0a00;
 	--bg: #f7f6f3;
 	--bg-card: #ffffff;
 	--bg-elevated: #eeede8;
-	--text-primary: #1a1a18;
+	--text-primary: #15191a;
 	--text-secondary: #6b6a65;
 	--text-tertiary: #9c9b96;
 	--border: rgba(0, 0, 0, 0.08);
 	--border-strong: rgba(0, 0, 0, 0.14);
-	--accent: #0f6e56;
-	--accent-light: #e1f5ee;
-	--accent-dark: #085041;
-	--coral: #d85a30;
-	--coral-light: #faece7;
-	--blue: #185fa5;
-	--blue-light: #e6f1fb;
+	--accent: var(--pb-orange);
+	--accent-light: #fff0e6;
+	--accent-dark: #9c3700;
+	--coral: var(--pb-orange-deep);
+	--coral-light: #fff0e6;
+	--blue: #2b0d00;
+	--blue-light: #fff0e6;
 	--red: #a32d2d;
 	--red-light: #fcebeb;
-	--amber: #854f0b;
+	--amber: var(--pb-ember);
 	--amber-light: #faeeda;
-	--purple: #534ab7;
-	--purple-light: #eeedfe;
-	--radius: 10px;
-	--radius-lg: 14px;
+	--purple: var(--pb-steel);
+	--purple-light: #eceeed;
+	--radius: 12px;
+	--radius-lg: 24px;
 	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
 	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
 	--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 	--transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 	--font-body: var(--font-kpi-body), system-ui, sans-serif;
-	--font-display: var(--font-kpi-display), Georgia, serif;
+	--font-display: var(--font-kpi-display), "Barlow Condensed", sans-serif;
 
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem 2rem 3rem;
 	font-family: var(--font-body);
 	color: var(--text-primary);
-	background: var(--bg);
+	background: transparent;
 }
 
 @media (max-width: 768px) {
@@ -46,11 +59,24 @@
 
 /* Header (reference .header / .brand) */
 .header {
-	padding: 0 0 1.5rem;
-	margin-bottom: 0;
+	position: relative;
+	padding: 1.25rem 0 1.5rem;
+	margin-bottom: 1.75rem;
+	overflow: visible;
+	border-radius: 0;
+	background: transparent;
+	clip-path: none;
+	box-shadow: none;
+	border: 0;
+}
+
+.header::after {
+	content: none;
 }
 
 .headerTop {
+	position: relative;
+	z-index: 1;
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
@@ -68,51 +94,57 @@
 .brandIcon {
 	width: 44px;
 	height: 44px;
-	background: var(--accent);
-	border-radius: var(--radius);
+	background: linear-gradient(165deg, var(--pb-orange), var(--pb-orange-deep));
+	clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%, 0 22%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	color: #fff;
 	font-family: var(--font-display);
-	font-size: 20px;
-	font-weight: 600;
+	font-size: 24px;
+	font-weight: 900;
 }
 
 .title {
 	font-family: var(--font-display);
-	font-size: 22px;
-	font-weight: 600;
-	letter-spacing: -0.02em;
-	line-height: 1.2;
+	font-size: clamp(44px, 7vw, 84px);
+	font-style: italic;
+	font-weight: 900;
+	letter-spacing: -0.01em;
+	line-height: 0.95;
 	margin: 0;
+	text-transform: uppercase;
+	color: var(--text-primary);
 }
 
 .subtitle {
 	font-size: 13px;
 	color: var(--text-secondary);
-	margin-top: 2px;
+	margin-top: 8px;
 	line-height: 1.45;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
 }
 
 .periodStrip {
 	display: flex;
 	align-items: center;
 	gap: 6px;
-	background: var(--bg-card);
-	border: 0.5px solid var(--border-strong);
-	border-radius: var(--radius);
-	padding: 6px 8px;
+	background: var(--pb-orange);
+	border: 0;
+	border-radius: 999px;
+	padding: 8px 14px;
 	box-shadow: var(--shadow-sm);
 	font-size: 12px;
-	color: var(--text-secondary);
-	font-weight: 500;
+	color: #fff;
+	font-weight: 800;
+	text-transform: uppercase;
 }
 
 .periodStrip strong {
 	font-size: 13px;
-	font-weight: 600;
-	color: var(--text-primary);
+	font-weight: 900;
+	color: #fff;
 }
 
 .entradaLink {
@@ -131,10 +163,20 @@
 
 /* Theme sections */
 .themeSection {
-	margin-bottom: 2rem;
-	padding: 24px;
-	border-radius: var(--radius-lg);
+	margin-bottom: 2.8rem;
+	padding: 0;
+	border-radius: 0;
 	position: relative;
+	overflow: visible;
+	clip-path: none;
+}
+
+.themeSection::before {
+	content: none;
+}
+
+.themeSection::after {
+	content: none;
 }
 
 @media (max-width: 768px) {
@@ -144,139 +186,145 @@
 }
 
 .themeSectionOverview {
-	background: linear-gradient(135deg, #f0f7f4 0%, #f7f6f3 60%);
-	border: 1px solid rgba(15, 110, 86, 0.1);
+	background: transparent;
+	border: 0;
 }
 
 .themeSectionVendas {
-	background: linear-gradient(135deg, #edf3fa 0%, #f7f6f3 60%);
-	border: 1px solid rgba(24, 95, 165, 0.1);
+	background: transparent;
+	border: 0;
 }
 
 .themeSectionRetencao {
-	background: linear-gradient(135deg, #fdf1ec 0%, #f7f6f3 60%);
-	border: 1px solid rgba(216, 90, 48, 0.1);
+	background: transparent;
+	border: 0;
 }
 
 .themeSectionFinanceiro {
-	background: linear-gradient(135deg, #f1eff8 0%, #f7f6f3 60%);
-	border: 1px solid rgba(83, 74, 183, 0.1);
+	background: transparent;
+	border: 0;
 }
 
 /* Previsão — referência painel claro + barra azul */
 .themeSectionPrevisao {
-	background: linear-gradient(135deg, #e8f4fc 0%, #f7f6f3 55%);
-	border: 1px solid rgba(43, 108, 176, 0.12);
+	background: transparent;
+	border: 0;
 }
 
 .themeSectionRoi {
-	background: linear-gradient(135deg, #faf6ee 0%, #f7f6f3 60%);
-	border: 1px solid rgba(133, 79, 11, 0.1);
+	background: transparent;
+	border: 0;
 }
 
 .themeHeader {
 	display: flex;
 	align-items: center;
-	gap: 12px;
-	margin-bottom: 16px;
+	gap: 0;
+	margin-bottom: 24px;
 }
 
 .themeHeader h2 {
 	font-family: var(--font-display);
-	font-size: 18px;
-	font-weight: 600;
+	font-size: clamp(38px, 4.5vw, 52px);
+	font-style: italic;
+	font-weight: 900;
 	letter-spacing: -0.01em;
+	line-height: 0.95;
 	margin: 0;
 	flex: 1;
 	min-width: 0;
+	text-transform: uppercase;
+	color: var(--text-primary);
 }
 
 .themeIcon {
-	width: 32px;
-	height: 32px;
-	border-radius: 8px;
+	width: 64px;
+	height: 64px;
+	clip-path: polygon(24% 0, 100% 0, 100% 100%, 0 100%, 0 24%);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 11px;
-	font-weight: 700;
+	font-size: 19px;
+	font-weight: 900;
 	color: #fff;
 	flex-shrink: 0;
 }
 
 .themeIconAccent {
-	background: var(--accent);
+	background: var(--pb-orange);
 }
 
 .themeIconBlue {
-	background: var(--blue);
+	background: var(--pb-orange);
 }
 
 .themeIconCoral {
-	background: var(--coral);
+	background: var(--pb-orange);
 }
 
 .themeIconPurple {
-	background: var(--purple);
+	background: var(--pb-orange);
 }
 
 .themeIconAmber {
-	background: var(--amber);
+	background: var(--pb-orange);
 }
 
 /* ROI header icon — tom marrom (referência “RI”) */
 .themeIconRoiBrown {
-	background: #5c3d1e;
+	background: var(--pb-orange);
 	color: #fff;
 }
 
 .themeIconPrevisao {
-	background: #2b6cb0;
+	background: var(--pb-orange);
 	color: #fff;
 }
 
 .themeBadge {
 	font-size: 10px;
-	font-weight: 600;
-	padding: 3px 10px;
+	font-weight: 900;
+	padding: 4px 12px;
 	border-radius: 20px;
 	margin-left: auto;
 	flex-shrink: 0;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
 }
 
 .badgeOverview {
-	background: var(--accent-light);
-	color: var(--accent-dark);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .badgeVendas {
-	background: var(--blue-light);
-	color: var(--blue);
+	background: #fff;
+	color: var(--pb-text-on-orange);
 }
 
 .badgeRetencao {
-	background: var(--red-light);
-	color: var(--red);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .badgeFinanceiro {
-	background: var(--purple-light);
-	color: var(--purple);
+	background: #fff;
+	color: var(--pb-text-on-orange);
 }
 
 .badgeRoi {
-	background: var(--amber-light);
-	color: var(--amber);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .badgePrevisao {
-	background: #bee3f8;
-	color: #2c5282;
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .headerPrevisao {
-	background: linear-gradient(180deg, #bee3f8 0%, #90cdf4 100%);
-	color: #2c5282;
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 /* KPI grid & cards */
@@ -315,12 +363,13 @@
 
 .kpiCard {
 	background: var(--bg-card);
-	border-radius: var(--radius-lg);
+	border-radius: 18px;
 	padding: 16px 18px;
 	box-shadow: var(--shadow-card);
 	position: relative;
 	overflow: hidden;
 	transition: var(--transition);
+	border: 1px solid var(--border);
 }
 
 .kpiCard:hover {
@@ -329,20 +378,24 @@
 }
 
 .kpiLabel {
-	font-size: 12px;
+	font-size: 13px;
 	color: var(--text-secondary);
-	font-weight: 500;
+	font-weight: 800;
 	display: block;
 	margin-bottom: 6px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
 }
 
 .kpiValue {
 	font-family: var(--font-display);
-	font-size: 26px;
-	font-weight: 600;
-	letter-spacing: -0.03em;
-	line-height: 1.1;
+	font-size: clamp(42px, 4vw, 56px);
+	font-style: italic;
+	font-weight: 900;
+	letter-spacing: -0.01em;
+	line-height: 0.95;
 	margin: 0;
+	text-transform: uppercase;
 }
 
 .kpiMetaLine {
@@ -383,11 +436,7 @@
 }
 
 .kpiBar {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	height: 3px;
+	display: none;
 }
 
 .kpiDelta {
@@ -417,12 +466,13 @@
 /* Insight cards */
 .insightCard {
 	background: var(--bg-card);
-	border-radius: var(--radius-lg);
+	border-radius: 18px;
 	padding: 0;
 	margin-bottom: 0;
 	margin-top: 0;
 	box-shadow: var(--shadow-card);
 	overflow: hidden;
+	border: 1px solid var(--border);
 }
 
 .insightCardRetention {
@@ -447,7 +497,7 @@
 .insightCardHeader {
 	padding: 10px 16px;
 	font-size: 11px;
-	font-weight: 600;
+	font-weight: 900;
 	text-transform: uppercase;
 	letter-spacing: 0.06em;
 	display: flex;
@@ -462,28 +512,28 @@
 }
 
 .headerOverview {
-	background: var(--accent-light);
-	color: var(--accent-dark);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .headerVendas {
-	background: var(--blue-light);
-	color: var(--blue);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .headerRetencao {
-	background: var(--coral-light);
-	color: var(--coral);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .headerFinanceiro {
-	background: var(--purple-light);
-	color: var(--purple);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .headerRoi {
-	background: var(--amber-light);
-	color: var(--amber);
+	background: var(--pb-orange);
+	color: #fff;
 }
 
 .insightBodySingle {
@@ -565,8 +615,8 @@
 /* Analysis & feature (chart-card style) */
 .sectionLabel {
 	font-size: 11px;
-	font-weight: 600;
-	color: var(--text-tertiary);
+	font-weight: 900;
+	color: var(--pb-orange);
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 	margin-bottom: 10px;
@@ -580,17 +630,19 @@
 
 .sectionPlain h2 {
 	font-family: var(--font-display);
-	font-size: 18px;
-	font-weight: 600;
+	font-size: 24px;
+	font-style: italic;
+	font-weight: 900;
 	letter-spacing: -0.01em;
 	margin: 0 0 12px;
 }
 
 .chartCard {
 	background: var(--bg-card);
-	border-radius: var(--radius-lg);
+	border-radius: 18px;
 	padding: 20px;
 	box-shadow: var(--shadow-card);
+	border: 1px solid var(--border);
 }
 
 .analysis {
@@ -614,15 +666,18 @@
 
 .feature {
 	background: var(--bg-card);
-	border-radius: var(--radius-lg);
+	border-radius: 18px;
 	padding: 20px;
 	box-shadow: var(--shadow-card);
+	border: 1px solid var(--border);
 }
 
 .feature h2 {
 	font-family: var(--font-display);
-	font-size: 16px;
-	font-weight: 600;
+	font-size: 24px;
+	font-style: italic;
+	font-weight: 900;
+	text-transform: uppercase;
 	margin: 0 0 8px;
 }
 

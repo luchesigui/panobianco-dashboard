@@ -47,7 +47,13 @@ function getWeekIndexAndMonth(date: Date) {
 	};
 }
 
-function getDefaultActiveWeekIdx(p: any, dashboard: any): number {
+type DashboardData = Awaited<ReturnType<typeof getKpiPageData>>;
+type SalesMarketingPayload = DashboardData["salesMarketingDashboard"]["payload"];
+
+function getDefaultActiveWeekIdx(
+	p: SalesMarketingPayload,
+	dashboard: DashboardData["salesMarketingDashboard"]
+): number {
 	if (!p || !p.weekly) return 0;
 	const weeks = p.weekly.weekHeaders;
 	const n = weeks.length;
@@ -86,11 +92,11 @@ function getDefaultActiveWeekIdx(p: any, dashboard: any): number {
 				p.weekly.marketing.reach[i] != null ||
 				p.weekly.marketing.frequency[i] != null ||
 				p.weekly.marketing.views[i] != null ||
-				p.weekly.followers[i] != null ||
-				p.funnelWeekly.scheduled[i] != null ||
-				p.funnelWeekly.attendance[i] != null ||
-				p.funnelWeekly.closings[i] != null ||
-				p.salesWeekly.totals[i] != null;
+				p.weekly.marketing.followers[i] != null ||
+				p.weekly.funnelWeekly.scheduled[i] != null ||
+				p.weekly.funnelWeekly.attendance[i] != null ||
+				p.weekly.funnelWeekly.closings[i] != null ||
+				p.weekly.salesWeekly.totals[i] != null;
 			if (hasData) {
 				activeWeekIdx = i;
 				break;
@@ -144,7 +150,6 @@ export default async function KpisPage({ searchParams }: Props) {
 			<SectionCard
 				title="Visão geral"
 				color="green"
-				iconShort="VG"
 				badge={data.currentPeriodLabel}
 			>
 				<VisaoGeralCardGrid data={data} />
@@ -158,7 +163,6 @@ export default async function KpisPage({ searchParams }: Props) {
 			<SectionCard
 				title="Vendas e marketing"
 				color="blue"
-				iconShort="VM"
 				badge={smPrimaryShort}
 			>
 				<VendasMarketingCardGrid data={data} />
@@ -194,7 +198,6 @@ export default async function KpisPage({ searchParams }: Props) {
 			<SectionCard
 				title="Retenção"
 				color="orange"
-				iconShort="R"
 				badge={data.currentPeriodLabel}
 			>
 				<RetencaoCardGrid data={data} />
@@ -209,7 +212,6 @@ export default async function KpisPage({ searchParams }: Props) {
 			<SectionCard
 				title="Financeiro"
 				color="purple"
-				iconShort="F"
 				badge={data.currentPeriodLabel}
 			>
 				<FinanceiroCardGrid data={data} />
@@ -224,7 +226,6 @@ export default async function KpisPage({ searchParams }: Props) {
 			<SectionCard
 				title="Previsão de resultado"
 				color="pink"
-				iconShort="P"
 				badge={
 					data.nextMonthForecast.hasData
 						? `Próximo: ${data.nextMonthForecast.nextPeriodLabel}`
@@ -248,7 +249,6 @@ export default async function KpisPage({ searchParams }: Props) {
 			<SectionCard
 				title="Retorno do investimento"
 				color="brown"
-				iconShort="RI"
 				badge="Desde Jul/24"
 			>
 				<RoiCardGrid data={data} />

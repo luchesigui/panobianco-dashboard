@@ -1,30 +1,32 @@
 import type { ReactNode } from "react";
-import { DM_Sans, Fraunces } from "next/font/google";
+import { Barlow, Barlow_Condensed } from "next/font/google";
 import { Navbar } from "./Navbar";
 import styles from "./layout.module.css";
 import { clsx } from "clsx";
 
-const dmSans = DM_Sans({
-  subsets: ["latin"],
-  variable: "--font-kpi-body",
-  weight: ["400", "500", "600", "700"],
+const body = Barlow({
+	subsets: ["latin"],
+	variable: "--font-kpi-body",
+	weight: ["400", "500", "600", "700", "800"],
+	display: "swap",
 });
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-kpi-display",
-  weight: ["400", "600"],
+const display = Barlow_Condensed({
+	subsets: ["latin"],
+	variable: "--font-kpi-display",
+	weight: ["700", "800", "900"],
+	display: "swap",
 });
 
 export default function KpisLayout({
-  children,
+	children,
 }: Readonly<{
-  children: ReactNode;
+	children: ReactNode;
 }>) {
-  return (
-    <div className={clsx(dmSans.variable, fraunces.variable, styles.kpiShell)}>
-      <Navbar />
-      {children}
-    </div>
-  );
+	return (
+		<div className={clsx(body.variable, display.variable, styles.kpiShell)}>
+			<Navbar />
+			{children}
+		</div>
+	);
 }

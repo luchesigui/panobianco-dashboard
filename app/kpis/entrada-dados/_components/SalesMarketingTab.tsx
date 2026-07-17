@@ -21,8 +21,8 @@ type Props = {
 export function SalesMarketingTab({ sm, onUploadFile, uploading }: Props) {
 	return (
 		<div className="space-y-5">
-			<Card className="shadow-sm border-slate-200">
-				<CardHeader className="pb-4 border-b border-slate-100">
+			<Card className="border-black/10 bg-white/90 shadow-sm">
+				<CardHeader className="pb-3">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
 							<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">

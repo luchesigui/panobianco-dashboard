@@ -341,7 +341,7 @@
 .teamBadge {
 	font-size: 10px;
 	font-weight: 600;
-	color: var(--blue, #185fa5);
+	color: var(--pb-orange, #ff6100);
 }
 
 .teamTdNum {
@@ -385,7 +385,7 @@
 }
 
 .miniBarFillAccent {
-	background: var(--blue, #185fa5);
+	background: var(--pb-orange, #ff6100);
 }
 
 .teamPct {
@@ -423,8 +423,8 @@
 
 /* Custom styles for Current Week Highlighting and Comparison Stack */
 .currentWeekHeader {
-	background: var(--blue-light, #e6f1fb) !important;
-	border-bottom: 2px solid var(--blue, #185fa5) !important;
+	background: var(--accent-light, #fff0e6) !important;
+	border-bottom: 2px solid var(--pb-orange, #ff6100) !important;
 	position: relative;
 }
 
@@ -439,7 +439,7 @@
 	font-size: 9px;
 	font-weight: 700;
 	color: #fff;
-	background-color: var(--blue, #185fa5);
+	background-color: var(--pb-orange, #ff6100);
 	padding: 1px 6px;
 	border-radius: 10px;
 	text-transform: uppercase;
@@ -449,15 +449,15 @@
 }
 
 .currentWeekCell {
-	background-color: rgba(24, 95, 165, 0.03) !important;
-	border-left: 1.5px solid rgba(24, 95, 165, 0.12) !important;
-	border-right: 1.5px solid rgba(24, 95, 165, 0.12) !important;
+	background-color: rgba(255, 97, 0, 0.04) !important;
+	border-left: 1.5px solid rgba(255, 97, 0, 0.18) !important;
+	border-right: 1.5px solid rgba(255, 97, 0, 0.18) !important;
 }
 
 /* Make highlighted header border solid too */
 th.currentWeekHeader {
-	border-left: 1.5px solid rgba(24, 95, 165, 0.12) !important;
-	border-right: 1.5px solid rgba(24, 95, 165, 0.12) !important;
+	border-left: 1.5px solid rgba(255, 97, 0, 0.18) !important;
+	border-right: 1.5px solid rgba(255, 97, 0, 0.18) !important;
 }
 
 .cellComparisonStack {
@@ -535,11 +535,11 @@ th.currentWeekHeader {
 }
 
 .clickableTh:hover {
-	background-color: rgba(24, 95, 165, 0.06) !important;
+	background-color: rgba(255, 97, 0, 0.06) !important;
 }
 
 .clickableTh.currentWeekHeader:hover {
-	background-color: var(--blue-light, #e6f1fb) !important;
+	background-color: var(--accent-light, #fff0e6) !important;
 }
 
 /* Cell A layout */

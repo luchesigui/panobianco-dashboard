@@ -27,15 +27,20 @@ export function SettingsForm({
 	});
 
 	return (
-		<div className="min-h-screen bg-slate-50">
-			<div className="max-w-2xl mx-auto px-6 py-10 pb-20">
-				<div className="mb-8">
-					<h1 className="text-2xl font-semibold tracking-tight text-slate-900 mb-1">
+		<div className="min-h-screen bg-transparent">
+			<div className="max-w-4xl mx-auto px-6 py-10 pb-20">
+				<div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+					<div>
+					<h1 className="mb-1 font-[var(--font-kpi-display)] text-[clamp(42px,7vw,72px)] font-black italic uppercase leading-[0.95] tracking-tight text-slate-950">
 						Configurações
 					</h1>
-					<p className="text-sm text-slate-500">
+					<p className="text-xs font-semibold uppercase tracking-[0.06em] text-slate-500">
 						Gerencie as configurações da academia, metas e integrações.
 					</p>
+					</div>
+					<div className="h-12 w-12 shrink-0 bg-[#ff6100] text-center font-[var(--font-kpi-display)] text-2xl font-black leading-[48px] text-white [clip-path:polygon(28%_0,100%_0,100%_100%,0_100%,0_22%)]" aria-hidden>
+						P
+					</div>
 				</div>
 
 				<SettingsMessage message={form.message} />
