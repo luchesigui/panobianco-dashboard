@@ -21,7 +21,7 @@ export function SaveButton({
 		<Button
 			onClick={onClick}
 			disabled={disabled || loading}
-			className="h-10 px-6 bg-emerald-700 hover:bg-emerald-800 text-white font-medium shadow-sm"
+			className="h-10 rounded-full bg-[#ff6100] px-6 font-extrabold uppercase tracking-[0.06em] text-white shadow-sm hover:bg-[#ff4b00]"
 		>
 			{loading ? loadingLabel : children}
 		</Button>
