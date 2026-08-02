@@ -49,15 +49,15 @@ export async function generateAiInsightsAction(
       .maybeSingle();
 
     const apiKey =
-      keyRow?.value ||
+      keyRow?.value?.trim() ||
+      process.env.GEMINI_API_KEY ||
       process.env.ANTHROPIC_API_KEY ||
-      process.env.OPENROUTER_API_KEY ||
-      process.env.GEMINI_API_KEY;
+      process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
       return {
         ok: false,
-        error: "Chave da API da IA não configurada. Por favor, insira a Claude API Key na página de Configurações.",
+        error: "Chave da API da IA não configurada. Por favor, insira a API Key na página de Configurações ou no arquivo .env.local.",
       };
     }
 

@@ -13,33 +13,43 @@ export async function callLlm(
   userPrompt: string,
   config: LlmConfig = {},
 ): Promise<string> {
-  const apiKey =
-    config.apiKey ||
-    process.env.ANTHROPIC_API_KEY ||
-    process.env.OPENROUTER_API_KEY ||
-    process.env.GEMINI_API_KEY;
+  let apiKey = config.apiKey;
+  let provider = config.provider;
+
+  if (!apiKey) {
+    if (process.env.GEMINI_API_KEY) {
+      apiKey = process.env.GEMINI_API_KEY;
+      provider = provider || "gemini";
+    } else if (process.env.ANTHROPIC_API_KEY) {
+      apiKey = process.env.ANTHROPIC_API_KEY;
+      provider = provider || "anthropic";
+    } else if (process.env.OPENROUTER_API_KEY) {
+      apiKey = process.env.OPENROUTER_API_KEY;
+      provider = provider || "openrouter";
+    }
+  }
 
   if (!apiKey) {
     throw new Error(
-      "AI API Key is not configured. Please add it in settings or environment variables.",
+      "AI API Key não configurada. Adicione GEMINI_API_KEY, ANTHROPIC_API_KEY ou OPENROUTER_API_KEY nas variáveis de ambiente.",
     );
   }
 
-  // Determine provider
-  let provider = config.provider;
+  // Clean key in case of surrounding whitespace or quotes
+  apiKey = apiKey.trim().replace(/^["']|["']$/g, "");
+
+  // Determine provider if not set
   if (!provider) {
-    if (apiKey.startsWith("sk-ant-")) {
+    if (apiKey.startsWith("AIza")) {
+      provider = "gemini";
+    } else if (apiKey.startsWith("sk-ant-")) {
       provider = "anthropic";
     } else if (apiKey.startsWith("sk-or-") || apiKey.includes("openrouter")) {
       provider = "openrouter";
-    } else if (apiKey.startsWith("AIzaSy")) {
-      provider = "gemini";
     } else {
-      // Fallback: If Anthropic key env var is set, use Anthropic, otherwise try OpenRouter/Gemini
-      if (
-        process.env.ANTHROPIC_API_KEY === apiKey ||
-        apiKey.startsWith("sk-")
-      ) {
+      if (process.env.GEMINI_API_KEY === apiKey) {
+        provider = "gemini";
+      } else if (process.env.ANTHROPIC_API_KEY === apiKey) {
         provider = "anthropic";
       } else {
         provider = "openrouter";
@@ -106,25 +116,35 @@ export async function callLlm(
     return data.choices?.[0]?.message?.content ?? "";
   }
 
-  // Gemini provider fallback
-  const modelName = "gemini-3.6-flash";
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [{ text: `${systemPrompt}\n\nUser Prompt:\n${userPrompt}` }],
-        },
-      ],
-      generationConfig: {
-        responseMimeType: "application/json",
+  // Gemini provider logic with model fallback
+  const primaryModel = "gemini-3.6-flash";
+  const fallbackModel = "gemini-2.5-flash";
+
+  const tryCallGemini = async (model: string) => {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    return fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-    }),
-  });
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [{ text: `${systemPrompt}\n\nUser Prompt:\n${userPrompt}` }],
+          },
+        ],
+        generationConfig: {
+          responseMimeType: "application/json",
+        },
+      }),
+    });
+  };
+
+  let response = await tryCallGemini(primaryModel);
+  if (!response.ok && (response.status === 404 || response.status === 400)) {
+    // If primary model name isn't recognized by Google AI Studio API, retry with fallback model
+    response = await tryCallGemini(fallbackModel);
+  }
 
   if (!response.ok) {
     const errText = await response.text();
