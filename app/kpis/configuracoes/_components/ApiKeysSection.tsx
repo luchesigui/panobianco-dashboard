@@ -33,7 +33,7 @@ export function ApiKeysSection({ apiKeys }: Props) {
 						htmlFor="claude-api-key"
 						className="text-xs font-medium text-slate-600"
 					>
-						Claude API Key
+						API Key da IA (Gemini / Claude)
 					</Label>
 					<Input
 						id="claude-api-key"
@@ -42,11 +42,10 @@ export function ApiKeysSection({ apiKeys }: Props) {
 						value={apiKeys.claudeApiKey}
 						onChange={(e) => apiKeys.setClaudeApiKey(e.target.value)}
 						className="h-10 bg-white border-slate-200"
-						placeholder="sk-ant-…"
+						placeholder="AIzaSy… ou sk-ant-…"
 					/>
 					<p className="text-xs text-slate-400">
-						Chave da API Anthropic para geração automática de insights e
-						análises do dashboard.
+						Chave da API (Gemini ou Anthropic) para geração automática de insights e análises do dashboard.
 					</p>
 				</div>
 				<div className="flex flex-col gap-1.5">
