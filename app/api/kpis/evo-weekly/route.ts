@@ -84,8 +84,10 @@ export async function POST(req: Request) {
 		const byRecep = new Map(recepRows.map((row) => [row.name, row]));
 		for (const row of payload.receptionists) {
 			const weekly = byRecep.get(row.name);
-			row.leads = weekly?.leadsTotal ?? null;
-			row.sales = weekly?.salesTotal ?? null;
+			if (weekly) {
+				if (row.leads == null) row.leads = weekly.leadsTotal ?? null;
+				if (row.sales == null) row.sales = weekly.salesTotal ?? null;
+			}
 			row.conversion_pct = row.leads && row.sales != null
 				? Math.round((row.sales / row.leads) * 1000) / 10
 				: 0;

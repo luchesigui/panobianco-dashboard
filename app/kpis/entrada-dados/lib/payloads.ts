@@ -70,8 +70,8 @@ export function recepMonthFromConsultoras(
 		return {
 			id: newRowId(),
 			name: c.name,
-			leads: match ? String(match.leads) : "",
-			sales: match ? String(match.sales) : "",
+			leads: match?.leads != null ? String(match.leads) : "",
+			sales: match?.sales != null ? String(match.sales) : "",
 			goal: match
 				? String(match.goal)
 				: c.monthly_goal != null
@@ -186,20 +186,20 @@ export function assembleSmPayload(
 		});
 	recomputeWeeklyTotals(out.weekly);
 
-	// Sync monthly totals from weekly data (mirrors parse endpoint logic)
+	// Sync monthly totals from weekly data ONLY if monthly data is missing
 	const byRecepMap = new Map(
 		(out.weekly.salesWeekly.byReceptionist ?? []).map((r) => [r.name, r]),
 	);
 	for (const r of out.receptionists) {
 		const wr = byRecepMap.get(r.name);
 		if (wr) {
-			if (wr.salesTotal != null) r.sales = wr.salesTotal;
-			if (wr.leadsTotal != null) r.leads = wr.leadsTotal;
-			r.conversion_pct =
-				r.leads && r.leads > 0 && r.sales != null
-					? Math.round((r.sales / r.leads) * 100 * 10) / 10
-					: 0;
+			if (r.sales == null && wr.salesTotal != null) r.sales = wr.salesTotal;
+			if (r.leads == null && wr.leadsTotal != null) r.leads = wr.leadsTotal;
 		}
+		r.conversion_pct =
+			r.leads && r.leads > 0 && r.sales != null
+				? Math.round((r.sales / r.leads) * 100 * 10) / 10
+				: 0;
 	}
 
 	if (monthlyMarketing) {

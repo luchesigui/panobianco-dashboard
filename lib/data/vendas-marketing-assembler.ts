@@ -51,6 +51,7 @@ export function assemblePayloadFromNormalized({
   recepcaoSemanal,
   consultoras,
   periodLabel,
+  monthlyReceptionists,
 }: {
   funilMensal: FunilMensalRow | null;
   marketingSemanal: MarketingSemanalRow[];
@@ -59,6 +60,7 @@ export function assemblePayloadFromNormalized({
   recepcaoSemanal: RecepcaoSemanalRow[];
   consultoras: ConsultoraRef[];
   periodLabel: string;
+  monthlyReceptionists?: Array<{ name: string; leads?: number | null; sales?: number | null }>;
 }): SalesMarketingDashboardPayload {
   if (!funilMensal && !marketingSemanal.length && !funilSemanal.length && !conversoesSemanal.length && !recepcaoSemanal.length && !consultoras.length) {
     return createDefaultSmPayload(periodLabel);
@@ -131,20 +133,26 @@ export function assemblePayloadFromNormalized({
   const receptionists = namesInOrder.map((name) => {
     const row = byReceptionist.find((r) => r.name === name);
     const consultoraGoal = consultoras.find((c) => c.name === name)?.monthly_goal ?? 0;
-    let leads = 0;
-    let sales = 0;
-    let hasAny = false;
+    const monthlyData = monthlyReceptionists?.find((m) => m.name === name);
+
+    let weeklyLeads = 0;
+    let weeklySales = 0;
+    let hasWeeklyData = false;
     if (row) {
       for (let i = 0; i < W; i++) {
-        if (row.leadsByWeek[i] !== null) { leads += row.leadsByWeek[i]!; hasAny = true; }
-        if (row.salesByWeek[i] !== null) { sales += row.salesByWeek[i]!; hasAny = true; }
+        if (row.leadsByWeek[i] !== null) { weeklyLeads += row.leadsByWeek[i]!; hasWeeklyData = true; }
+        if (row.salesByWeek[i] !== null) { weeklySales += row.salesByWeek[i]!; hasWeeklyData = true; }
       }
     }
-    const conversion_pct = leads > 0 ? Math.round((sales / leads) * 1000) / 10 : 0;
+
+    const leads = monthlyData?.leads != null ? monthlyData.leads : (hasWeeklyData ? weeklyLeads : null);
+    const sales = monthlyData?.sales != null ? monthlyData.sales : (hasWeeklyData ? weeklySales : null);
+    const conversion_pct = leads && leads > 0 && sales != null ? Math.round((sales / leads) * 1000) / 10 : 0;
+
     return {
       name,
-      leads: hasAny ? leads : null,
-      sales: hasAny ? sales : null,
+      leads,
+      sales,
       goal: consultoraGoal,
       conversion_pct,
     };
