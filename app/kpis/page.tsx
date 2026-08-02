@@ -116,7 +116,13 @@ type Props = {
 
 export default async function KpisPage({ searchParams }: Props) {
 	const sp = searchParams ? await searchParams : {};
-	const data = await getKpiPageData();
+	const periodParam =
+		typeof sp.period === "string"
+			? sp.period
+			: typeof sp.month === "string"
+				? sp.month
+				: undefined;
+	const data = await getKpiPageData("panobianco-sjc-satelite", periodParam);
 	const smPrimaryShort = data.currentPeriodLabel;
 
 	// Determine active week header
@@ -143,7 +149,11 @@ export default async function KpisPage({ searchParams }: Props) {
 			<header className={styles.header}>
 				<div className={styles.headerTop}>
 					<DashboardHeader gymName={data.gymName} />
-					<MonthSelector monthLabel={data.currentMonthLabel} />
+					<MonthSelector
+						monthLabel={data.currentMonthLabel}
+						prevPeriodId={data.prevPeriodId}
+						nextPeriodId={data.nextPeriodId}
+					/>
 				</div>
 			</header>
 

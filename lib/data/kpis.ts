@@ -4,7 +4,6 @@ import {
 	type RoiChartPayload,
 } from "@/lib/data/roi-fallbacks";
 import {
-	hasAnySmData,
 	isExperimentalFunnelEmpty,
 	mergeSmWeeklyWithPeriodSource,
 	normalizeSmPayloadWeeks,
@@ -131,6 +130,10 @@ export type NextMonthForecastPayload = {
 export type KpiPageData = {
 	gymName: string;
 	kpiDataPeriod: string;
+	selectedPeriod: string;
+	prevPeriodId?: string;
+	nextPeriodId?: string;
+	availablePeriods: string[];
 	smPrimaryPeriod: string;
 	/** True when monthly KPI data is loaded from current calendar month, false when fallback is previous month. */
 	isCurrentMonthData: boolean;
@@ -513,6 +516,7 @@ function buildNextMonthForecast(
 
 export async function getKpiPageData(
 	gymSlug = "panobianco-sjc-satelite",
+	selectedPeriod?: string,
 ): Promise<KpiPageData> {
 	const supabase = getServiceSupabase();
 
@@ -533,20 +537,78 @@ export async function getKpiPageData(
 	const prevMonthPeriod = _mk(
 		new Date(_now.getFullYear(), _now.getMonth() - 1, 1),
 	);
-	const prev2MonthPeriod = _mk(
-		new Date(_now.getFullYear(), _now.getMonth() - 2, 1),
-	);
-	const prev3MonthPeriod = _mk(
-		new Date(_now.getFullYear(), _now.getMonth() - 3, 1),
-	);
 
-	// Fetch values for current month + 3 prior months in one query; resolve kpiDataPeriod after
-	const fetchPeriodIds = [
-		currentMonthPeriod,
-		prevMonthPeriod,
-		prev2MonthPeriod,
-		prev3MonthPeriod,
+	const [allPeriodsRes, funilPeriodsRes] = await Promise.all([
+		supabase.from("kpi_values").select("period_id").eq("gym_id", gym.id),
+		supabase.from("funil_mensal").select("period_id").eq("gym_id", gym.id),
+	]);
+
+	const rawPeriods = [
+		...(allPeriodsRes.data ?? []).map((r) => normalizePeriodId(r.period_id)),
+		...(funilPeriodsRes.data ?? []).map((r) => normalizePeriodId(r.period_id)),
 	];
+	const availablePeriods = Array.from(new Set(rawPeriods))
+		.filter(Boolean)
+		.sort((a, b) => a.localeCompare(b));
+
+	let kpiDataPeriod = prevMonthPeriod;
+	if (selectedPeriod) {
+		const normalized = normalizePeriodId(selectedPeriod);
+		if (normalized) {
+			kpiDataPeriod = normalized;
+		}
+	} else if (availablePeriods.length > 0) {
+		if (availablePeriods.includes(prevMonthPeriod)) {
+			kpiDataPeriod = prevMonthPeriod;
+		} else {
+			kpiDataPeriod = availablePeriods[availablePeriods.length - 1];
+		}
+	}
+
+	const getOffsetMonth = (basePeriod: string, offset: number): string => {
+		const parts = basePeriod.split("-").map(Number);
+		const d = new Date(parts[0], parts[1] - 1 + offset, 1);
+		const y = d.getFullYear();
+		const mo = String(d.getMonth() + 1).padStart(2, "0");
+		return `${y}-${mo}-01`;
+	};
+
+	const previousPeriod = getOffsetMonth(kpiDataPeriod, -1);
+	const thirdPeriod = getOffsetMonth(kpiDataPeriod, -2);
+	const fourthPeriod = getOffsetMonth(kpiDataPeriod, -3);
+
+	const smPrimaryPeriod = kpiDataPeriod;
+	const smComparisonPeriod = previousPeriod;
+
+	const currentIndex = availablePeriods.indexOf(kpiDataPeriod);
+	let prevPeriodId: string | undefined = undefined;
+	let nextPeriodId: string | undefined = undefined;
+
+	if (currentIndex !== -1) {
+		if (currentIndex > 0) {
+			prevPeriodId = availablePeriods[currentIndex - 1];
+		}
+		if (currentIndex < availablePeriods.length - 1) {
+			nextPeriodId = availablePeriods[currentIndex + 1];
+		}
+	} else {
+		const calcPrev = getOffsetMonth(kpiDataPeriod, -1);
+		const calcNext = getOffsetMonth(kpiDataPeriod, 1);
+		if (availablePeriods.includes(calcPrev)) prevPeriodId = calcPrev;
+		if (availablePeriods.includes(calcNext)) nextPeriodId = calcNext;
+	}
+
+	const fetchPeriodIds = Array.from(
+		new Set([
+			currentMonthPeriod,
+			kpiDataPeriod,
+			previousPeriod,
+			thirdPeriod,
+			fourthPeriod,
+			smPrimaryPeriod,
+			smComparisonPeriod,
+		])
+	);
 
 	const [
 		defsRes,
@@ -576,7 +638,7 @@ export async function getKpiPageData(
 				.select("period_id,kpi_definition_id,value_numeric")
 				.eq("gym_id", gym.id)
 				.gte("period_id", "2025-04-01")
-				.lte("period_id", prevMonthPeriod)
+				.lte("period_id", kpiDataPeriod)
 				.order("period_id", { ascending: true }),
 			supabase
 				.from("gym_settings")
@@ -636,43 +698,16 @@ export async function getKpiPageData(
 	};
 
 	const smPayloads = fetchPeriodIds.map((pid) => buildSmPayload(pid));
-	const periodHasKpiData = (periodId: string): boolean => {
-		return valuesRes.data.some((row) => {
-			const rowPeriod = normalizePeriodId(row.period_id);
-			const def = (defsRes.data ?? []).find((d) => d.id === row.kpi_definition_id);
-			return (
-				rowPeriod === periodId &&
-				(def?.code === "revenue_total" || def?.code === "base_students_end") &&
-				row.value_numeric != null
-			);
-		});
-	};
-	const kpiDataPeriod = prevMonthPeriod; // General dashboard always targets previous calendar month
 	const hasCurrentMonthData = false;
 
-	const getOffsetMonth = (basePeriod: string, offset: number): string => {
-		const parts = basePeriod.split("-").map(Number);
-		const d = new Date(parts[0], parts[1] - 1 + offset, 1);
-		const y = d.getFullYear();
-		const mo = String(d.getMonth() + 1).padStart(2, "0");
-		return `${y}-${mo}-01`;
-	};
-
-	const previousPeriod = getOffsetMonth(kpiDataPeriod, -1); // Month before previous (e.g. April)
-	const thirdPeriod = getOffsetMonth(kpiDataPeriod, -2);
-
-	// Resolve the weekly sales & marketing primary/comparison periods
-	const smPrimaryPeriod = currentMonthPeriod;
-	const smComparisonPeriod = prevMonthPeriod;
-
-	const primaryPayload = smPayloads[0] ?? assemblePayloadFromNormalized({
+	const primaryPayload = buildSmPayload(smPrimaryPeriod) ?? assemblePayloadFromNormalized({
 		funilMensal: null,
 		marketingSemanal: [],
 		funilSemanal: [],
 		conversoesSemanal: [],
 		recepcaoSemanal: [],
 		consultoras: consultorasForAssembler,
-		periodLabel: toLabel(currentMonthPeriod),
+		periodLabel: toLabel(smPrimaryPeriod),
 	});
 	const comparisonPayload = buildSmPayload(smComparisonPeriod) ?? assemblePayloadFromNormalized({
 		funilMensal: null,
@@ -891,45 +926,45 @@ export async function getKpiPageData(
 	}
 
 	let prevSmDashboardPayload: SalesMarketingDashboardPayload | null = null;
-	const prevPrimaryPayload = smPayloads[1] ?? assemblePayloadFromNormalized({
+	const prevPrimaryPayload = buildSmPayload(previousPeriod) ?? assemblePayloadFromNormalized({
 		funilMensal: null,
 		marketingSemanal: [],
 		funilSemanal: [],
 		conversoesSemanal: [],
 		recepcaoSemanal: [],
 		consultoras: consultorasForAssembler,
-		periodLabel: toLabel(prevMonthPeriod),
+		periodLabel: toLabel(previousPeriod),
 	});
-	const prevComparisonPayload = smPayloads[2] ?? assemblePayloadFromNormalized({
+	const prevComparisonPayload = buildSmPayload(thirdPeriod) ?? assemblePayloadFromNormalized({
 		funilMensal: null,
 		marketingSemanal: [],
 		funilSemanal: [],
 		conversoesSemanal: [],
 		recepcaoSemanal: [],
 		consultoras: consultorasForAssembler,
-		periodLabel: toLabel(prev2MonthPeriod),
+		periodLabel: toLabel(thirdPeriod),
 	});
 
 	if (prevPrimaryPayload || prevComparisonPayload) {
 		const mergedResult = mergeSmWeeklyWithPeriodSource(
 			prevPrimaryPayload,
 			prevComparisonPayload,
-			prevMonthPeriod,
-			prevComparisonPayload ? prev2MonthPeriod : null,
+			previousPeriod,
+			prevComparisonPayload ? thirdPeriod : null,
 		);
 		prevSmDashboardPayload = mergedResult.merged;
 	}
 
 	if (prevSmDashboardPayload) {
 		prevSmDashboardPayload.receptionists = prevPrimaryPayload.receptionists;
-		prevSmDashboardPayload.receptionistsPeriodLabel = toLabel(prevMonthPeriod);
+		prevSmDashboardPayload.receptionistsPeriodLabel = toLabel(previousPeriod);
 
-		let monthlyFunnelSource = smPayloads[1];
+		let monthlyFunnelSource = buildSmPayload(previousPeriod);
 		if (!monthlyFunnelSource || isExperimentalFunnelEmpty(monthlyFunnelSource.funnel)) {
-			monthlyFunnelSource = smPayloads[2];
+			monthlyFunnelSource = buildSmPayload(thirdPeriod);
 		}
 		if (!monthlyFunnelSource || isExperimentalFunnelEmpty(monthlyFunnelSource.funnel)) {
-			monthlyFunnelSource = smPayloads[3];
+			monthlyFunnelSource = buildSmPayload(fourthPeriod);
 		}
 
 		if (monthlyFunnelSource) {
@@ -1344,6 +1379,10 @@ export async function getKpiPageData(
 	return {
 		gymName: gym.name,
 		kpiDataPeriod,
+		selectedPeriod: kpiDataPeriod,
+		prevPeriodId,
+		nextPeriodId,
+		availablePeriods,
 		smPrimaryPeriod,
 		isCurrentMonthData: hasCurrentMonthData,
 		currentMonthLabel: toLongLabel(kpiDataPeriod),

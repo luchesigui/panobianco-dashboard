@@ -129,16 +129,51 @@
 .periodStrip {
 	display: flex;
 	align-items: center;
-	gap: 6px;
+	gap: 4px;
 	background: var(--pb-orange);
 	border: 0;
 	border-radius: 999px;
-	padding: 8px 14px;
+	padding: 4px 6px;
 	box-shadow: var(--shadow-sm);
 	font-size: 12px;
 	color: #fff;
 	font-weight: 800;
 	text-transform: uppercase;
+}
+
+.periodLabelWrapper {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 2px 8px;
+}
+
+.periodNavBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	background: rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	border: none;
+	cursor: pointer;
+	transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.periodNavBtn:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.4);
+	transform: scale(1.05);
+}
+
+.periodNavBtn:active:not(:disabled) {
+	transform: scale(0.95);
+}
+
+.periodNavBtn:disabled {
+	opacity: 0.35;
+	cursor: not-allowed;
 }
 
 .periodStrip strong {
