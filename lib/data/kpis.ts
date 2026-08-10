@@ -538,14 +538,23 @@ export async function getKpiPageData(
 		new Date(_now.getFullYear(), _now.getMonth() - 1, 1),
 	);
 
-	const [allPeriodsRes, funilPeriodsRes] = await Promise.all([
+	const [allPeriodsRes, funilPeriodsRes, weeklyPeriodsRes] = await Promise.all([
 		supabase.from("kpi_values").select("period_id").eq("gym_id", gym.id),
 		supabase.from("funil_mensal").select("period_id").eq("gym_id", gym.id),
+		Promise.all([
+			supabase.from("marketing_semanal").select("period_id").eq("gym_id", gym.id),
+			supabase.from("funil_semanal").select("period_id").eq("gym_id", gym.id),
+			supabase.from("conversoes_semanais").select("period_id").eq("gym_id", gym.id),
+			supabase.from("recepcao_semanal").select("period_id").eq("gym_id", gym.id),
+		]),
 	]);
 
 	const rawPeriods = [
 		...(allPeriodsRes.data ?? []).map((r) => normalizePeriodId(r.period_id)),
 		...(funilPeriodsRes.data ?? []).map((r) => normalizePeriodId(r.period_id)),
+		...weeklyPeriodsRes.flatMap((result) =>
+			(result.data ?? []).map((r) => normalizePeriodId(r.period_id)),
+		),
 	];
 	const availablePeriods = Array.from(new Set(rawPeriods))
 		.filter(Boolean)
@@ -577,8 +586,15 @@ export async function getKpiPageData(
 	const thirdPeriod = getOffsetMonth(kpiDataPeriod, -2);
 	const fourthPeriod = getOffsetMonth(kpiDataPeriod, -3);
 
-	const smPrimaryPeriod = kpiDataPeriod;
-	const smComparisonPeriod = previousPeriod;
+	const hasCurrentMonthWeeklyData = weeklyPeriodsRes.some((result) =>
+		(result.data ?? []).some(
+			(row) => normalizePeriodId(row.period_id) === currentMonthPeriod,
+		),
+	);
+	const smPrimaryPeriod = hasCurrentMonthWeeklyData
+		? currentMonthPeriod
+		: kpiDataPeriod;
+	const smComparisonPeriod = getOffsetMonth(smPrimaryPeriod, -1);
 
 	const currentIndex = availablePeriods.indexOf(kpiDataPeriod);
 	let prevPeriodId: string | undefined = undefined;
