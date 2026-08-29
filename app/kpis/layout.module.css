@@ -2,9 +2,9 @@
 	min-height: 100%;
 	font-family: var(--font-kpi-body), system-ui, sans-serif;
 	background:
-		radial-gradient(90% 55% at 50% 0%, rgba(255, 97, 0, 0.08), transparent 62%),
-		radial-gradient(120% 60% at 50% 115%, rgba(73, 41, 26, 0.1), transparent 68%),
-		#f7f6f3;
-	color: #1a1a18;
+		radial-gradient(92% 52% at 52% -8%, rgba(255, 97, 0, 0.12), transparent 64%),
+		radial-gradient(112% 52% at 5% 100%, rgba(51, 0, 0, 0.08), transparent 68%),
+		#faede4;
+	color: #161515;
 	-webkit-font-smoothing: antialiased;
 }

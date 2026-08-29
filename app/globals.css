@@ -83,23 +83,23 @@ a {
 }
 
 :root {
-  --background: #f7f6f3;
-  --foreground: #15191a;
+  --background: #faede4;
+  --foreground: #161515;
   --card: oklch(1 0 0);
-  --card-foreground: #15191a;
+  --card-foreground: #161515;
   --popover: oklch(1 0 0);
-  --popover-foreground: #15191a;
+  --popover-foreground: #161515;
   --primary: #ff6100;
   --primary-foreground: #fff;
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: #f5dfd2;
+  --secondary-foreground: #3d3336;
+  --muted: #f5dfd2;
+  --muted-foreground: #87756b;
+  --accent: #f5dfd2;
+  --accent-foreground: #3d3336;
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
+  --border: rgba(61, 51, 54, 0.16);
+  --input: rgba(61, 51, 54, 0.22);
   --ring: #ff6100;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);

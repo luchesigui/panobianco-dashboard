@@ -1,49 +1,41 @@
 /* Design tokens scoped to KPI page (source: panobianco-design-tokens) */
 .page {
 	--pb-orange: #ff6100;
-	--pb-orange-deep: #ff4b00;
-	--pb-orange-burnt: #dc5302;
-	--pb-ember: #722b01;
-	--pb-ember-dark: #49291a;
-	--pb-ink: #15191a;
-	--pb-charcoal: #1d1d1b;
-	--pb-charcoal-2: #1c2021;
-	--pb-tile: #212322;
-	--pb-nav: #2b0d00;
-	--pb-steel: #4b4f50;
-	--pb-steel-dark: #0d0f0e;
-	--pb-text-on-orange: #1a0a00;
-	--bg: #f7f6f3;
+	--pb-black: #161515;
+	--pb-burgundy: #330000;
+	--pb-off-white: #faede4;
+	--pb-warm-gray: #87756b;
+	--pb-graphite: #3d3336;
+	--pb-text-on-orange: #161515;
+	--bg: var(--pb-off-white);
 	--bg-card: #ffffff;
-	--bg-elevated: #eeede8;
-	--text-primary: #15191a;
-	--text-secondary: #6b6a65;
-	--text-tertiary: #9c9b96;
-	--border: rgba(0, 0, 0, 0.08);
-	--border-strong: rgba(0, 0, 0, 0.14);
+	--bg-elevated: #f5dfd2;
+	--text-primary: var(--pb-black);
+	--text-secondary: #5d4d46;
+	--text-tertiary: var(--pb-warm-gray);
+	--border: rgba(61, 51, 54, 0.14);
+	--border-strong: rgba(61, 51, 54, 0.28);
 	--accent: var(--pb-orange);
-	--accent-light: #fff0e6;
-	--accent-dark: #9c3700;
-	--coral: var(--pb-orange-deep);
-	--coral-light: #fff0e6;
-	--blue: #2b0d00;
-	--blue-light: #fff0e6;
-	--red: #a32d2d;
-	--red-light: #fcebeb;
-	--amber: var(--pb-ember);
-	--amber-light: #faeeda;
-	--purple: var(--pb-steel);
-	--purple-light: #eceeed;
-	--radius: 12px;
-	--radius-lg: 24px;
+	--accent-light: #ffe0cc;
+	--accent-dark: #9b3b00;
+	--blue: var(--pb-burgundy);
+	--blue-light: #f2dddd;
+	--red: #9c2525;
+	--red-light: #f9e4e0;
+	--amber: #815514;
+	--amber-light: #f7ead5;
+	--purple: var(--pb-graphite);
+	--purple-light: #ece7e4;
+	--radius: 14px;
+	--radius-lg: 20px;
 	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
 	--shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
 	--shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
 	--transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 	--font-body: var(--font-kpi-body), system-ui, sans-serif;
-	--font-display: var(--font-kpi-display), "Barlow Condensed", sans-serif;
+	--font-display: var(--font-kpi-display), Archivo, sans-serif;
 
-	max-width: 1200px;
+	max-width: 1360px;
 	margin: 0 auto;
 	padding: 2rem 2rem 3rem;
 	font-family: var(--font-body);
@@ -57,60 +49,43 @@
 	}
 }
 
-/* Header (reference .header / .brand) */
+/* Header */
 .header {
 	position: relative;
-	padding: 1.25rem 0 1.5rem;
+	padding: 1.75rem 0 1.7rem;
 	margin-bottom: 1.75rem;
 	overflow: visible;
-	border-radius: 0;
 	background: transparent;
-	clip-path: none;
-	box-shadow: none;
-	border: 0;
-}
-
-.header::after {
-	content: none;
 }
 
 .headerTop {
 	position: relative;
-	z-index: 1;
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
 	flex-wrap: wrap;
 	gap: 12px;
-	margin-bottom: 0;
 }
 
 .brand {
 	display: flex;
 	align-items: center;
-	gap: 14px;
 }
 
-.brandIcon {
-	width: 44px;
-	height: 44px;
-	background: linear-gradient(165deg, var(--pb-orange), var(--pb-orange-deep));
-	clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%, 0 22%);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: #fff;
-	font-family: var(--font-display);
-	font-size: 24px;
-	font-weight: 900;
+.eyebrow {
+	margin: 0 0 8px;
+	color: var(--pb-burgundy);
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
 }
 
 .title {
 	font-family: var(--font-display);
 	font-size: clamp(44px, 7vw, 84px);
-	font-style: italic;
 	font-weight: 900;
-	letter-spacing: -0.01em;
+	letter-spacing: -0.035em;
 	line-height: 0.95;
 	margin: 0;
 	text-transform: uppercase;
@@ -130,13 +105,13 @@
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	background: var(--pb-orange);
+	background: var(--pb-black);
 	border: 0;
 	border-radius: 999px;
 	padding: 4px 6px;
 	box-shadow: var(--shadow-sm);
 	font-size: 12px;
-	color: #fff;
+	color: var(--pb-off-white);
 	font-weight: 800;
 	text-transform: uppercase;
 }
@@ -155,8 +130,8 @@
 	width: 28px;
 	height: 28px;
 	border-radius: 50%;
-	background: rgba(255, 255, 255, 0.2);
-	color: #ffffff;
+	background: rgba(255, 255, 255, 0.14);
+	color: var(--pb-off-white);
 	border: none;
 	cursor: pointer;
 	transition: background 0.15s ease, transform 0.1s ease;
@@ -198,7 +173,7 @@
 
 /* Theme sections */
 .themeSection {
-	margin-bottom: 2.8rem;
+	margin-bottom: 3.25rem;
 	padding: 0;
 	border-radius: 0;
 	position: relative;
@@ -794,3 +769,42 @@
 	margin: 0;
 }
 
+/* 2026 dashboard refinements: one editorial surface, light metric cards. */
+.themeHeader {
+	margin-bottom: 18px;
+}
+
+.themeHeader h2,
+.kpiValue,
+.sectionPlain h2,
+.feature h2 {
+	font-style: normal;
+}
+
+.kpiCard,
+.insightCard,
+.chartCard,
+.feature {
+	border-radius: var(--radius);
+}
+
+.insightCardHeader {
+	padding: 11px 16px;
+}
+
+.headerOverview,
+.headerVendas,
+.headerRetencao,
+.headerFinanceiro,
+.headerRoi,
+.headerPrevisao {
+	background: var(--pb-black);
+	color: var(--pb-off-white);
+	border-left: 4px solid var(--pb-orange);
+}
+
+@media (max-width: 768px) {
+	.themeSection {
+		padding: 0;
+	}
+}

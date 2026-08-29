@@ -8,6 +8,7 @@ export function DashboardHeader({ gymName }: DashboardHeaderProps) {
 	return (
 		<div className={styles.brand}>
 			<div>
+				<p className={styles.eyebrow}>Panobianco. Feitos de força e vontade.</p>
 				<h1 className={styles.title}>Dashboard estratégico</h1>
 				<p className={styles.subtitle}>{gymName}</p>
 			</div>

@@ -15,13 +15,11 @@ export function Navbar() {
 	const pathname = usePathname();
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-black/10 bg-[#f7f6f3]/95 text-slate-900 shadow-sm backdrop-blur">
+		<header className="sticky top-0 z-50 border-b border-black/20 bg-[#330000]/95 text-[#faede4] shadow-sm backdrop-blur">
 			<div className="max-w-6xl mx-auto px-6 h-14 flex items-center gap-8">
 				<Link href="/kpis" className="flex items-center gap-2.5 shrink-0 uppercase">
-					<div className="w-8 h-8 bg-[#FF6100] flex items-center justify-center text-white text-sm font-black tracking-tight [clip-path:polygon(28%_0,100%_0,100%_100%,0_100%,0_22%)]">
-						P
-					</div>
-					<span className="text-sm font-extrabold tracking-[0.08em]">
+					<span className="h-6 w-1 bg-[#ff6100] [clip-path:polygon(0_0,100%_0,100%_72%,0_100%)]" aria-hidden />
+					<span className="text-sm font-extrabold tracking-[0.08em] text-white">
 						Panobianco
 					</span>
 				</Link>
@@ -36,8 +34,8 @@ export function Navbar() {
 								className={clsx(
 									"px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-[0.06em] transition-colors",
 									active
-										? "bg-white text-slate-950 shadow-sm ring-1 ring-black/10"
-										: "text-slate-500 hover:bg-white/70 hover:text-slate-900"
+										? "bg-[#ff6100] text-[#161515] shadow-sm"
+										: "text-[#faede4]/75 hover:bg-white/10 hover:text-white"
 								)}
 							>
 								{label}
@@ -49,7 +47,7 @@ export function Navbar() {
 				<form action={logout} className="ml-2">
 					<button
 						type="submit"
-						className="px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-[0.06em] text-slate-500 hover:bg-white/70 hover:text-slate-900 transition-colors"
+						className="px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-[0.06em] text-[#faede4]/75 hover:bg-white/10 hover:text-white transition-colors"
 					>
 						Sair
 					</button>

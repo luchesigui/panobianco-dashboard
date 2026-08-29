@@ -1,17 +1,19 @@
 import type { ReactNode } from "react";
-import { Barlow, Barlow_Condensed } from "next/font/google";
+import { Archivo } from "next/font/google";
 import { Navbar } from "./Navbar";
 import styles from "./layout.module.css";
 import { clsx } from "clsx";
 
-const body = Barlow({
+// Forma DJR Micro is the 2026 brand font. Archivo is the approved
+// operational fallback until the licensed font files are supplied.
+const body = Archivo({
 	subsets: ["latin"],
 	variable: "--font-kpi-body",
-	weight: ["400", "500", "600", "700", "800"],
+	weight: ["400", "500", "600", "700", "800", "900"],
 	display: "swap",
 });
 
-const display = Barlow_Condensed({
+const display = Archivo({
 	subsets: ["latin"],
 	variable: "--font-kpi-display",
 	weight: ["700", "800", "900"],
