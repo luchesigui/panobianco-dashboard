@@ -1,4 +1,5 @@
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
+import { CHART_COLOR } from "@/lib/kpis/card-bar-colors";
 import styles from "./vendas-marketing.module.css";
 
 type Props = {
@@ -16,7 +17,7 @@ export function Composicao({ composition }: Props) {
 					<article className={styles.salesCompCard}>
 						<div
 							className={styles.salesCompStripe}
-							style={{ background: "var(--blue, #185fa5)" }}
+							style={{ background: CHART_COLOR.comparison }}
 							aria-hidden
 						/>
 						<div>
@@ -25,7 +26,7 @@ export function Composicao({ composition }: Props) {
 							</div>
 							<div
 								className={styles.salesCompVal}
-								style={{ color: "var(--blue, #185fa5)" }}
+								style={{ color: CHART_COLOR.comparison }}
 							>
 								{new Intl.NumberFormat("pt-BR").format(
 									composition.experimental.value,
@@ -40,7 +41,7 @@ export function Composicao({ composition }: Props) {
 						<article className={styles.salesCompCard}>
 							<div
 								className={styles.salesCompStripe}
-								style={{ background: "#d85a30" }}
+								style={{ background: CHART_COLOR.secondary }}
 								aria-hidden
 							/>
 							<div>
@@ -49,7 +50,7 @@ export function Composicao({ composition }: Props) {
 								</div>
 								<div
 									className={styles.salesCompVal}
-									style={{ color: "#d85a30" }}
+									style={{ color: CHART_COLOR.secondary }}
 								>
 									{new Intl.NumberFormat("pt-BR").format(
 										composition.online.value,
@@ -64,7 +65,7 @@ export function Composicao({ composition }: Props) {
 					<article className={styles.salesCompCard}>
 						<div
 							className={styles.salesCompStripe}
-							style={{ background: "var(--accent, #0f6e56)" }}
+							style={{ background: CHART_COLOR.primary }}
 							aria-hidden
 						/>
 						<div>
@@ -73,7 +74,7 @@ export function Composicao({ composition }: Props) {
 							</div>
 							<div
 								className={styles.salesCompVal}
-								style={{ color: "var(--accent, #0f6e56)" }}
+								style={{ color: CHART_COLOR.primary }}
 							>
 								{new Intl.NumberFormat("pt-BR").format(
 									composition.otherChannels.value,

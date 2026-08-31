@@ -20,12 +20,12 @@ type Props = {
 
 export function ConsultorasSection({ consultoras, nameInputRefs }: Props) {
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 					Consultoras
 				</CardTitle>
-				<CardDescription className="text-xs text-slate-400 mt-0.5">
+				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 					Equipe de vendas. Usada para atribuição de metas e recepções.
 				</CardDescription>
 			</CardHeader>
@@ -41,13 +41,13 @@ export function ConsultorasSection({ consultoras, nameInputRefs }: Props) {
 								onChange={(e) =>
 									consultoras.updateConsultora(i, "name", e.target.value)
 								}
-								className="h-9 bg-white border-slate-200 text-sm"
+								className="h-9 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] text-sm"
 								placeholder="Nome da consultora"
 							/>
 							<button
 								type="button"
 								onClick={() => nameInputRefs.current[i]?.focus()}
-								className="p-1.5 text-slate-400 hover:text-slate-600 transition-colors shrink-0"
+								className="p-1.5 text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] transition-colors shrink-0"
 								tabIndex={-1}
 								aria-label="Editar"
 							>
@@ -56,7 +56,7 @@ export function ConsultorasSection({ consultoras, nameInputRefs }: Props) {
 							<button
 								type="button"
 								onClick={() => consultoras.removeConsultora(i)}
-								className="p-1.5 text-slate-400 hover:text-red-500 transition-colors shrink-0"
+								className="p-1.5 text-[color:var(--text-muted)] hover:text-[color:var(--feedback-negative)] transition-colors shrink-0"
 								aria-label="Remover"
 							>
 								<Trash2 size={14} />
@@ -67,7 +67,7 @@ export function ConsultorasSection({ consultoras, nameInputRefs }: Props) {
 				<button
 					type="button"
 					onClick={consultoras.addConsultora}
-					className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-700 transition-colors"
+					className="flex items-center gap-1.5 text-xs text-[color:var(--text-secondary)] hover:text-[color:var(--text-primary)] transition-colors"
 				>
 					<Plus size={13} />
 					Adicionar consultora
@@ -76,7 +76,7 @@ export function ConsultorasSection({ consultoras, nameInputRefs }: Props) {
 					onClick={() => void consultoras.handleSaveConsultoras("consultoras")}
 					disabled={consultoras.saving}
 					variant="outline"
-					className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+					className="h-9 px-5 border-[color:var(--border-subtle)] text-[color:var(--text-primary)] hover:bg-[color:var(--surface-muted)]"
 				>
 					{consultoras.saving ? "Salvando…" : "Salvar consultoras"}
 				</Button>

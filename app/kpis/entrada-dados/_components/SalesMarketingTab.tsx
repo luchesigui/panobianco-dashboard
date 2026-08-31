@@ -25,10 +25,10 @@ export function SalesMarketingTab({ sm, onUploadFile, uploading }: Props) {
 				<CardHeader className="pb-3">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
-							<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+							<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 								Grade semanal
 							</CardTitle>
-							<CardDescription className="text-xs text-slate-400 mt-0.5">
+							<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 								S1–S5 = dom–sáb por semana.
 							</CardDescription>
 						</div>
@@ -54,7 +54,7 @@ export function SalesMarketingTab({ sm, onUploadFile, uploading }: Props) {
 					/>
 
 					{sm.recepWeekRows.length === 0 && (
-						<p className="text-xs text-slate-400 mt-4">
+						<p className="text-xs text-[color:var(--text-muted)] mt-4">
 							Nenhuma consultora cadastrada.{" "}
 							<a href="/kpis/configuracoes" className="underline">
 								Configure em Configurações.

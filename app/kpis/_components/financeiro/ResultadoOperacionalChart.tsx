@@ -10,14 +10,13 @@ import {
 } from "chart.js";
 import { useMemo } from "react";
 import { Bar } from "react-chartjs-2";
+import { CHART_COLOR, CHART_PAINT } from "@/lib/kpis/card-bar-colors";
 import styles from "./financeiro-charts.module.css";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip);
 
-const TICK = "#9c9b96";
-const GRID = "rgba(0, 0, 0, 0.06)";
-const POS = "#0f6e56";
-const NEG = "#8b1f1f";
+const POS = CHART_COLOR.primary;
+const NEG = CHART_COLOR.comparison;
 
 function fmtK(value: number): string {
 	const k = value / 1000;
@@ -76,12 +75,12 @@ export function ResultadoOperacionalChart({
 
 	const commonX = {
 		ticks: {
-			color: TICK,
+			color: CHART_PAINT.axisText,
 			maxRotation: 45,
 			minRotation: 45,
 			font: { size: 10 },
 		},
-		grid: { color: GRID },
+		grid: { color: CHART_PAINT.grid },
 	};
 
 	const opPlugins = useMemo(
@@ -111,13 +110,13 @@ export function ResultadoOperacionalChart({
 								min: opScale.min,
 								max: opScale.max,
 								ticks: {
-									color: TICK,
+									color: CHART_PAINT.axisText,
 									font: { size: 10 },
 									callback: (v) => fmtK(Number(v)),
 								},
 								grid: {
 									color: (ctx) =>
-										ctx.tick.value === 0 ? "rgba(0,0,0,0.18)" : GRID,
+										ctx.tick.value === 0 ? CHART_PAINT.gridEmphasis : CHART_PAINT.grid,
 								},
 							},
 						},

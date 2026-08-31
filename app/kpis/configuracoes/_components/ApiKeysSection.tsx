@@ -18,12 +18,12 @@ type Props = {
 
 export function ApiKeysSection({ apiKeys }: Props) {
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 					Integrações e API Keys
 				</CardTitle>
-				<CardDescription className="text-xs text-slate-400 mt-0.5">
+				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 					Chaves usadas para análise automática de dados pelo assistente de IA.
 				</CardDescription>
 			</CardHeader>
@@ -31,7 +31,7 @@ export function ApiKeysSection({ apiKeys }: Props) {
 				<div className="flex flex-col gap-1.5">
 					<Label
 						htmlFor="claude-api-key"
-						className="text-xs font-medium text-slate-600"
+						className="text-xs font-medium text-[color:var(--text-secondary)]"
 					>
 						API Key da IA (Gemini / Claude)
 					</Label>
@@ -41,17 +41,17 @@ export function ApiKeysSection({ apiKeys }: Props) {
 						autoComplete="off"
 						value={apiKeys.claudeApiKey}
 						onChange={(e) => apiKeys.setClaudeApiKey(e.target.value)}
-						className="h-10 bg-white border-slate-200"
+						className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
 						placeholder="AIzaSy… ou sk-ant-…"
 					/>
-					<p className="text-xs text-slate-400">
+					<p className="text-xs text-[color:var(--text-muted)]">
 						Chave da API (Gemini ou Anthropic) para geração automática de insights e análises do dashboard.
 					</p>
 				</div>
 				<div className="flex flex-col gap-1.5">
 					<Label
 						htmlFor="evo-api-token"
-						className="text-xs font-medium text-slate-600"
+						className="text-xs font-medium text-[color:var(--text-secondary)]"
 					>
 						EVO API Token
 					</Label>
@@ -61,10 +61,10 @@ export function ApiKeysSection({ apiKeys }: Props) {
 						autoComplete="off"
 						value={apiKeys.evoApiToken}
 						onChange={(e) => apiKeys.setEvoApiToken(e.target.value)}
-						className="h-10 bg-white border-slate-200"
+						className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
 						placeholder="Token da academia no sistema EVO"
 					/>
-					<p className="text-xs text-slate-400">
+					<p className="text-xs text-[color:var(--text-muted)]">
 						Token de autenticação para buscar recebimentos e centros de receita
 						da EVO.
 					</p>
@@ -73,7 +73,7 @@ export function ApiKeysSection({ apiKeys }: Props) {
 					onClick={() => void apiKeys.handleSave()}
 					disabled={apiKeys.saving}
 					variant="outline"
-					className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+					className="h-9 px-5 border-[color:var(--border-subtle)] text-[color:var(--text-primary)] hover:bg-[color:var(--surface-muted)]"
 				>
 					{apiKeys.saving ? "Salvando…" : "Salvar chaves"}
 				</Button>

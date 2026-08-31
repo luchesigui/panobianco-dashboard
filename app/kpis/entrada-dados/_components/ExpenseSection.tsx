@@ -39,14 +39,14 @@ export function ExpenseSection({
 }: Props) {
 	const total = entries.reduce((acc, item) => acc + item.value, 0);
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
 				<div className="flex items-start justify-between gap-2">
 					<div>
-						<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+						<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 							Financeiro — Despesas
 						</CardTitle>
-						<CardDescription className="text-xs text-slate-400 mt-0.5">
+						<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 							Despesas totais calculadas automaticamente.
 						</CardDescription>
 					</div>
@@ -54,14 +54,14 @@ export function ExpenseSection({
 						type="button"
 						variant="outline"
 						size="icon"
-						className="h-8 w-8 border-slate-200"
+						className="h-8 w-8 border-[color:var(--border-subtle)]"
 						onClick={onToggleLock}
 						title="Bloquear/desbloquear edição manual"
 					>
 						{locked ? (
-							<Lock className="h-4 w-4 text-slate-500" />
+							<Lock className="h-4 w-4 text-[color:var(--text-secondary)]" />
 						) : (
-							<LockOpen className="h-4 w-4 text-slate-500" />
+							<LockOpen className="h-4 w-4 text-[color:var(--text-secondary)]" />
 						)}
 					</Button>
 				</div>
@@ -91,7 +91,7 @@ export function ExpenseSection({
 
 							return (
 								<div key={item.code} className="flex flex-col gap-2">
-									<Label className="text-xs font-medium text-slate-600">
+									<Label className="text-xs font-medium text-[color:var(--text-secondary)]">
 										{item.label}
 									</Label>
 									<Input
@@ -103,19 +103,19 @@ export function ExpenseSection({
 											const parsed = Number(clean) || 0;
 											onChange(item.code, parsed);
 										}}
-										className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
+										className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] disabled:bg-[color:var(--surface-muted)] disabled:text-[color:var(--text-muted)]"
 									/>
 								</div>
 							);
 						})}
 						<div className="flex flex-col gap-2">
-							<Label className="text-xs font-medium text-slate-600">
+							<Label className="text-xs font-medium text-[color:var(--text-secondary)]">
 								Despesas totais
 							</Label>
 							<Input
 								disabled
 								value={formatCurrency(String(total))}
-								className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
+								className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] disabled:bg-[color:var(--surface-muted)] disabled:text-[color:var(--text-muted)]"
 							/>
 						</div>
 					</div>

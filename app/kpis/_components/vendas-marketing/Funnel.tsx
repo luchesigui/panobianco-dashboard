@@ -1,4 +1,5 @@
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
+import { CHART_COLOR } from "@/lib/kpis/card-bar-colors";
 import styles from "./vendas-marketing.module.css";
 
 type Props = {
@@ -30,22 +31,22 @@ export function Funnel({ funnel, leadsGenerated }: Props) {
 				leadsGenerated != null
 					? `de ${leadsGenerated.toLocaleString("pt-BR")} leads`
 					: null,
-			bg: "#EEEDFE",
-			fg: "#534AB7",
+			bg: CHART_COLOR.surface,
+			fg: CHART_COLOR.neutral,
 		},
 		{
 			label: "Presentes",
 			value: String(present),
 			sub: presentRate,
-			bg: "#FAECE7",
-			fg: "#D85A30",
+			bg: CHART_COLOR.surface,
+			fg: CHART_COLOR.secondary,
 		},
 		{
 			label: "Fechamentos",
 			value: String(closings),
 			sub: closingsRate,
-			bg: "#E1F5EE",
-			fg: "#0F6E56",
+			bg: CHART_COLOR.surface,
+			fg: CHART_COLOR.primary,
 		},
 		{
 			label: "Conversão",
@@ -54,8 +55,8 @@ export function Funnel({ funnel, leadsGenerated }: Props) {
 				scheduled > 0
 					? `${closings.toLocaleString("pt-BR")} de ${scheduled.toLocaleString("pt-BR")} agendados`
 					: null,
-			bg: "#EAF3DE",
-			fg: "#639922",
+			bg: CHART_COLOR.surface,
+			fg: CHART_COLOR.neutral,
 		},
 	];
 

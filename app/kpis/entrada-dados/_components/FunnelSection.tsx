@@ -20,7 +20,7 @@ const FUNNEL_FIELDS = [
 export function FunnelSection({ funnel, onChange }: Props) {
 	return (
 		<div>
-			<p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">
+			<p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-secondary)] mb-3">
 				Funil (valores do mês)
 			</p>
 			<div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">
@@ -30,7 +30,7 @@ export function FunnelSection({ funnel, onChange }: Props) {
 						<div key={key} className="flex flex-col gap-1.5">
 							<Label
 								htmlFor={`funnel-${key}`}
-								className="text-xs font-medium text-slate-600"
+								className="text-xs font-medium text-[color:var(--text-secondary)]"
 							>
 								{label}
 							</Label>
@@ -48,7 +48,7 @@ export function FunnelSection({ funnel, onChange }: Props) {
 									}
 								}}
 								onChange={(e) => onChange(key, e.target.value)}
-								className="h-10 bg-white border-slate-200"
+								className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
 							/>
 						</div>
 					);

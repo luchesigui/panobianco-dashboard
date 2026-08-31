@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logout } from "@/app/actions/logout";
 import { clsx } from "clsx";
+import brandStyles from "./kpi-brand.module.css";
 
 const NAV_LINKS = [
 	{ href: "/kpis", label: "Dashboard", exact: true },
@@ -15,11 +16,11 @@ export function Navbar() {
 	const pathname = usePathname();
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-black/20 bg-[#330000]/95 text-[#faede4] shadow-sm backdrop-blur">
-			<div className="max-w-6xl mx-auto px-6 h-14 flex items-center gap-8">
-				<Link href="/kpis" className="flex items-center gap-2.5 shrink-0 uppercase">
-					<span className="h-6 w-1 bg-[#ff6100] [clip-path:polygon(0_0,100%_0,100%_72%,0_100%)]" aria-hidden />
-					<span className="text-sm font-extrabold tracking-[0.08em] text-white">
+		<header className="sticky top-0 z-50 border-b border-[color:var(--border-strong)] bg-[color:var(--pb-grena)] text-[color:var(--pb-off-white)]">
+			<div className="mx-auto flex h-14 max-w-6xl items-center gap-8 px-6">
+				<Link href="/kpis" className="flex shrink-0 items-center gap-2.5 uppercase">
+					<span className={brandStyles.brandEdge} aria-hidden />
+					<span className="text-sm font-bold tracking-[0.08em] text-[color:var(--pb-white)]">
 						Panobianco
 					</span>
 				</Link>
@@ -32,10 +33,10 @@ export function Navbar() {
 								key={href}
 								href={href}
 								className={clsx(
-									"px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-[0.06em] transition-colors",
+									"text-xs font-semibold uppercase tracking-[0.06em] transition-colors",
 									active
-										? "bg-[#ff6100] text-[#161515] shadow-sm"
-										: "text-[#faede4]/75 hover:bg-white/10 hover:text-white"
+										? clsx(brandStyles.brandControl, "text-[color:var(--pb-white)]")
+										: "px-4 py-1.5 text-[color:var(--pb-off-white)]/80 hover:bg-white/10 hover:text-[color:var(--pb-white)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[color:var(--focus-ring)]"
 								)}
 							>
 								{label}
@@ -47,7 +48,7 @@ export function Navbar() {
 				<form action={logout} className="ml-2">
 					<button
 						type="submit"
-						className="px-4 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-[0.06em] text-[#faede4]/75 hover:bg-white/10 hover:text-white transition-colors"
+						className="px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.06em] text-[color:var(--pb-off-white)]/80 transition-colors hover:bg-white/10 hover:text-[color:var(--pb-white)] focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-[color:var(--focus-ring)]"
 					>
 						Sair
 					</button>

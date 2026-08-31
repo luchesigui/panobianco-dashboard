@@ -10,13 +10,16 @@ export function StatusAlert({ message }: Props) {
 	if (!message) return null;
 	return (
 		<div
-			className={`px-4 py-3 rounded-lg text-sm mb-6 flex items-center gap-2 ${
+			className={`px-4 py-3 border text-sm mb-6 flex items-center gap-2 ${
 				message.type === "ok"
-					? "bg-emerald-50 border border-emerald-200 text-emerald-800"
-					: "bg-red-50 border border-red-200 text-red-800"
+					? "bg-[color:var(--surface-card)] border-[color:var(--action-primary)] text-[color:var(--text-primary)]"
+					: "bg-[color:var(--surface-card)] border-[color:var(--feedback-negative)] text-[color:var(--feedback-negative)]"
 			}`}
 		>
-			{message.type === "ok" ? "✓" : "✕"} {message.text}
+			<span className={message.type === "ok" ? "text-[color:var(--action-primary)] font-bold" : "text-[color:var(--feedback-negative)] font-bold"}>
+				{message.type === "ok" ? "✓" : "✕"}
+			</span>{" "}
+			{message.text}
 		</div>
 	);
 }

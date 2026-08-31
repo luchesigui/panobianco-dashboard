@@ -66,14 +66,14 @@ export function KpiFieldInput({
 			<div className="flex items-center gap-1">
 				<Label
 					htmlFor={field.code}
-					className="text-xs font-medium text-slate-600"
+					className="text-xs font-medium text-[color:var(--text-secondary)]"
 				>
 					{field.label}
 				</Label>
 				{field.hint ? (
 					<Tooltip>
 						<TooltipTrigger>
-							<span className="text-slate-300 cursor-help text-xs leading-none hover:text-slate-500 transition-colors">
+							<span className="text-[color:var(--text-muted)] cursor-help text-xs leading-none hover:text-[color:var(--text-primary)] transition-colors">
 								ⓘ
 							</span>
 						</TooltipTrigger>
@@ -90,7 +90,7 @@ export function KpiFieldInput({
 				onBlur={onBlur}
 				onPaste={handlePaste}
 				onChange={(e) => handleChange(e.target.value)}
-				className="h-10 bg-white border-slate-200 focus:border-slate-400 disabled:bg-slate-50 disabled:text-slate-500"
+				className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] disabled:bg-[color:var(--surface-muted)] disabled:text-[color:var(--text-muted)]"
 				placeholder={placeholder}
 			/>
 		</div>

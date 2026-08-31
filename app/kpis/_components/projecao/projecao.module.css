@@ -169,23 +169,23 @@
 }
 
 .iconInfo {
-	background: #bee3f8;
-	color: #2c5282;
+	background: color-mix(in srgb, var(--pb-graphite) 12%, var(--pb-white));
+	color: var(--pb-graphite);
 }
 
 .iconGood {
-	background: #c6f6d5;
-	color: #065f46;
+	background: color-mix(in srgb, var(--pb-orange) 14%, var(--pb-white));
+	color: var(--pb-orange-warm);
 }
 
 .iconBad {
-	background: #fed7d7;
-	color: #9b2c2c;
+	background: color-mix(in srgb, var(--pb-grena) 12%, var(--pb-white));
+	color: var(--pb-grena);
 }
 
 .iconWarn {
-	background: #feebc8;
-	color: #9c4221;
+	background: color-mix(in srgb, var(--pb-orange-warm) 14%, var(--pb-white));
+	color: var(--pb-orange-warm);
 }
 
 .analysisText {

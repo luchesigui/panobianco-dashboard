@@ -4,13 +4,7 @@ import {
 } from "@/lib/kpis/format";
 import styles from "./projecao.module.css";
 import { clsx } from "clsx";
-
-const BAR_ACCENTS = {
-	revenue: "#2b6cb0",
-	expense: "#ed8936",
-	result: "#065f46",
-	matriculated: "#63b3ed",
-};
+import { PROJECTION_KPI_COLOR } from "@/lib/kpis/card-bar-colors";
 
 type Props = {
 	revenueForecast: number;
@@ -58,7 +52,7 @@ export function ProjecaoKpiCards({
 				</div>
 				<div
 					className={styles.kpiBar}
-					style={{ background: BAR_ACCENTS.revenue }}
+					style={{ background: PROJECTION_KPI_COLOR.revenue }}
 				/>
 			</article>
 
@@ -68,7 +62,7 @@ export function ProjecaoKpiCards({
 				<p className={styles.kpiMetaLine}>{expenseSubline}</p>
 				<div
 					className={styles.kpiBar}
-					style={{ background: BAR_ACCENTS.expense }}
+					style={{ background: PROJECTION_KPI_COLOR.expense }}
 				/>
 			</article>
 
@@ -80,7 +74,7 @@ export function ProjecaoKpiCards({
 				</p>
 				<div
 					className={styles.kpiBar}
-					style={{ background: BAR_ACCENTS.result }}
+					style={{ background: PROJECTION_KPI_COLOR.result }}
 				/>
 			</article>
 
@@ -103,7 +97,7 @@ export function ProjecaoKpiCards({
 				</div>
 				<div
 					className={styles.kpiBar}
-					style={{ background: BAR_ACCENTS.matriculated }}
+					style={{ background: PROJECTION_KPI_COLOR.matriculated }}
 				/>
 			</article>
 		</div>

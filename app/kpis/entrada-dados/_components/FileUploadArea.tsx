@@ -10,7 +10,7 @@ type Props = {
 
 export function FileUploadArea({ label, onFile, loading }: Props) {
 	return (
-		<label className="flex items-center justify-between gap-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+		<label className="flex items-center justify-between gap-3 border border-dashed border-[color:var(--border-strong)] bg-[color:var(--surface-muted)] px-3 py-2 text-xs text-[color:var(--text-secondary)] cursor-pointer hover:border-[color:var(--action-primary)] transition-colors">
 			<span>{label}</span>
 			<span className="inline-flex items-center gap-2">
 				<Upload className="h-3.5 w-3.5" />

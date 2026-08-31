@@ -1,5 +1,6 @@
 import type { KpiPageData } from "@/lib/data/kpis";
 import { formatCompactBrlOneDecimal } from "@/lib/kpis/format";
+import { barColor } from "@/lib/kpis/card-bar-colors";
 import styles from "../../page.module.css";
 import { renderDelta } from "./render-delta";
 
@@ -67,7 +68,7 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 				<span className={styles.kpiLabel}>Base de alunos</span>
 				<p className={styles.kpiValue}>{baseDisplay}</p>
 				{foot ? <p className={styles.kpiMetaLine}>{foot}</p> : null}
-				<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
+				<div className={styles.kpiBar} style={{ background: barColor("recovered_default_count") }} />
 			</article>
 			<article className={styles.kpiCard}>
 				<span className={styles.kpiLabel}>Inadimpl. em aberto</span>
@@ -79,7 +80,7 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 						{formatCompactBrlOneDecimal(openV)} em aberto
 					</p>
 				) : null}
-				<div className={styles.kpiBar} style={{ background: "#a32d2d" }} />
+				<div className={styles.kpiBar} style={{ background: barColor("open_default_count") }} />
 			</article>
 			<article className={styles.kpiCard}>
 				<span className={styles.kpiLabel}>Taxa recuperação</span>
@@ -96,7 +97,7 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 						</span>
 					</div>
 				) : null}
-				<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
+				<div className={styles.kpiBar} style={{ background: barColor("recovered_default_count") }} />
 			</article>
 			{renewed != null ? (
 				<article className={styles.kpiCard}>
@@ -116,7 +117,7 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 					) : (
 						<p className={styles.kpiMetaLine}>Contratos renovados</p>
 					)}
-					<div className={styles.kpiBar} style={{ background: "#0f6e56" }} />
+					<div className={styles.kpiBar} style={{ background: barColor("present_conversion_rate") }} />
 				</article>
 			) : null}
 			<article className={styles.kpiCard}>
@@ -144,7 +145,7 @@ export function RetencaoCardGrid({ data }: { data: KpiPageData }) {
 						</span>
 					)}
 				</div>
-				<div className={styles.kpiBar} style={{ background: "#a32d2d" }} />
+				<div className={styles.kpiBar} style={{ background: barColor("no_show_rate") }} />
 			</article>
 		</div>
 	);

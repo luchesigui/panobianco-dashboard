@@ -1,3 +1,5 @@
+import { ROI_COMPOSITION_COLOR } from "@/lib/kpis/card-bar-colors";
+
 type KpiMap = Record<string, number>;
 type KpiMetaMap = Record<string, Record<string, unknown>>;
 type RoiInsight = { type: string; title: string; body: string };
@@ -10,10 +12,10 @@ export type RoiChartPayload = {
 /** When DB has no ROI meta/charts yet. */
 export const DEFAULT_ROI_CHARTS: RoiChartPayload = {
   composition: [
-    { label: "Materiais", value: 497_000, color: "#e8891a" },
-    { label: "Serviços", value: 351_000, color: "#534ab7" },
-    { label: "Franquia", value: 80_000, color: "#378add" },
-    { label: "Outros", value: 65_000, color: "#0f6e56" },
+    { label: "Materiais", value: 497_000, color: ROI_COMPOSITION_COLOR.materials },
+    { label: "Serviços", value: 351_000, color: ROI_COMPOSITION_COLOR.services },
+    { label: "Franquia", value: 80_000, color: ROI_COMPOSITION_COLOR.franchise },
+    { label: "Outros", value: 65_000, color: ROI_COMPOSITION_COLOR.other },
   ],
   recoveryEvolution: {
     labels: [

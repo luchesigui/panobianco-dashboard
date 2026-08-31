@@ -19,18 +19,18 @@ export function GoalsSection({ consultoras }: Props) {
 	const namedRows = consultoras.rows.filter((c) => c.name.trim());
 
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 					Metas
 				</CardTitle>
-				<CardDescription className="text-xs text-slate-400 mt-0.5">
+				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 					Meta de vendas mensais por consultora.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="pt-3 space-y-4">
 				{namedRows.length === 0 ? (
-					<p className="text-xs text-slate-400">
+					<p className="text-xs text-[color:var(--text-muted)]">
 						Cadastre consultoras acima para definir metas individuais.
 					</p>
 				) : (
@@ -39,7 +39,7 @@ export function GoalsSection({ consultoras }: Props) {
 							const globalIndex = consultoras.rows.indexOf(c);
 							return (
 								<div key={i} className="flex items-center gap-3">
-									<span className="text-sm text-slate-600 w-48 truncate">
+									<span className="text-sm text-[color:var(--text-secondary)] w-48 truncate">
 										{c.name}
 									</span>
 									<Input
@@ -52,17 +52,17 @@ export function GoalsSection({ consultoras }: Props) {
 												e.target.value,
 											)
 										}
-										className="h-9 bg-white border-slate-200 text-sm w-28"
+										className="h-9 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] text-sm w-28"
 										placeholder="0"
 									/>
 								</div>
 							);
 						})}
-						<div className="flex items-center gap-3 pt-1 border-t border-slate-100">
-							<span className="text-xs font-medium text-slate-500 w-48">
+						<div className="flex items-center gap-3 pt-1 border-t border-[color:var(--border-subtle)]">
+							<span className="text-xs font-medium text-[color:var(--text-secondary)] w-48">
 								Total
 							</span>
-							<span className="text-sm font-semibold text-slate-700 w-28 pl-3">
+							<span className="text-sm font-semibold text-[color:var(--text-primary)] w-28 pl-3">
 								{consultoras.total > 0 ? consultoras.total : "—"}
 							</span>
 						</div>
@@ -75,7 +75,7 @@ export function GoalsSection({ consultoras }: Props) {
 						}
 						disabled={consultoras.savingGoals}
 						variant="outline"
-						className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+						className="h-9 px-5 border-[color:var(--border-subtle)] text-[color:var(--text-primary)] hover:bg-[color:var(--surface-muted)]"
 					>
 						{consultoras.savingGoals ? "Salvando…" : "Salvar metas"}
 					</Button>

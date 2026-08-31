@@ -9,6 +9,7 @@ import {
 	normalizeSmPayloadWeeks,
 } from "@/lib/data/sales-marketing-payload-merge";
 import { assemblePayloadFromNormalized } from "@/lib/data/vendas-marketing-assembler";
+import { EXPENSE_DONUT_COLOR, HISTORY_BAR_COLORS } from "@/lib/kpis/card-bar-colors";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type {
 	MonthlySalesBar,
@@ -479,10 +480,10 @@ function buildNextMonthForecast(
 	});
 
 	const expenseDonut = [
-		{ label: "Pessoal e encargos", value: expF * 0.42, color: "#553c9a" },
-		{ label: "Infraestrutura", value: expF * 0.28, color: "#ed8936" },
-		{ label: "Marketing e vendas", value: expF * 0.18, color: "#dd6b20" },
-		{ label: "Demais / pontuais", value: expF * 0.12, color: "#63b3ed" },
+		{ label: "Pessoal e encargos", value: expF * 0.42, color: EXPENSE_DONUT_COLOR.people },
+		{ label: "Infraestrutura", value: expF * 0.28, color: EXPENSE_DONUT_COLOR.infrastructure },
+		{ label: "Marketing e vendas", value: expF * 0.18, color: EXPENSE_DONUT_COLOR.marketing },
+		{ label: "Demais / pontuais", value: expF * 0.12, color: EXPENSE_DONUT_COLOR.other },
 	];
 
 	return {
@@ -777,21 +778,7 @@ export async function getKpiPageData(
 		}
 	}
 
-	const CHART_BAR_COLORS = [
-		"#d85a30",
-		"#185fa5",
-		"#0f6e56",
-		"#0f6e56",
-		"#185fa5",
-		"#d85a30",
-		"#185fa5",
-		"#d85a30",
-		"#d85a30",
-		"#0f6e56",
-		"#185fa5",
-		"#d85a30",
-		"#d85a30",
-	];
+
 	const revDefId = defsRes.data?.find((d) => d.code === "revenue_total")?.id;
 	const matDefId = defsRes.data?.find(
 		(d) => d.code === "matriculated_revenue",
@@ -882,7 +869,7 @@ export async function getKpiPageData(
 				periodId,
 				label: toLabel(periodId),
 				value,
-				color: CHART_BAR_COLORS[i % CHART_BAR_COLORS.length],
+				color: HISTORY_BAR_COLORS[i % HISTORY_BAR_COLORS.length],
 			});
 		});
 	}

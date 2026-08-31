@@ -19,12 +19,12 @@ type Props = {
 
 export function GymInfoSection({ gymInfo }: Props) {
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 					Academia
 				</CardTitle>
-				<CardDescription className="text-xs text-slate-400 mt-0.5">
+				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 					Informações exibidas no dashboard.
 				</CardDescription>
 			</CardHeader>
@@ -32,7 +32,7 @@ export function GymInfoSection({ gymInfo }: Props) {
 				<div className="flex flex-col gap-1.5">
 					<Label
 						htmlFor="gym-name"
-						className="text-xs font-medium text-slate-600"
+						className="text-xs font-medium text-[color:var(--text-secondary)]"
 					>
 						Nome de exibição
 					</Label>
@@ -40,10 +40,10 @@ export function GymInfoSection({ gymInfo }: Props) {
 						id="gym-name"
 						value={gymInfo.gymName}
 						onChange={(e) => gymInfo.setGymName(e.target.value)}
-						className="h-10 bg-white border-slate-200"
+						className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
 						placeholder="ex: Panobianco Jd. Satélite"
 					/>
-					<p className="text-xs text-slate-400">
+					<p className="text-xs text-[color:var(--text-muted)]">
 						Substitui o slug no cabeçalho do dashboard.
 					</p>
 				</div>
@@ -51,15 +51,15 @@ export function GymInfoSection({ gymInfo }: Props) {
 					onClick={() => void gymInfo.handleSaveGymName()}
 					disabled={gymInfo.savingName}
 					variant="outline"
-					className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+					className="h-9 px-5 border-[color:var(--border-subtle)] text-[color:var(--text-primary)] hover:bg-[color:var(--surface-muted)]"
 				>
 					{gymInfo.savingName ? "Salvando…" : "Salvar nome"}
 				</Button>
 
-				<div className="flex flex-col gap-1.5 pt-2 border-t border-slate-100">
+				<div className="flex flex-col gap-1.5 pt-2 border-t border-[color:var(--border-subtle)]">
 					<Label
 						htmlFor="total-invested"
-						className="text-xs font-medium text-slate-600"
+						className="text-xs font-medium text-[color:var(--text-secondary)]"
 					>
 						Investimento total
 					</Label>
@@ -70,10 +70,10 @@ export function GymInfoSection({ gymInfo }: Props) {
 						onChange={(e) =>
 							gymInfo.setTotalInvested(formatBrlIntegerMask(e.target.value))
 						}
-						className="h-10 bg-white border-slate-200"
+						className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
 						placeholder="R$ 1.020.300"
 					/>
-					<p className="text-xs text-slate-400">
+					<p className="text-xs text-[color:var(--text-muted)]">
 						Substitui o número do card &quot;Total investido&quot; na seção ROI
 						do dashboard.
 					</p>
@@ -82,7 +82,7 @@ export function GymInfoSection({ gymInfo }: Props) {
 					onClick={() => void gymInfo.handleSaveTotalInvested()}
 					disabled={gymInfo.savingTotalInvested}
 					variant="outline"
-					className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+					className="h-9 px-5 border-[color:var(--border-subtle)] text-[color:var(--text-primary)] hover:bg-[color:var(--surface-muted)]"
 				>
 					{gymInfo.savingTotalInvested
 						? "Salvando…"

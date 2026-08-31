@@ -13,6 +13,8 @@ import { Projecao } from "./_components/projecao/Projecao";
 import { RetencaoCharts } from "./_components/retencao/RetencaoCharts";
 import { RoiCharts } from "./_components/roi/RoiCharts";
 import { VendasMarketingCharts } from "./_components/vendas-marketing/VendasMarketingCharts";
+import { clsx } from "clsx";
+import brandStyles from "./kpi-brand.module.css";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -146,7 +148,7 @@ export default async function KpisPage({ searchParams }: Props) {
 
 	return (
 		<div className={styles.page}>
-			<header className={styles.header}>
+			<header className={clsx(styles.header, brandStyles.brandFrame)}>
 				<div className={styles.headerTop}>
 					<DashboardHeader gymName={data.gymName} />
 					<MonthSelector
@@ -159,7 +161,6 @@ export default async function KpisPage({ searchParams }: Props) {
 
 			<SectionCard
 				title="Visão geral"
-				color="green"
 				badge={data.currentPeriodLabel}
 			>
 				<VisaoGeralCardGrid data={data} />
@@ -172,7 +173,6 @@ export default async function KpisPage({ searchParams }: Props) {
 
 			<SectionCard
 				title="Vendas e marketing"
-				color="blue"
 				badge={smPrimaryShort}
 			>
 				<VendasMarketingCardGrid data={data} />
@@ -207,7 +207,6 @@ export default async function KpisPage({ searchParams }: Props) {
 
 			<SectionCard
 				title="Retenção"
-				color="orange"
 				badge={data.currentPeriodLabel}
 			>
 				<RetencaoCardGrid data={data} />
@@ -221,7 +220,6 @@ export default async function KpisPage({ searchParams }: Props) {
 
 			<SectionCard
 				title="Financeiro"
-				color="purple"
 				badge={data.currentPeriodLabel}
 			>
 				<FinanceiroCardGrid data={data} />
@@ -235,7 +233,6 @@ export default async function KpisPage({ searchParams }: Props) {
 
 			<SectionCard
 				title="Previsão de resultado"
-				color="pink"
 				badge={
 					data.nextMonthForecast.hasData
 						? `Próximo: ${data.nextMonthForecast.nextPeriodLabel}`
@@ -258,7 +255,6 @@ export default async function KpisPage({ searchParams }: Props) {
 
 			<SectionCard
 				title="Retorno do investimento"
-				color="brown"
 				badge="Desde Jul/24"
 			>
 				<RoiCardGrid data={data} />

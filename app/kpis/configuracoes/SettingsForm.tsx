@@ -31,16 +31,14 @@ export function SettingsForm({
 			<div className="max-w-4xl mx-auto px-6 py-10 pb-20">
 				<div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 					<div>
-					<h1 className="mb-1 font-[var(--font-kpi-display)] text-[clamp(42px,7vw,72px)] font-black italic uppercase leading-[0.95] tracking-tight text-slate-950">
+					<h1 className="mb-1 font-[var(--font-kpi-display)] text-[clamp(32px,5vw,52px)] font-medium uppercase leading-[1] tracking-tight text-[color:var(--text-primary)]">
 						Configurações
 					</h1>
-					<p className="text-xs font-semibold uppercase tracking-[0.06em] text-slate-500">
+					<p className="text-xs font-semibold uppercase tracking-[0.06em] text-[color:var(--text-muted)]">
 						Gerencie as configurações da academia, metas e integrações.
 					</p>
 					</div>
-					<div className="h-12 w-12 shrink-0 bg-[#ff6100] text-center font-[var(--font-kpi-display)] text-2xl font-black leading-[48px] text-white [clip-path:polygon(28%_0,100%_0,100%_100%,0_100%,0_22%)]" aria-hidden>
-						P
-					</div>
+					<div className="h-12 w-3 shrink-0 bg-[color:var(--action-primary)]" aria-hidden />
 				</div>
 
 				<SettingsMessage message={form.message} />

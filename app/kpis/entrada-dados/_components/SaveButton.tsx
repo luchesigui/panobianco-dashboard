@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import brand from "../../kpi-brand.module.css";
 
 type Props = {
 	onClick: () => void;
@@ -21,7 +22,7 @@ export function SaveButton({
 		<Button
 			onClick={onClick}
 			disabled={disabled || loading}
-			className="h-10 rounded-full bg-[#ff6100] px-6 font-extrabold uppercase tracking-[0.06em] text-white shadow-sm hover:bg-[#ff4b00]"
+			className={`${brand.brandControl} h-10 px-6 font-semibold uppercase tracking-[0.06em] transition-colors hover:bg-[color:var(--pb-graphite)] hover:border-[color:var(--pb-graphite)]`}
 		>
 			{loading ? loadingLabel : children}
 		</Button>

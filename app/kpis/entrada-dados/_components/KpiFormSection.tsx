@@ -53,15 +53,15 @@ export function KpiFormSection({
 		? fields.filter(isFieldVisible)
 		: fields;
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
 				<div className="flex items-start justify-between gap-2">
 					<div>
-						<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+						<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 							{title}
 						</CardTitle>
 						{description ? (
-							<CardDescription className="text-xs text-slate-400 mt-0.5">
+							<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 								{description}
 							</CardDescription>
 						) : null}
@@ -71,14 +71,14 @@ export function KpiFormSection({
 							type="button"
 							variant="outline"
 							size="icon"
-							className="h-8 w-8 border-slate-200"
+							className="h-8 w-8 border-[color:var(--border-subtle)]"
 							onClick={onToggleLock}
 							title="Bloquear/desbloquear edição manual"
 						>
 							{locked ? (
-								<Lock className="h-4 w-4 text-slate-500" />
+								<Lock className="h-4 w-4 text-[color:var(--text-secondary)]" />
 							) : (
-								<LockOpen className="h-4 w-4 text-slate-500" />
+								<LockOpen className="h-4 w-4 text-[color:var(--text-secondary)]" />
 							)}
 						</Button>
 					) : null}

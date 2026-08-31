@@ -13,18 +13,15 @@ import {
 import { useMemo } from "react";
 import { Bar } from "react-chartjs-2";
 import type { MonthlySalesBar } from "@/lib/data/sales-marketing-dashboard";
+import { CHART_COLOR, CHART_PAINT, MONTHLY_SALES_THRESHOLD } from "@/lib/kpis/card-bar-colors";
 import styles from "./MonthlySalesBarChart.module.css";
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-const TICK = "#9c9b96";
-const GRID = "rgba(0, 0, 0, 0.05)";
-
-/** Same thresholds as reference dashboard (NV12 bar colors). */
-function barColorForValue(v: number): string {
-  if (v >= 150) return "#0f6e56";
-  if (v >= 120) return "#378add";
-  return "#d85a30";
+function salesThresholdForValue(v: number) {
+  if (v >= MONTHLY_SALES_THRESHOLD.exceedingPace.minimum) return MONTHLY_SALES_THRESHOLD.exceedingPace;
+  if (v >= MONTHLY_SALES_THRESHOLD.onPace.minimum) return MONTHLY_SALES_THRESHOLD.onPace;
+  return MONTHLY_SALES_THRESHOLD.belowPace;
 }
 
 function targetLinePlugin(target: number) {
@@ -41,12 +38,12 @@ function targetLinePlugin(target: number) {
       ctx.save();
       ctx.setLineDash([5, 4]);
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "#d85a30";
+      ctx.strokeStyle = CHART_COLOR.secondary;
       ctx.beginPath();
       ctx.moveTo(left, py);
       ctx.lineTo(right, py);
       ctx.stroke();
-      ctx.fillStyle = "#d85a30";
+      ctx.fillStyle = CHART_COLOR.secondary;
       ctx.font = "500 10px DM Sans, system-ui, sans-serif";
       const label = String(target);
       ctx.fillText(label, right - 22, py - 5);
@@ -63,7 +60,7 @@ type Props = {
 export function MonthlySalesBarChart({ chart, target }: Props) {
   const labels = chart.map((b) => b.label);
   const values = chart.map((b) => b.value);
-  const colors = values.map(barColorForValue);
+  const colors = values.map((value) => salesThresholdForValue(value).color);
 
   const yMaxRounded = useMemo(() => {
     const yMax = Math.max(180, target, ...chart.map((b) => b.value));
@@ -98,7 +95,7 @@ export function MonthlySalesBarChart({ chart, target }: Props) {
           label: (ctx) => {
             const y = ctx.parsed.y;
             if (y == null) return "";
-            return `${y} novos alunos`;
+            return `${y} novos alunos — ${salesThresholdForValue(y).label}`;
           },
         },
       },
@@ -106,7 +103,7 @@ export function MonthlySalesBarChart({ chart, target }: Props) {
     scales: {
       x: {
         ticks: {
-          color: TICK,
+          color: CHART_PAINT.axisText,
           font: { size: 10, family: "DM Sans, system-ui, sans-serif" },
           maxRotation: 45,
           autoSkip: false,
@@ -118,12 +115,12 @@ export function MonthlySalesBarChart({ chart, target }: Props) {
         min: 0,
         max: yMaxRounded,
         ticks: {
-          color: TICK,
+          color: CHART_PAINT.axisText,
           font: { size: 10, family: "DM Sans, system-ui, sans-serif" },
           stepSize: 20,
           padding: 6,
         },
-        grid: { color: GRID },
+        grid: { color: CHART_PAINT.grid },
         border: { display: false },
       },
     },
@@ -132,8 +129,9 @@ export function MonthlySalesBarChart({ chart, target }: Props) {
   const plugins = useMemo(() => [targetLinePlugin(target)], [target]);
 
   return (
-    <div className={styles.chartCanvasWrap}>
+    <div className={styles.chartCanvasWrap} aria-label={`Vendas mensais. Meta do mês: ${target} novos alunos.`}>
       <Bar data={data} options={options} plugins={plugins} />
+      <p className="sr-only">Faixas: {MONTHLY_SALES_THRESHOLD.belowPace.label}; {MONTHLY_SALES_THRESHOLD.onPace.label}; {MONTHLY_SALES_THRESHOLD.exceedingPace.label}.</p>
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
 } from "chart.js";
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
+import { CHART_COLOR, CHART_PAINT } from "@/lib/kpis/card-bar-colors";
 import styles from "./retencao-charts.module.css";
 
 ChartJS.register(
@@ -24,9 +25,6 @@ ChartJS.register(
 	PointElement,
 	Tooltip,
 );
-
-const TICK = "#9c9b96";
-const GRID = "rgba(0, 0, 0, 0.05)";
 
 function baseGoalLinePlugin(goal: number) {
 	return {
@@ -43,12 +41,12 @@ function baseGoalLinePlugin(goal: number) {
 			ctx.save();
 			ctx.setLineDash([5, 4]);
 			ctx.lineWidth = 1;
-			ctx.strokeStyle = "#d85a30";
+			ctx.strokeStyle = CHART_COLOR.secondary;
 			ctx.beginPath();
 			ctx.moveTo(left, py);
 			ctx.lineTo(right, py);
 			ctx.stroke();
-			ctx.fillStyle = "#d85a30";
+			ctx.fillStyle = CHART_COLOR.secondary;
 			ctx.font = "500 10px DM Sans, system-ui, sans-serif";
 			ctx.fillText(String(goal), right - 28, py - 4);
 			ctx.restore();
@@ -80,28 +78,28 @@ export function EvolucaoBaseDeAlunos({
 				{
 					label: "Histórico",
 					data: baseHistoric,
-					borderColor: "#b4b2a9",
-					backgroundColor: "rgba(180, 178, 169, 0.08)",
+					borderColor: CHART_COLOR.neutral,
+					backgroundColor: CHART_PAINT.historicFill,
 					borderWidth: 2,
 					tension: 0.3,
 					spanGaps: false,
 					fill: true,
 					pointRadius: 2,
-					pointBackgroundColor: "#b4b2a9",
+					pointBackgroundColor: CHART_COLOR.neutral,
 				},
 				{
 					label: "Projeção",
 					data: baseProjection,
-					borderColor: "#0f6e56",
-					backgroundColor: "rgba(15, 110, 86, 0.12)",
+					borderColor: CHART_COLOR.primary,
+					backgroundColor: CHART_PAINT.projectionFill,
 					borderWidth: 2.5,
 					borderDash: [4, 3],
 					tension: 0.3,
 					spanGaps: false,
 					fill: true,
 					pointRadius: 3,
-					pointBackgroundColor: "#fff",
-					pointBorderColor: "#0f6e56",
+					pointBackgroundColor: CHART_PAINT.canvasSurface,
+					pointBorderColor: CHART_COLOR.primary,
 					pointBorderWidth: 2,
 				},
 			],
@@ -131,7 +129,7 @@ export function EvolucaoBaseDeAlunos({
 			scales: {
 				x: {
 					ticks: {
-						color: TICK,
+						color: CHART_PAINT.axisText,
 						font: { size: 10, family: "DM Sans, system-ui, sans-serif" },
 						maxRotation: 45,
 						autoSkip: false,
@@ -143,11 +141,11 @@ export function EvolucaoBaseDeAlunos({
 					min: 0,
 					max: yMax,
 					ticks: {
-						color: TICK,
+						color: CHART_PAINT.axisText,
 						font: { size: 10, family: "DM Sans, system-ui, sans-serif" },
 						callback: (v: string | number) => fmtInt(Number(v)),
 					},
-					grid: { color: GRID },
+					grid: { color: CHART_PAINT.grid },
 					border: { display: false },
 				},
 			},
@@ -165,11 +163,11 @@ export function EvolucaoBaseDeAlunos({
 			<p className={styles.chartSub}>Histórico + projeção com ações</p>
 			<div className={styles.legendRow}>
 				<span className={styles.legendItem}>
-					<span className={styles.legendDot} style={{ background: "#b4b2a9" }} />
+					<span className={styles.legendDot} style={{ background: CHART_COLOR.neutral }} />
 					Histórico
 				</span>
 				<span className={styles.legendItem}>
-					<span className={styles.legendDot} style={{ background: "#0f6e56" }} />
+					<span className={styles.legendDot} style={{ background: CHART_COLOR.primary }} />
 					Projeção
 				</span>
 			</div>

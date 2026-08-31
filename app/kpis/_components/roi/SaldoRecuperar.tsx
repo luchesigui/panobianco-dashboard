@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
+import { CHART_COLOR, CHART_PAINT } from "@/lib/kpis/card-bar-colors";
 import styles from "./roi-charts.module.css";
 
 ChartJS.register(
@@ -23,9 +24,7 @@ ChartJS.register(
 	Tooltip,
 );
 
-const TICK = "#9c9b96";
-const GRID = "rgba(0, 0, 0, 0.06)";
-const LINE_BROWN = "#854f0b";
+const LINE_BROWN = CHART_COLOR.neutral;
 
 function fmtKFull(value: number): string {
 	return new Intl.NumberFormat("pt-BR", {
@@ -53,12 +52,12 @@ export function SaldoRecuperar({ recoveryEvolution }: Props) {
 					label: "Saldo a recuperar",
 					data: recoveryEvolution.values,
 					borderColor: LINE_BROWN,
-					backgroundColor: "rgba(133, 79, 11, 0.06)",
+					backgroundColor: CHART_PAINT.recoveryFill,
 					borderWidth: 2.5,
 					tension: 0.25,
 					fill: true,
 					pointRadius: 4,
-					pointBackgroundColor: "#fff",
+					pointBackgroundColor: CHART_PAINT.canvasSurface,
 					pointBorderColor: LINE_BROWN,
 					pointBorderWidth: 2,
 				},
@@ -94,7 +93,7 @@ export function SaldoRecuperar({ recoveryEvolution }: Props) {
 			scales: {
 				x: {
 					ticks: {
-						color: TICK,
+						color: CHART_PAINT.axisText,
 						font: { size: 10, family: "DM Sans, system-ui, sans-serif" },
 						maxRotation: 45,
 						autoSkip: false,
@@ -106,11 +105,11 @@ export function SaldoRecuperar({ recoveryEvolution }: Props) {
 					min: yMin,
 					max: yMax,
 					ticks: {
-						color: TICK,
+						color: CHART_PAINT.axisText,
 						font: { size: 10, family: "DM Sans, system-ui, sans-serif" },
 						callback: (v: string | number) => fmtKShort(Number(v)),
 					},
-					grid: { color: GRID },
+					grid: { color: CHART_PAINT.grid },
 					border: { display: false },
 				},
 			},

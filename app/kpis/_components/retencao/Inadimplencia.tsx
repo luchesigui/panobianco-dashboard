@@ -3,6 +3,7 @@
 import { ArcElement, Chart as ChartJS, Legend, Tooltip } from "chart.js";
 import { useMemo } from "react";
 import { Doughnut } from "react-chartjs-2";
+import { CHART_COLOR, CHART_PAINT } from "@/lib/kpis/card-bar-colors";
 import styles from "./retencao-charts.module.css";
 
 ChartJS.register(ArcElement, Legend, Tooltip);
@@ -30,9 +31,9 @@ export function Inadimplencia({ inadimplencia: inad }: Props) {
 			datasets: [
 				{
 					data: [inad.recovered, inad.open, inad.cancelled],
-					backgroundColor: ["#0f6e56", "#d85a30", "#b4b2a9"],
+					backgroundColor: [CHART_COLOR.primary, CHART_COLOR.secondary, CHART_COLOR.neutral],
 					borderWidth: 2,
-					borderColor: "#fff",
+					borderColor: CHART_PAINT.canvasSurface,
 				},
 			],
 		}),
@@ -72,15 +73,15 @@ export function Inadimplencia({ inadimplencia: inad }: Props) {
 			</div>
 			<div className={styles.donutLegend}>
 				<span className={styles.legendItem}>
-					<span className={styles.legendDot} style={{ background: "#0f6e56" }} />
+					<span className={styles.legendDot} style={{ background: CHART_COLOR.primary }} />
 					Recuperados {fmtInt(inad.recovered)} (R$ {fmtInt(inad.valueRecovered)})
 				</span>
 				<span className={styles.legendItem}>
-					<span className={styles.legendDot} style={{ background: "#d85a30" }} />
+					<span className={styles.legendDot} style={{ background: CHART_COLOR.secondary }} />
 					Em aberto {fmtInt(inad.open)} (R$ {fmtInt(inad.valueOpen)})
 				</span>
 				<span className={styles.legendItem}>
-					<span className={styles.legendDot} style={{ background: "#b4b2a9" }} />
+					<span className={styles.legendDot} style={{ background: CHART_COLOR.neutral }} />
 					Canceladas {fmtInt(inad.cancelled)}
 				</span>
 			</div>

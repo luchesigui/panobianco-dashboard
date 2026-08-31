@@ -11,20 +11,12 @@ import {
 } from "chart.js";
 import { useMemo } from "react";
 import { Bar } from "react-chartjs-2";
+import { CHART_PAINT, REVENUE_SOURCE_COLOR } from "@/lib/kpis/card-bar-colors";
 import styles from "./financeiro-charts.module.css";
 
 ChartJS.register(BarElement, CategoryScale, Legend, LinearScale, Tooltip);
 
-const TICK = "#9c9b96";
-const GRID = "rgba(0, 0, 0, 0.06)";
-
-const COL = {
-	matriculated: "#378add",
-	wellhub: "#0d5c47",
-	totalpass: "#e8891a",
-	products: "#c43a3a",
-	uncategorized: "#c8c6c0",
-};
+const COL = REVENUE_SOURCE_COLOR;
 
 function fmtK(value: number): string {
 	const k = value / 1000;
@@ -107,12 +99,12 @@ export function ReceitaPorComposicao({ labels, stacked }: Props) {
 
 	const commonX = {
 		ticks: {
-			color: TICK,
+			color: CHART_PAINT.axisText,
 			maxRotation: 45,
 			minRotation: 45,
 			font: { size: 10 },
 		},
-		grid: { color: GRID },
+		grid: { color: CHART_PAINT.grid },
 	};
 
 	const plugins = useMemo(
@@ -124,7 +116,7 @@ export function ReceitaPorComposicao({ labels, stacked }: Props) {
 					boxWidth: 10,
 					boxHeight: 10,
 					font: { size: 10 },
-					color: TICK,
+					color: CHART_PAINT.axisText,
 				},
 			},
 			tooltip: { callbacks: { label: stackedTooltipLabel } },
@@ -150,11 +142,11 @@ export function ReceitaPorComposicao({ labels, stacked }: Props) {
 								min: 0,
 								max: stackedMax,
 								ticks: {
-									color: TICK,
+									color: CHART_PAINT.axisText,
 									font: { size: 10 },
 									callback: (v) => fmtK(Number(v)),
 								},
-								grid: { color: GRID },
+								grid: { color: CHART_PAINT.grid },
 							},
 						},
 					}}

@@ -1,4 +1,5 @@
 import type { KpiPageData } from "@/lib/data/kpis";
+import { CHART_COLOR } from "@/lib/kpis/card-bar-colors";
 import { KPI_BAR, barColor } from "@/lib/kpis/card-bar-colors";
 import {
 	abbreviatePeriodLabel,
@@ -84,7 +85,7 @@ function overviewBarColor(
 			return KPI_BAR.sales_total;
 		}
 		const pct = ((current - previous) / Math.abs(previous)) * 100;
-		if (pct < 0) return "#a32d2d";
+		if (pct < 0) return CHART_COLOR.comparison;
 	}
 	return barColor(cardKey);
 }

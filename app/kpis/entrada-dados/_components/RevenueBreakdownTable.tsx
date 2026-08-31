@@ -20,13 +20,13 @@ export function RevenueBreakdownTable({ breakdown, total }: Props) {
 							.sort(([a], [b]) => a.localeCompare(b, "pt-BR"))
 							.map(([name, value]) => (
 								<div key={name} className="flex flex-col gap-1">
-									<Label className="text-xs font-medium text-slate-600">
+									<Label className="text-xs font-medium text-[color:var(--text-secondary)]">
 										{name}
 									</Label>
 									<Input
 										disabled
 										value={formatCurrency(String(value))}
-										className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
+										className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] disabled:bg-[color:var(--surface-muted)] disabled:text-[color:var(--text-muted)]"
 									/>
 								</div>
 							))}
@@ -34,13 +34,13 @@ export function RevenueBreakdownTable({ breakdown, total }: Props) {
 				</div>
 			) : null}
 			<div className="flex flex-col gap-2">
-				<Label className="text-xs font-medium text-slate-600">
+				<Label className="text-xs font-medium text-[color:var(--text-secondary)]">
 					Receita total
 				</Label>
 				<Input
 					disabled
 					value={total > 0 ? formatCurrency(String(total)) : "—"}
-					className="h-10 bg-white border-slate-200 disabled:bg-slate-50 disabled:text-slate-500"
+					className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] disabled:bg-[color:var(--surface-muted)] disabled:text-[color:var(--text-muted)]"
 				/>
 			</div>
 		</>

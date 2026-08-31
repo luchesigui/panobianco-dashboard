@@ -34,14 +34,14 @@ export function FunnelAndReceptionistsCard({
 	uploading,
 }: Props) {
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
 				<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+						<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 							Funil e recepcionistas (mensal)
 						</CardTitle>
-						<CardDescription className="text-xs text-slate-400 mt-0.5">
+						<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 							Funil mensal e recepcionistas. Salvo junto com os dados semanais.
 						</CardDescription>
 					</div>

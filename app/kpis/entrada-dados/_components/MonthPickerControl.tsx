@@ -36,19 +36,19 @@ export function MonthPickerControl({ monthValue }: Props) {
 
 	return (
 		<div className="flex flex-col gap-1.5">
-			<Label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+			<Label className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 				Mês
 			</Label>
-			<div className="flex items-center h-10 rounded-lg border border-slate-200 bg-white overflow-hidden">
+			<div className="flex items-center h-10 border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)] overflow-hidden">
 				<button
 					type="button"
 					aria-label="Mês anterior"
 					onClick={goPrev}
-					className="flex items-center justify-center w-9 h-full text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors border-r border-slate-200 shrink-0 text-lg leading-none"
+					className="flex items-center justify-center w-9 h-full text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] hover:bg-black/5 transition-colors border-r border-[color:var(--border-subtle)] shrink-0 text-lg leading-none"
 				>
 					‹
 				</button>
-				<span className="flex-1 text-center text-sm text-slate-900 select-none px-2 whitespace-nowrap min-w-44">
+				<span className="flex-1 text-center text-sm text-[color:var(--text-primary)] select-none px-2 whitespace-nowrap min-w-44 font-medium">
 					{formatMonthPtBr(monthValue)}
 				</span>
 				<button
@@ -56,7 +56,7 @@ export function MonthPickerControl({ monthValue }: Props) {
 					aria-label="Próximo mês"
 					onClick={goNext}
 					disabled={atMax}
-					className="flex items-center justify-center w-9 h-full text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors border-l border-slate-200 shrink-0 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none"
+					className="flex items-center justify-center w-9 h-full text-[color:var(--text-muted)] hover:text-[color:var(--text-primary)] hover:bg-black/5 transition-colors border-l border-[color:var(--border-subtle)] shrink-0 disabled:opacity-30 disabled:cursor-not-allowed text-lg leading-none"
 				>
 					›
 				</button>

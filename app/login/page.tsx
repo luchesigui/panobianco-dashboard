@@ -37,25 +37,23 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f7f6f3] bg-[radial-gradient(90%_55%_at_50%_0%,rgba(255,97,0,0.10),transparent_62%),radial-gradient(120%_60%_at_50%_115%,rgba(73,41,26,0.12),transparent_68%)] px-6">
-      <Card className="w-full max-w-sm border-black/10 bg-white/90 shadow-md">
+    <div className="min-h-screen flex items-center justify-center bg-[color:var(--surface-page)] px-6">
+      <Card className="w-full max-w-sm border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-2.5 mb-2">
-            <div className="w-8 h-8 bg-[#ff6100] flex items-center justify-center text-white text-sm font-black [clip-path:polygon(28%_0,100%_0,100%_100%,0_100%,0_22%)]">
-              P
-            </div>
-            <span className="text-sm font-extrabold text-slate-950 tracking-[0.08em] uppercase">
+            <div className="h-6 w-1 bg-[color:var(--action-primary)]" aria-hidden />
+            <span className="text-sm font-bold text-[color:var(--text-primary)] tracking-[0.08em] uppercase">
               Panobianco
             </span>
           </div>
-          <CardTitle className="text-lg font-black uppercase tracking-tight text-slate-900">
+          <CardTitle className="text-xl font-medium tracking-tight text-[color:var(--text-primary)]">
             Entrar no dashboard
           </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="login">Login</Label>
+              <Label htmlFor="login" className="text-xs font-semibold uppercase tracking-[0.06em] text-[color:var(--text-secondary)]">Login</Label>
               <Input
                 id="login"
                 name="login"
@@ -65,7 +63,7 @@ export default function LoginPage() {
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="senha">Senha</Label>
+              <Label htmlFor="senha" className="text-xs font-semibold uppercase tracking-[0.06em] text-[color:var(--text-secondary)]">Senha</Label>
               <Input
                 id="senha"
                 name="senha"
@@ -75,9 +73,13 @@ export default function LoginPage() {
               />
             </div>
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <p className="text-sm font-medium text-[color:var(--feedback-negative)]">{error}</p>
             )}
-            <Button type="submit" disabled={loading} className="mt-1 rounded-full bg-[#ff6100] font-extrabold uppercase tracking-[0.06em] text-white hover:bg-[#ff4b00]">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="mt-2 h-10 bg-[color:var(--pb-black)] text-[color:var(--pb-white)] font-semibold uppercase tracking-[0.06em] hover:bg-[color:var(--pb-graphite)] transition-colors"
+            >
               {loading ? "Entrando…" : "Entrar"}
             </Button>
           </form>

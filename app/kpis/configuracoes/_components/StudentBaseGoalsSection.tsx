@@ -33,12 +33,12 @@ const MONTHS_PT = [
 
 export function StudentBaseGoalsSection({ studentBaseGoals }: Props) {
 	return (
-		<Card className="border-black/10 bg-white/90 shadow-sm">
+		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
 					Meta de Base de Alunos
 				</CardTitle>
-				<CardDescription className="text-xs text-slate-400 mt-0.5">
+				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 					Meta de alunos ativos ao final de cada mês.
 				</CardDescription>
 			</CardHeader>
@@ -48,7 +48,7 @@ export function StudentBaseGoalsSection({ studentBaseGoals }: Props) {
 						const month = i + 1;
 						return (
 							<div key={month} className="flex flex-col gap-1">
-								<Label className="text-xs font-medium text-slate-500">
+								<Label className="text-xs font-medium text-[color:var(--text-secondary)]">
 									{label}
 								</Label>
 								<Input
@@ -57,7 +57,7 @@ export function StudentBaseGoalsSection({ studentBaseGoals }: Props) {
 									onChange={(e) =>
 										studentBaseGoals.update(month, e.target.value)
 									}
-									className="h-9 bg-white border-slate-200 text-sm"
+									className="h-9 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] text-sm"
 									placeholder="0"
 								/>
 							</div>
@@ -68,7 +68,7 @@ export function StudentBaseGoalsSection({ studentBaseGoals }: Props) {
 					onClick={() => void studentBaseGoals.handleSave()}
 					disabled={studentBaseGoals.saving}
 					variant="outline"
-					className="h-9 px-5 border-slate-200 text-slate-700 hover:bg-slate-50"
+					className="h-9 px-5 border-[color:var(--border-subtle)] text-[color:var(--text-primary)] hover:bg-[color:var(--surface-muted)]"
 				>
 					{studentBaseGoals.saving ? "Salvando…" : "Salvar metas de base"}
 				</Button>
