@@ -18,6 +18,8 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

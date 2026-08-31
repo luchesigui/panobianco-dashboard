@@ -48,13 +48,13 @@ export default function LoginPage() {
         }}
       />
 
-      <div className="w-full max-w-md bg-[#1f1f1f] border border-white/10 p-8 sm:p-10 shadow-2xl relative z-10 shape-chanfrado-menor">
+      <div className="w-full max-w-md bg-[#1f1f1f] p-8 sm:p-10 shadow-2xl relative z-10 shape-chanfrado-menor">
         <div className="flex flex-col items-center text-center mb-8">
           <Logo width={180} height={34} variant="light-on-dark" showLink={false} />
-          <p className="text-xs font-semibold text-[#ff6100] mt-4">
+          <p className="text-sm font-semibold text-[#ff6100] mt-4">
             Feitos de força e vontade
           </p>
-          <h1 className="text-xl font-bold tracking-tight text-white mt-1">
+          <h1 className="text-2xl sm:text-[2rem] font-bold tracking-tight text-white mt-1">
             Dashboard Estratégico
           </h1>
         </div>
@@ -63,7 +63,7 @@ export default function LoginPage() {
           <div className="flex flex-col gap-2">
             <label 
               htmlFor="login" 
-              className="text-xs font-semibold text-white/80"
+              className="text-sm font-semibold text-white/80"
             >
               Usuário
             </label>
@@ -73,7 +73,7 @@ export default function LoginPage() {
               type="text"
               autoComplete="username"
               required
-              className="h-11 w-full rounded-none border border-white/15 bg-white/5 px-4 text-sm text-white placeholder-white/30 transition-colors focus:border-[#ff6100] focus:outline-none focus:ring-2 focus:ring-[#ff6100]/50"
+              className="h-12 w-full rounded-none bg-white/10 px-4 text-sm text-white placeholder-white/40 transition-colors focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-[#ff6100]"
               placeholder="Digite seu usuário"
             />
           </div>
@@ -81,7 +81,7 @@ export default function LoginPage() {
           <div className="flex flex-col gap-2">
             <label 
               htmlFor="senha" 
-              className="text-xs font-semibold text-white/80"
+              className="text-sm font-semibold text-white/80"
             >
               Senha
             </label>
@@ -91,13 +91,13 @@ export default function LoginPage() {
               type="password"
               autoComplete="current-password"
               required
-              className="h-11 w-full rounded-none border border-white/15 bg-white/5 px-4 text-sm text-white placeholder-white/30 transition-colors focus:border-[#ff6100] focus:outline-none focus:ring-2 focus:ring-[#ff6100]/50"
+              className="h-12 w-full rounded-none bg-white/10 px-4 text-sm text-white placeholder-white/40 transition-colors focus:bg-white/15 focus:outline-none focus:ring-2 focus:ring-[#ff6100]"
               placeholder="Digite sua senha"
             />
           </div>
 
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-none text-xs text-red-400 font-medium">
+            <div className="p-3 bg-red-500/10 rounded-none text-sm text-red-400 font-medium">
               {error}
             </div>
           )}
@@ -105,7 +105,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="btn-primary mt-3 h-12 w-full text-xs font-bold text-white shadow-lg cursor-pointer"
+            className="btn-primary mt-3 h-12 w-full text-sm font-bold text-white shadow-lg cursor-pointer"
           >
             {loading ? "Autenticando…" : "Acessar Dashboard"}
           </button>

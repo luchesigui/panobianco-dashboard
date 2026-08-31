@@ -19,15 +19,15 @@ export function PageHeader({ gyms, gymSlug, periodId }: Props) {
 	return (
 		<>
 			<div className="mb-8">
-				<p className="text-xs font-semibold text-[#cc3300] mb-1">
+				<p className="text-sm font-semibold text-[#cc3300] mb-2">
 					Panobianco · Gestão Operacional
 				</p>
-				<h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[color:var(--text-primary)]">
+				<h1 className="font-display text-4xl sm:text-[3.5rem] font-bold leading-[0.96] tracking-tight text-[color:var(--text-primary)]">
 					Entrada de dados
 				</h1>
-				<p className="text-xs font-medium text-[color:var(--text-muted)] mt-1">
+				<p className="text-base sm:text-[1.5rem] leading-snug font-normal text-[color:var(--text-secondary)] mt-3">
 					Academia:{" "}
-					<span className="font-semibold text-[color:var(--text-secondary)]">{gymName}</span>
+					<span className="font-semibold text-[color:var(--text-primary)]">{gymName}</span>
 					<span className="mx-2 text-[color:var(--border-strong)]">·</span>
 					Período:{" "}
 					<span className="font-bold text-[#ff6100]">

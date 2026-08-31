@@ -104,8 +104,8 @@
 .funnelRow {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
-	gap: 6px;
-	margin-bottom: 1rem;
+	gap: 12px;
+	margin-bottom: 1.5rem;
 }
 
 @media (max-width: 768px) {
@@ -116,52 +116,55 @@
 
 .funnelStep {
 	text-align: center;
-	padding: 14px 8px;
+	padding: 18px 12px;
 	position: relative;
+	background: var(--surface-card, #ffffff);
+	border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
 	clip-path: polygon(
-		8px 0%,
-		calc(100% - 8px) 0%,
-		100% 8px,
-		100% calc(100% - 8px),
-		calc(100% - 8px) 100%,
-		8px 100%,
-		0% calc(100% - 8px),
-		0% 8px
+		var(--tamanho-chanfro-card, 14px) 0%,
+		calc(100% - var(--tamanho-chanfro-card, 14px)) 0%,
+		100% var(--tamanho-chanfro-card, 14px),
+		100% calc(100% - var(--tamanho-chanfro-card, 14px)),
+		calc(100% - var(--tamanho-chanfro-card, 14px)) 100%,
+		var(--tamanho-chanfro-card, 14px) 100%,
+		0% calc(100% - var(--tamanho-chanfro-card, 14px)),
+		0% var(--tamanho-chanfro-card, 14px)
 	);
 }
 
 .funnelLabel {
-	font-size: 11px;
-	font-weight: 500;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--text-secondary, #3D3336);
 	display: block;
-	margin-bottom: 4px;
+	margin-bottom: 6px;
 }
 
 .funnelVal {
-	font-family: var(--font-kpi-display), var(--font-display, Georgia, serif);
-	font-size: 22px;
-	font-weight: 600;
+	font-family: var(--font-display);
+	font-size: 28px;
+	font-weight: 700;
 	display: block;
-	letter-spacing: -0.03em;
-	line-height: 1.15;
+	letter-spacing: -0.02em;
+	line-height: 1.1;
 }
 
 .funnelRate {
-	font-size: 10px;
-	margin-top: 3px;
+	font-size: 13px;
+	color: var(--text-tertiary, #87756B);
+	margin-top: 4px;
 	display: block;
-	opacity: 0.7;
 	line-height: 1.35;
 }
 
 .funnelArrow {
 	position: absolute;
-	right: -9px;
+	right: -10px;
 	top: 50%;
 	transform: translateY(-50%);
-	font-size: 11px;
-	color: var(--text-tertiary, #9c9b96);
-	z-index: 1;
+	font-size: 12px;
+	color: var(--text-tertiary, #87756B);
+	z-index: 10;
 	pointer-events: none;
 }
 

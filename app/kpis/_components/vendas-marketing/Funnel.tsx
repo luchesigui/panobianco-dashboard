@@ -68,13 +68,12 @@ export function Funnel({ funnel, leadsGenerated }: Props) {
 					<div
 						key={step.label}
 						className={styles.funnelStep}
-						style={{ background: step.bg, color: step.fg }}
 					>
 						<span className={styles.funnelLabel}>{step.label}</span>
 						<span className={styles.funnelVal} style={{ color: step.fg }}>
 							{step.value}
 						</span>
-						<span className={styles.funnelRate}>{step.sub}</span>
+						{step.sub ? <span className={styles.funnelRate}>{step.sub}</span> : null}
 						{i < steps.length - 1 ? (
 							<span className={styles.funnelArrow} aria-hidden>
 								&#9654;

@@ -1,6 +1,6 @@
 .card {
 	background: var(--bg-card);
-	padding: 16px 18px;
+	padding: 18px 20px;
 	position: relative;
 	overflow: hidden;
 	transition: var(--transition);
@@ -28,7 +28,7 @@
 }
 
 .title {
-	font-size: 12px;
+	font-size: 14px;
 	color: var(--text-secondary);
 	font-weight: 600;
 	display: block;
@@ -37,18 +37,18 @@
 
 .mainNumber {
 	font-family: var(--font-display);
-	font-size: clamp(28px, 3vw, 36px);
+	font-size: clamp(30px, 3.5vw, 42px);
 	font-weight: 700;
 	letter-spacing: -0.02em;
-	line-height: 1.1;
+	line-height: 1.05;
 	margin: 0;
 	color: var(--text-primary);
 }
 
 .subdescription {
-	font-size: 12px;
+	font-size: 14px;
 	color: var(--text-secondary);
-	margin: 4px 0 0;
+	margin: 6px 0 0;
 	line-height: 1.4;
 }
 
@@ -62,12 +62,12 @@
 }
 
 .pillRow {
-	font-size: 12px;
+	font-size: 14px;
 	color: var(--text-secondary);
-	margin-top: 4px;
+	margin-top: 6px;
 	display: flex;
 	align-items: center;
-	gap: 4px;
+	gap: 6px;
 	flex-wrap: wrap;
 }
 
