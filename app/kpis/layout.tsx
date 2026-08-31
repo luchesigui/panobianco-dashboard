@@ -1,12 +1,33 @@
 import type { ReactNode } from "react";
+import localFont from "next/font/local";
 import { Archivo } from "next/font/google";
 import { Navbar } from "./Navbar";
 import styles from "./layout.module.css";
 import brandStyles from "./kpi-brand.module.css";
 import { clsx } from "clsx";
 
-// Forma DJR Micro is the 2026 brand font. Archivo is the approved
-// operational fallback until the licensed font files are supplied.
+const brandFont = localFont({
+	src: [
+		{
+			path: "../../public/fonts/FormaDJRMicro-Light.ttf",
+			weight: "300",
+			style: "normal",
+		},
+		{
+			path: "../../public/fonts/FormaDJRMicro-Regular.ttf",
+			weight: "400",
+			style: "normal",
+		},
+		{
+			path: "../../public/fonts/FormaDJRMicro-Bold.ttf",
+			weight: "700",
+			style: "normal",
+		},
+	],
+	variable: "--font-brand",
+	display: "swap",
+});
+
 const body = Archivo({
 	subsets: ["latin"],
 	variable: "--font-kpi-body",
@@ -27,7 +48,7 @@ export default function KpisLayout({
 	children: ReactNode;
 }>) {
 	return (
-		<div className={clsx(body.variable, display.variable, styles.kpiShell, brandStyles.kpiScope)}>
+		<div className={clsx(brandFont.variable, body.variable, display.variable, styles.kpiShell, brandStyles.kpiScope)}>
 			<Navbar />
 			{children}
 		</div>

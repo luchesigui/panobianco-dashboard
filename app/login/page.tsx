@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
+import Logo from "@/components/Logo"
+
 export default function LoginPage() {
   const router = useRouter()
   const [error, setError] = useState("")
@@ -37,54 +39,78 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[color:var(--surface-page)] px-6">
-      <Card className="w-full max-w-sm border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
-        <CardHeader className="pb-4">
-          <div className="flex items-center gap-2.5 mb-2">
-            <div className="h-6 w-1 bg-[color:var(--action-primary)]" aria-hidden />
-            <span className="text-sm font-bold text-[color:var(--text-primary)] tracking-[0.08em] uppercase">
-              Panobianco
-            </span>
-          </div>
-          <CardTitle className="text-xl font-medium tracking-tight text-[color:var(--text-primary)]">
-            Entrar no dashboard
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="login" className="text-xs font-semibold uppercase tracking-[0.06em] text-[color:var(--text-secondary)]">Login</Label>
-              <Input
-                id="login"
-                name="login"
-                type="text"
-                autoComplete="username"
-                required
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <Label htmlFor="senha" className="text-xs font-semibold uppercase tracking-[0.06em] text-[color:var(--text-secondary)]">Senha</Label>
-              <Input
-                id="senha"
-                name="senha"
-                type="password"
-                autoComplete="current-password"
-                required
-              />
-            </div>
-            {error && (
-              <p className="text-sm font-medium text-[color:var(--feedback-negative)]">{error}</p>
-            )}
-            <Button
-              type="submit"
-              disabled={loading}
-              className="mt-2 h-10 bg-[color:var(--pb-black)] text-[color:var(--pb-white)] font-semibold uppercase tracking-[0.06em] hover:bg-[color:var(--pb-graphite)] transition-colors"
+    <div className="min-h-screen flex items-center justify-center bg-[#161515] px-6 relative overflow-hidden">
+      {/* Background ambient glow */}
+      <div 
+        className="absolute inset-0 pointer-events-none opacity-40"
+        style={{
+          background: "radial-gradient(circle at 50% 40%, rgba(255, 97, 0, 0.25) 0%, transparent 60%)"
+        }}
+      />
+
+      <div className="w-full max-w-md bg-[#1f1f1f]/95 border border-white/10 p-8 sm:p-10 shadow-2xl relative z-10 rounded-2xl backdrop-blur-md">
+        <div className="flex flex-col items-center text-center mb-8">
+          <Logo width={180} height={34} variant="light-on-dark" showLink={false} />
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#ff6100] mt-4">
+            Feitos de força e vontade
+          </p>
+          <h1 className="text-xl font-bold uppercase tracking-tight text-white mt-1">
+            Dashboard Estratégico
+          </h1>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2">
+            <label 
+              htmlFor="login" 
+              className="text-xs font-semibold uppercase tracking-[0.08em] text-white/80"
             >
-              {loading ? "Entrando…" : "Entrar"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              Usuário
+            </label>
+            <input
+              id="login"
+              name="login"
+              type="text"
+              autoComplete="username"
+              required
+              className="h-11 w-full rounded-md border border-white/15 bg-white/5 px-4 text-sm text-white placeholder-white/30 transition-colors focus:border-[#ff6100] focus:outline-none focus:ring-2 focus:ring-[#ff6100]/50"
+              placeholder="Digite seu usuário"
+            />
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label 
+              htmlFor="senha" 
+              className="text-xs font-semibold uppercase tracking-[0.08em] text-white/80"
+            >
+              Senha
+            </label>
+            <input
+              id="senha"
+              name="senha"
+              type="password"
+              autoComplete="current-password"
+              required
+              className="h-11 w-full rounded-md border border-white/15 bg-white/5 px-4 text-sm text-white placeholder-white/30 transition-colors focus:border-[#ff6100] focus:outline-none focus:ring-2 focus:ring-[#ff6100]/50"
+              placeholder="Digite sua senha"
+            />
+          </div>
+
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-400 font-medium">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary mt-3 h-12 w-full text-xs font-bold uppercase tracking-[0.1em] text-white shadow-lg cursor-pointer"
+          >
+            {loading ? "Autenticando…" : "Acessar Dashboard"}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

@@ -34,8 +34,8 @@ a {
 }
 
 @theme inline {
-  --font-heading: var(--font-kpi-display), var(--font-kpi-body), system-ui, sans-serif;
-  --font-sans: var(--font-kpi-body), system-ui, sans-serif;
+  --font-heading: "Forma DJR Micro", var(--font-brand), "Archivo", system-ui, sans-serif;
+  --font-sans: "Forma DJR Micro", var(--font-brand), "Archivo", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -77,7 +77,7 @@ a {
 }
 
 :root {
-  /* Official 2026 palette. Component code consumes the semantic aliases below. */
+  /* Paleta oficial Panobianco 2026 */
   --pb-orange: #FF6100;
   --pb-orange-warm: #CC3300;
   --pb-grena: #330000;
@@ -88,20 +88,27 @@ a {
   --pb-black: #161515;
   --pb-white: #FFFFFF;
 
+  /* Sistema de chanfros a 45º */
+  --tamanho-chanfro: 72px;
+  --tamanho-chanfro-grande: 120px;
+  --tamanho-chanfro-menor: 24px;
+  --tamanho-chanfro-botao: 12px;
+  --tamanho-chanfro-botao-nav: 8px;
+  --tamanho-chanfro-selo: 5px;
+
   --surface-page: var(--pb-off-white);
   --surface-card: var(--pb-white);
   --surface-muted: color-mix(in srgb, var(--pb-off-white) 76%, var(--pb-white));
   --text-primary: var(--pb-black);
   --text-secondary: var(--pb-graphite);
-  --text-tertiary: var(--pb-graphite);
-  /* Concrete is decorative only; small essential text needs AA on white. */
-  --text-muted: var(--pb-graphite);
-  --border-subtle: color-mix(in srgb, var(--pb-graphite) 18%, transparent);
-  --border-strong: color-mix(in srgb, var(--pb-graphite) 34%, transparent);
+  --text-tertiary: var(--pb-concrete);
+  --text-muted: var(--pb-concrete);
+  --border-subtle: color-mix(in srgb, var(--pb-graphite) 15%, transparent);
+  --border-strong: color-mix(in srgb, var(--pb-graphite) 28%, transparent);
   --action-primary: var(--pb-orange);
   --action-primary-hover: var(--pb-orange-warm);
   --action-foreground: var(--pb-white);
-  --focus-ring: var(--pb-orange-warm);
+  --focus-ring: var(--pb-orange);
   --feedback-positive: var(--pb-orange);
   --feedback-negative: var(--pb-grena);
   --feedback-neutral: var(--pb-graphite);
@@ -134,7 +141,7 @@ a {
   --chart-3: var(--chart-secondary);
   --chart-4: var(--chart-neutral);
   --chart-5: var(--chart-muted);
-  --radius: 0;
+  --radius: 0.625rem;
   --sidebar: var(--surface-card);
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--pb-black);
@@ -145,9 +152,133 @@ a {
   --sidebar-ring: var(--focus-ring);
 }
 
+/* ======================================================================
+   Geometria Panobianco 2026 — Chanfros a 45º
+   ====================================================================== */
+
+.botao-chanfrado {
+  clip-path: polygon(
+    var(--tamanho-chanfro-botao) 0%,
+    calc(100% - var(--tamanho-chanfro-botao)) 0%,
+    100% var(--tamanho-chanfro-botao),
+    100% calc(100% - var(--tamanho-chanfro-botao)),
+    calc(100% - var(--tamanho-chanfro-botao)) 100%,
+    var(--tamanho-chanfro-botao) 100%,
+    0% calc(100% - var(--tamanho-chanfro-botao)),
+    0% var(--tamanho-chanfro-botao)
+  );
+}
+
+.botao-chanfrado-nav {
+  clip-path: polygon(
+    var(--tamanho-chanfro-botao-nav) 0%,
+    calc(100% - var(--tamanho-chanfro-botao-nav)) 0%,
+    100% var(--tamanho-chanfro-botao-nav),
+    100% calc(100% - var(--tamanho-chanfro-botao-nav)),
+    calc(100% - var(--tamanho-chanfro-botao-nav)) 100%,
+    var(--tamanho-chanfro-botao-nav) 100%,
+    0% calc(100% - var(--tamanho-chanfro-botao-nav)),
+    0% var(--tamanho-chanfro-botao-nav)
+  );
+}
+
+.selo-chanfrado {
+  clip-path: polygon(
+    var(--tamanho-chanfro-selo) 0%,
+    calc(100% - var(--tamanho-chanfro-selo)) 0%,
+    100% var(--tamanho-chanfro-selo),
+    100% calc(100% - var(--tamanho-chanfro-selo)),
+    calc(100% - var(--tamanho-chanfro-selo)) 100%,
+    var(--tamanho-chanfro-selo) 100%,
+    0% calc(100% - var(--tamanho-chanfro-selo)),
+    0% var(--tamanho-chanfro-selo)
+  );
+}
+
+.shape-chanfrado-menor {
+  clip-path: polygon(
+    var(--tamanho-chanfro-menor) 0%,
+    calc(100% - var(--tamanho-chanfro-menor)) 0%,
+    100% var(--tamanho-chanfro-menor),
+    100% calc(100% - var(--tamanho-chanfro-menor)),
+    calc(100% - var(--tamanho-chanfro-menor)) 100%,
+    var(--tamanho-chanfro-menor) 100%,
+    0% calc(100% - var(--tamanho-chanfro-menor)),
+    0% var(--tamanho-chanfro-menor)
+  );
+}
+
+.botao-chanfrado:focus-visible,
+.botao-chanfrado-nav:focus-visible,
+.shape-chanfrado-menor:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 2px var(--pb-black),
+    inset 0 0 0 5px var(--pb-orange);
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--pb-orange);
+  padding: 0.625rem 1.5rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pb-white);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  clip-path: polygon(
+    var(--tamanho-chanfro-botao) 0%,
+    calc(100% - var(--tamanho-chanfro-botao)) 0%,
+    100% var(--tamanho-chanfro-botao),
+    100% calc(100% - var(--tamanho-chanfro-botao)),
+    calc(100% - var(--tamanho-chanfro-botao)) 100%,
+    var(--tamanho-chanfro-botao) 100%,
+    0% calc(100% - var(--tamanho-chanfro-botao)),
+    0% var(--tamanho-chanfro-botao)
+  );
+}
+
+.btn-primary:hover {
+  background-color: var(--pb-orange-warm);
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(22, 21, 21, 0.05);
+  border: 1px solid var(--border-subtle);
+  padding: 0.625rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  transition: background-color 0.2s ease;
+  clip-path: polygon(
+    var(--tamanho-chanfro-botao) 0%,
+    calc(100% - var(--tamanho-chanfro-botao)) 0%,
+    100% var(--tamanho-chanfro-botao),
+    100% calc(100% - var(--tamanho-chanfro-botao)),
+    calc(100% - var(--tamanho-chanfro-botao)) 100%,
+    var(--tamanho-chanfro-botao) 100%,
+    0% calc(100% - var(--tamanho-chanfro-botao)),
+    0% var(--tamanho-chanfro-botao)
+  );
+}
+
+.btn-secondary:hover {
+  background-color: rgba(22, 21, 21, 0.1);
+}
+
 [data-slot="card"] {
-  border-radius: 0;
-  box-shadow: none;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(61, 51, 54, 0.12);
+  background: var(--surface-card);
+  box-shadow: 0 1px 3px rgba(22, 21, 21, 0.04), 0 1px 2px rgba(22, 21, 21, 0.02);
 }
 
 [data-slot="card-header"] {

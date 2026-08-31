@@ -19,12 +19,13 @@ export function SaveButton({
 	children,
 }: Props) {
 	return (
-		<Button
+		<button
+			type="button"
 			onClick={onClick}
 			disabled={disabled || loading}
-			className={`${brand.brandControl} h-10 px-6 font-semibold uppercase tracking-[0.06em] transition-colors hover:bg-[color:var(--pb-graphite)] hover:border-[color:var(--pb-graphite)]`}
+			className="btn-primary h-11 px-8 text-xs font-bold uppercase tracking-[0.08em] shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
 		>
 			{loading ? loadingLabel : children}
-		</Button>
+		</button>
 	);
 }
