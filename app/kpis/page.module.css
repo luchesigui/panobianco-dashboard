@@ -541,11 +541,11 @@
 }
 
 .insightCardRetention .insightCardBody {
-	background: rgba(250, 236, 231, 0.45);
+	background: var(--surface-card, #ffffff);
 }
 
 .insightCardRoi .insightCardBody {
-	background: rgba(252, 248, 240, 0.65);
+	background: var(--surface-card, #ffffff);
 }
 
 .insightHeaderCaps {
@@ -555,13 +555,16 @@
 }
 
 .insightCardHeader {
-	padding: 10px 16px;
-	font-size: 12px;
+	padding: 12px 16px;
+	font-size: 13px;
 	font-weight: 700;
-	letter-spacing: 0.02em;
+	letter-spacing: 0.01em;
 	display: flex;
 	align-items: center;
 	gap: 6px;
+	background: var(--surface-card, #ffffff);
+	color: var(--text-primary);
+	border-bottom: 1px solid var(--border-subtle);
 }
 
 .insightCardHeader svg {
@@ -578,13 +581,14 @@
 
 .insightCardBody {
 	padding: 12px 16px 14px;
+	background: var(--surface-card, #ffffff);
 }
 
 .insightItem {
 	display: flex;
 	gap: 10px;
 	padding: 8px 0;
-	border-bottom: 0.5px solid var(--border);
+	border-bottom: 0.5px solid var(--border-subtle);
 	font-size: 12.5px;
 	line-height: 1.55;
 	color: var(--text-secondary);
@@ -605,6 +609,16 @@
 	justify-content: center;
 	font-size: 11px;
 	margin-top: 1px;
+	clip-path: polygon(
+		4px 0%,
+		calc(100% - 4px) 0%,
+		100% 4px,
+		100% calc(100% - 4px),
+		calc(100% - 4px) 100%,
+		4px 100%,
+		0% calc(100% - 4px),
+		0% 4px
+	);
 }
 
 .insightIconGood {
@@ -650,7 +664,7 @@
 .sectionLabel {
 	font-size: 12px;
 	font-weight: 600;
-	color: var(--pb-orange);
+	color: var(--text-primary);
 	letter-spacing: 0.02em;
 	margin-bottom: 10px;
 	margin-top: 8px;
@@ -671,9 +685,18 @@
 
 .chartCard {
 	background: var(--bg-card);
-	border-radius: 0;
 	padding: 20px;
 	border: 1px solid var(--border);
+	clip-path: polygon(
+		var(--tamanho-chanfro-card) 0%,
+		calc(100% - var(--tamanho-chanfro-card)) 0%,
+		100% var(--tamanho-chanfro-card),
+		100% calc(100% - var(--tamanho-chanfro-card)),
+		calc(100% - var(--tamanho-chanfro-card)) 100%,
+		var(--tamanho-chanfro-card) 100%,
+		0% calc(100% - var(--tamanho-chanfro-card)),
+		0% var(--tamanho-chanfro-card)
+	);
 }
 
 .analysis {
@@ -697,9 +720,18 @@
 
 .feature {
 	background: var(--bg-card);
-	border-radius: 0;
 	padding: 20px;
 	border: 1px solid var(--border);
+	clip-path: polygon(
+		var(--tamanho-chanfro-card) 0%,
+		calc(100% - var(--tamanho-chanfro-card)) 0%,
+		100% var(--tamanho-chanfro-card),
+		100% calc(100% - var(--tamanho-chanfro-card)),
+		calc(100% - var(--tamanho-chanfro-card)) 100%,
+		var(--tamanho-chanfro-card) 100%,
+		0% calc(100% - var(--tamanho-chanfro-card)),
+		0% var(--tamanho-chanfro-card)
+	);
 }
 
 .feature h2 {
@@ -719,27 +751,54 @@
 .featureMeta {
 	font-size: 12px;
 	color: var(--text-tertiary);
-	margin-bottom: 12px;
+	margin: 0 0 12px;
+}
+
+.tableWrap {
+	overflow-x: auto;
+	margin: 0 -4px;
+}
+
+.table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 12px;
+}
+
+.table th,
+.table td {
+	padding: 8px 12px;
+	text-align: left;
+	border-bottom: 1px solid var(--border-subtle);
+}
+
+.table th {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--text-secondary);
+}
+
+.table tr:last-child td {
+	border-bottom: none;
 }
 
 .impactList {
-	display: grid;
-	gap: 6px;
-	font-size: 13px;
-	color: var(--text-secondary);
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin: 12px 0 0;
+	font-size: 11px;
 }
 
 .impactList span {
 	padding: 6px 10px;
 	background: var(--bg-elevated);
-	border-radius: var(--radius);
 }
 
 /* AI Insights styles */
 .aiButton {
 	background: var(--bg-card);
-	border: 0.5px solid var(--border-strong);
-	border-radius: 6px;
+	border: 1px solid var(--border-subtle);
 	padding: 4px 10px;
 	font-size: 11px;
 	font-weight: 600;
@@ -750,12 +809,21 @@
 	gap: 4px;
 	transition: var(--transition);
 	margin-left: auto;
+	clip-path: polygon(
+		4px 0%,
+		calc(100% - 4px) 0%,
+		100% 4px,
+		100% calc(100% - 4px),
+		calc(100% - 4px) 100%,
+		4px 100%,
+		0% calc(100% - 4px),
+		0% 4px
+	);
 }
 
 .aiButton:hover:not(:disabled) {
 	background: var(--bg-elevated);
 	color: var(--text-primary);
-	border-color: var(--text-secondary);
 }
 
 .aiButton:disabled {
@@ -803,7 +871,7 @@
 .insightCard,
 .chartCard,
 .feature {
-	border-radius: var(--radius);
+	border-radius: 0;
 }
 
 .insightCardHeader {
@@ -816,9 +884,9 @@
 .headerFinanceiro,
 .headerRoi,
 .headerPrevisao {
-	background: var(--pb-black);
-	color: var(--pb-off-white);
-	border-left: 4px solid var(--pb-orange);
+	background: var(--surface-card, #ffffff);
+	color: var(--text-primary);
+	border-bottom: 1px solid var(--border-subtle);
 }
 
 @media (max-width: 768px) {

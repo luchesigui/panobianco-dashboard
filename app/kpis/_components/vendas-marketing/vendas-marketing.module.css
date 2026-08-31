@@ -446,8 +446,7 @@
 
 /* Custom styles for Current Week Highlighting and Comparison Stack */
 .currentWeekHeader {
-	background: var(--accent-light, #fff0e6) !important;
-	border-bottom: 2px solid var(--pb-orange, #ff6100) !important;
+	background: var(--surface-muted) !important;
 	position: relative;
 }
 
@@ -461,25 +460,30 @@
 .currentWeekBadge {
 	font-size: 9px;
 	font-weight: 700;
-	color: #fff;
+	color: var(--pb-white);
 	background-color: var(--pb-orange, #ff6100);
 	padding: 1px 6px;
-	border-radius: 0;
 	letter-spacing: 0.02em;
 	display: inline-block;
 	line-height: 1.2;
+	clip-path: polygon(
+		3px 0%,
+		calc(100% - 3px) 0%,
+		100% 3px,
+		100% calc(100% - 3px),
+		calc(100% - 3px) 100%,
+		3px 100%,
+		0% calc(100% - 3px),
+		0% 3px
+	);
 }
 
 .currentWeekCell {
-	background-color: rgba(255, 97, 0, 0.04) !important;
-	border-left: 1.5px solid rgba(255, 97, 0, 0.18) !important;
-	border-right: 1.5px solid rgba(255, 97, 0, 0.18) !important;
+	background-color: var(--surface-muted) !important;
 }
 
-/* Make highlighted header border solid too */
 th.currentWeekHeader {
-	border-left: 1.5px solid rgba(255, 97, 0, 0.18) !important;
-	border-right: 1.5px solid rgba(255, 97, 0, 0.18) !important;
+	background-color: var(--surface-muted) !important;
 }
 
 .cellComparisonStack {

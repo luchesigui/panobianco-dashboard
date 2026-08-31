@@ -13,7 +13,6 @@ export function SectionCard({ title, badge, children }: SectionCardProps) {
 	return (
 		<section className={styles.themeSection}>
 			<div className={styles.themeHeader}>
-				<span className={brandStyles.brandMarker} aria-hidden />
 				<h2>{title}</h2>
 				{badge ? <p className={styles.themeMeta}>{badge}</p> : null}
 			</div>

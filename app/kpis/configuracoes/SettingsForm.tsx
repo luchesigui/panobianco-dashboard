@@ -29,19 +29,16 @@ export function SettingsForm({
 	return (
 		<div className="min-h-screen bg-transparent">
 			<div className="max-w-4xl mx-auto px-6 py-10 pb-20">
-				<div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-					<div>
-						<p className="text-xs font-semibold text-[#cc3300] mb-1">
-							Panobianco · Configuração do Sistema
-						</p>
-						<h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[color:var(--text-primary)]">
-							Configurações
-						</h1>
-						<p className="text-xs font-medium text-[color:var(--text-muted)] mt-1">
-							Gerencie as configurações da academia, metas e integrações.
-						</p>
-					</div>
-					<div className="selo-chanfrado h-10 w-2.5 bg-[#ff6100] shrink-0" aria-hidden />
+				<div className="mb-8">
+					<p className="text-xs font-semibold text-[#cc3300] mb-1">
+						Panobianco · Configuração do Sistema
+					</p>
+					<h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[color:var(--text-primary)]">
+						Configurações
+					</h1>
+					<p className="text-xs font-medium text-[color:var(--text-muted)] mt-1">
+						Gerencie as configurações da academia, metas e integrações.
+					</p>
 				</div>
 
 				<SettingsMessage message={form.message} />
