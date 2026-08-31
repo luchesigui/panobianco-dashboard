@@ -35,11 +35,11 @@ export function StudentBaseGoalsSection({ studentBaseGoals }: Props) {
 	return (
 		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
-					Meta de Base de Alunos
+				<CardTitle className="text-sm font-bold text-[color:var(--text-primary)]">
+					Metas da base de alunos
 				</CardTitle>
 				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
-					Meta de alunos ativos ao final de cada mês.
+					Projeção e acompanhamento de crescimento da base.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="pt-3 space-y-4">

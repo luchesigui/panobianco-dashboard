@@ -19,7 +19,7 @@ const HEADERS = ["Nome", "Leads", "Vendas", "Meta"];
 export function ReceptionistMonthTable({ rows, onChange }: Props) {
 	return (
 		<div>
-			<p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-secondary)] mb-1">
+			<p className="text-xs font-semibold text-[color:var(--text-secondary)] mb-1">
 				Recepcionistas (mês)
 			</p>
 			{rows.length === 0 ? (

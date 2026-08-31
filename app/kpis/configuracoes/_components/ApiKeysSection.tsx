@@ -20,11 +20,11 @@ export function ApiKeysSection({ apiKeys }: Props) {
 	return (
 		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
-					Integrações e API Keys
+				<CardTitle className="text-sm font-bold text-[color:var(--text-primary)]">
+					Chaves de API e integrações
 				</CardTitle>
 				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
-					Chaves usadas para análise automática de dados pelo assistente de IA.
+					Conectores para EVO, Gemini e serviços externos.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="pt-3 space-y-4">

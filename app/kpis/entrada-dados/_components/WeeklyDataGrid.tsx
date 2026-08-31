@@ -50,14 +50,14 @@ export function WeeklyDataGrid({
 		<div className="overflow-x-auto">
 			<table className="w-full text-sm border-collapse">
 				<thead>
-					<tr>
-						<th className="text-left text-xs font-semibold text-[color:var(--text-secondary)] bg-[color:var(--surface-muted)] border border-[color:var(--border-subtle)] px-3 py-2.5 min-w-36">
+					<tr className="border-b border-[color:var(--border-strong)]">
+						<th className="text-left text-xs font-semibold text-[color:var(--text-secondary)] px-3 py-3 min-w-36">
 							Métrica
 						</th>
 						{weekHeaders.map((h) => (
 							<th
 								key={h}
-								className="text-center text-xs font-semibold text-[color:var(--text-secondary)] bg-[color:var(--surface-muted)] border border-[color:var(--border-subtle)] px-3 py-2.5"
+								className="text-center text-xs font-semibold text-[color:var(--text-secondary)] px-3 py-3"
 							>
 								{h}
 							</th>
@@ -68,14 +68,14 @@ export function WeeklyDataGrid({
 					{MARKETING_ROWS.map(([label, key], ri) => {
 						const isFreq = key === "frequency";
 						return (
-							<tr key={key} className="hover:bg-black/[0.02]">
-								<td className="text-xs font-medium text-[color:var(--text-primary)] border border-[color:var(--border-subtle)] px-3 py-1.5 bg-[color:var(--surface-muted)]/50">
+							<tr key={key} className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
+								<td className="text-xs font-medium text-[color:var(--text-primary)] px-3 py-2">
 									{label}
 								</td>
 								{weeklyStr[key].map((cell, wi) => (
 									<td
 										key={`${key}-${weekHeaders[wi] ?? wi}`}
-										className="border border-[color:var(--border-subtle)] px-1.5 py-1.5"
+										className="px-2 py-2 text-center"
 									>
 										<Input
 											value={isFreq ? cell : formatThousands(cell)}
@@ -102,20 +102,20 @@ export function WeeklyDataGrid({
 					<tr>
 						<td
 							colSpan={nWeeks + 1}
-							className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)] bg-[color:var(--surface-muted)] border border-[color:var(--border-subtle)] px-3 py-2"
+							className="text-xs font-bold text-[#ff6100] pt-5 pb-2 px-3 border-b border-[color:var(--border-subtle)]"
 						>
 							Funil semanal
 						</td>
 					</tr>
 					{FUNNEL_ROWS.map(([label, key], ri) => (
-						<tr key={key} className="hover:bg-black/[0.02]">
-							<td className="text-xs font-medium text-[color:var(--text-primary)] border border-[color:var(--border-subtle)] px-3 py-1.5 bg-[color:var(--surface-muted)]/50">
+						<tr key={key} className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
+							<td className="text-xs font-medium text-[color:var(--text-primary)] px-3 py-2">
 								{label}
 							</td>
 							{weeklyStr[key].map((cell, wi) => (
 								<td
 									key={`${key}-${weekHeaders[wi] ?? wi}`}
-									className="border border-[color:var(--border-subtle)] px-1.5 py-1.5"
+									className="px-2 py-2 text-center"
 								>
 									<Input
 										value={formatThousands(cell)}
@@ -138,29 +138,29 @@ export function WeeklyDataGrid({
 					<tr>
 						<td
 							colSpan={nWeeks + 1}
-							className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)] bg-[color:var(--surface-muted)] border border-[color:var(--border-subtle)] px-3 py-2"
+							className="text-xs font-bold text-[#ff6100] pt-5 pb-2 px-3 border-b border-[color:var(--border-subtle)]"
 						>
-							Vendas — por recepcionista
+							Vendas por recepcionista
 						</td>
 					</tr>
 					{recepWeekRows.map((row, ri) => (
 						<React.Fragment key={row.id}>
-							<tr>
+							<tr className="bg-[color:var(--surface-muted)]/50">
 								<td
 									colSpan={nWeeks + 1}
-									className="text-[10px] font-bold uppercase tracking-wider text-[color:var(--text-secondary)] bg-[color:var(--surface-muted)]/80 border border-[color:var(--border-subtle)] px-3 py-1.5"
+									className="text-xs font-semibold text-[color:var(--text-primary)] px-3 py-2 border-b border-[color:var(--border-subtle)]"
 								>
 									{row.name}
 								</td>
 							</tr>
-							<tr className="hover:bg-black/[0.02]">
-								<td className="border border-[color:var(--border-subtle)] px-3 py-1.5 bg-[color:var(--surface-card)] text-[10px] font-medium text-[color:var(--text-muted)] uppercase tracking-tight min-w-36">
+							<tr className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
+								<td className="px-3 py-2 text-xs font-medium text-[color:var(--text-secondary)] min-w-36">
 									Cadastrados
 								</td>
 								{row.leads.map((cell, wi) => (
 									<td
 										key={`${row.id}-leads-w${wi}`}
-										className="border border-[color:var(--border-subtle)] px-1.5 py-1.5"
+										className="px-2 py-2 text-center"
 									>
 										<Input
 											value={formatThousands(cell)}
@@ -189,14 +189,14 @@ export function WeeklyDataGrid({
 									</td>
 								))}
 							</tr>
-							<tr className="hover:bg-black/[0.02]">
-								<td className="border border-[color:var(--border-subtle)] px-3 py-1.5 bg-[color:var(--surface-card)] text-[10px] font-medium text-[color:var(--text-muted)] uppercase tracking-tight min-w-36">
+							<tr className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
+								<td className="px-3 py-2 text-xs font-medium text-[color:var(--text-secondary)] min-w-36">
 									Convertidos
 								</td>
 								{row.sales.map((cell, wi) => (
 									<td
 										key={`${row.id}-sales-w${wi}`}
-										className="border border-[color:var(--border-subtle)] px-1.5 py-1.5"
+										className="px-2 py-2 text-center"
 									>
 										<Input
 											value={formatThousands(cell)}
@@ -230,19 +230,19 @@ export function WeeklyDataGrid({
 					<tr>
 						<td
 							colSpan={nWeeks + 1}
-							className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-muted)] bg-[color:var(--surface-muted)] border border-[color:var(--border-subtle)] px-3 py-2"
+							className="text-xs font-bold text-[#ff6100] pt-5 pb-2 px-3 border-b border-[color:var(--border-subtle)]"
 						>
-							Vendas (todos canais)
+							Vendas (todos os canais)
 						</td>
 					</tr>
-					<tr className="hover:bg-black/[0.02]">
-						<td className="text-[10px] font-medium text-[color:var(--text-muted)] border border-[color:var(--border-subtle)] px-3 py-1.5 bg-[color:var(--surface-card)] uppercase tracking-tight">
-							Total Cadastrados
+					<tr className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
+						<td className="text-xs font-medium text-[color:var(--text-secondary)] px-3 py-2">
+							Total cadastrados
 						</td>
 						{weeklyStr.leadsTot.map((cell, wi) => (
 							<td
 								key={`leadsTot-${weekHeaders[wi] ?? wi}`}
-								className="border border-[color:var(--border-subtle)] px-1.5 py-1.5"
+								className="px-2 py-2 text-center"
 							>
 								<Input
 									value={formatThousands(cell)}
@@ -265,14 +265,14 @@ export function WeeklyDataGrid({
 							</td>
 						))}
 					</tr>
-					<tr className="hover:bg-black/[0.02]">
-						<td className="text-[10px] font-medium text-[color:var(--text-muted)] border border-[color:var(--border-subtle)] px-3 py-1.5 bg-[color:var(--surface-card)] uppercase tracking-tight">
-							Total Convertidos
+					<tr className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
+						<td className="text-xs font-medium text-[color:var(--text-secondary)] px-3 py-2">
+							Total convertidos
 						</td>
 						{weeklyStr.salesTot.map((cell, wi) => (
 							<td
 								key={`salesTot-${weekHeaders[wi] ?? wi}`}
-								className="border border-[color:var(--border-subtle)] px-1.5 py-1.5"
+								className="px-2 py-2 text-center"
 							>
 								<Input
 									value={formatThousands(cell)}

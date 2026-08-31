@@ -20,7 +20,7 @@ const FUNNEL_FIELDS = [
 export function FunnelSection({ funnel, onChange }: Props) {
 	return (
 		<div>
-			<p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--text-secondary)] mb-3">
+			<p className="text-xs font-semibold text-[color:var(--text-secondary)] mb-3">
 				Funil (valores do mês)
 			</p>
 			<div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-4">

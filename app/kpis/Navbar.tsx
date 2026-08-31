@@ -20,7 +20,7 @@ export function Navbar() {
 			<div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 lg:px-8">
 				<div className="flex items-center gap-3">
 					<Logo width={146} height={27} variant="light-on-dark" href="/kpis" />
-					<span className="hidden sm:inline-block text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40 border-l border-white/10 pl-3">
+					<span className="hidden sm:inline-block text-xs font-medium text-white/40 border-l border-white/10 pl-3">
 						Dashboard
 					</span>
 				</div>
@@ -34,10 +34,10 @@ export function Navbar() {
 									key={href}
 									href={href}
 									className={clsx(
-										"text-xs uppercase tracking-[0.08em] transition-all",
+										"text-xs font-semibold tracking-wide transition-all",
 										active
 											? "botao-chanfrado-nav bg-[#ff6100] px-4 py-2 font-bold text-white shadow-sm hover:bg-[#cc3300]"
-											: "px-3 py-2 font-medium text-white/80 hover:text-[#ff6100]"
+											: "px-3 py-2 text-white/80 hover:text-[#ff6100]"
 									)}
 								>
 									{label}
@@ -49,7 +49,7 @@ export function Navbar() {
 					<form action={logout}>
 						<button
 							type="submit"
-							className="text-xs uppercase tracking-[0.08em] text-white/60 transition-colors hover:text-white px-2 py-1 cursor-pointer"
+							className="text-xs font-medium text-white/60 transition-colors hover:text-white px-2 py-1 cursor-pointer"
 						>
 							Sair
 						</button>

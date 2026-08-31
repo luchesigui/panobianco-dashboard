@@ -21,11 +21,11 @@ export function GymInfoSection({ gymInfo }: Props) {
 	return (
 		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
-					Academia
+				<CardTitle className="text-sm font-bold text-[color:var(--text-primary)]">
+					Identificação da academia
 				</CardTitle>
 				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
-					Informações exibidas no dashboard.
+					Nome e dados cadastrais da sua unidade.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="pt-3 space-y-4">

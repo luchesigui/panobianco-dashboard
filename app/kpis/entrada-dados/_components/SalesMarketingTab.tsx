@@ -25,7 +25,7 @@ export function SalesMarketingTab({ sm, onUploadFile, uploading }: Props) {
 				<CardHeader className="pb-3">
 					<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 						<div>
-							<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
+							<CardTitle className="text-sm font-bold text-[color:var(--text-primary)]">
 								Grade semanal
 							</CardTitle>
 							<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">

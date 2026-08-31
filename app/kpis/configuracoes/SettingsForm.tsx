@@ -31,13 +31,13 @@ export function SettingsForm({
 			<div className="max-w-4xl mx-auto px-6 py-10 pb-20">
 				<div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
 					<div>
-						<p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#cc3300] mb-1">
+						<p className="text-xs font-semibold text-[#cc3300] mb-1">
 							Panobianco · Configuração do Sistema
 						</p>
-						<h1 className="font-display text-3xl sm:text-4xl font-bold uppercase tracking-tight text-[color:var(--text-primary)]">
+						<h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-[color:var(--text-primary)]">
 							Configurações
 						</h1>
-						<p className="text-xs font-semibold uppercase tracking-[0.08em] text-[color:var(--text-muted)] mt-1">
+						<p className="text-xs font-medium text-[color:var(--text-muted)] mt-1">
 							Gerencie as configurações da academia, metas e integrações.
 						</p>
 					</div>

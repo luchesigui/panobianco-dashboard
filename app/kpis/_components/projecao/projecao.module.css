@@ -1,18 +1,16 @@
 .root {
 	margin-top: 0.25rem;
-	font-family: var(--font-kpi-body), var(--font-body, system-ui, sans-serif);
+	font-family: var(--font-brand), "Archivo", system-ui, sans-serif;
 }
 
 .pageTitle {
-	font-family: var(--font-display), "Barlow Condensed", sans-serif;
-	font-size: 32px;
-	font-style: italic;
-	font-weight: 900;
+	font-family: var(--font-display);
+	font-size: 24px;
+	font-weight: 700;
 	letter-spacing: -0.01em;
 	margin: 0 0 1rem;
-	color: var(--text-primary, #15191a);
-	line-height: 0.95;
-	text-transform: uppercase;
+	color: var(--text-primary, #161515);
+	line-height: 1.2;
 }
 
 .kpiGrid {
@@ -36,36 +34,30 @@
 
 .kpiCard {
 	background: var(--bg-card, #ffffff);
-	border-radius: 18px;
+	border-radius: 0;
 	padding: 16px 18px;
-	box-shadow: var(
-		--shadow-card,
-		0 1px 3px rgba(0, 0, 0, 0.06),
-		0 0 0 0.5px rgba(0, 0, 0, 0.04)
-	);
+	border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
 	position: relative;
 	overflow: hidden;
 }
 
 .kpiLabel {
-	font-size: 13px;
+	font-size: 12px;
 	color: var(--text-secondary, #6b6a65);
-	font-weight: 800;
+	font-weight: 600;
 	display: block;
 	margin-bottom: 6px;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+	letter-spacing: 0.01em;
 }
 
 .kpiValue {
-	font-family: var(--font-display), "Barlow Condensed", sans-serif;
-	font-size: clamp(42px, 4vw, 56px);
-	font-style: italic;
-	font-weight: 900;
-	letter-spacing: -0.01em;
-	line-height: 0.95;
+	font-family: var(--font-display);
+	font-size: clamp(28px, 3vw, 36px);
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	line-height: 1.1;
 	margin: 0;
-	text-transform: uppercase;
+	color: var(--text-primary, #161515);
 }
 
 .kpiMetaLine {
@@ -93,10 +85,9 @@
 	display: inline-flex;
 	align-items: center;
 	font-size: 10px;
-	font-weight: 900;
+	font-weight: 700;
 	padding: 2px 6px;
-	border-radius: 999px;
-	text-transform: uppercase;
+	border-radius: 0;
 }
 
 .deltaUp {
@@ -219,15 +210,13 @@
 }
 
 .chartTitle {
-	font-family: var(--font-display), "Barlow Condensed", sans-serif;
-	font-size: 20px;
-	font-style: italic;
-	font-weight: 900;
-	color: var(--text-primary, #1a1a18);
-	margin: 0 0 2px;
+	font-family: var(--font-display);
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--text-primary, #161515);
+	margin: 0 0 4px;
 	letter-spacing: -0.01em;
-	line-height: 0.95;
-	text-transform: uppercase;
+	line-height: 1.2;
 }
 
 .chartSub {

@@ -48,9 +48,8 @@
   color: var(--pb-white);
   background: var(--pb-orange);
   font-weight: 700;
-  font-size: 0.8125rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
   border: none;
   cursor: pointer;
   transition: background-color 0.2s ease, transform 0.1s ease;

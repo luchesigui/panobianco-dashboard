@@ -34,8 +34,9 @@ a {
 }
 
 @theme inline {
-  --font-heading: "Forma DJR Micro", var(--font-brand), "Archivo", system-ui, sans-serif;
-  --font-sans: "Forma DJR Micro", var(--font-brand), "Archivo", system-ui, sans-serif;
+  --font-heading: var(--font-brand), "Archivo", system-ui, sans-serif;
+  --font-sans: var(--font-brand), "Archivo", system-ui, sans-serif;
+  --font-display: var(--font-brand), "Archivo", system-ui, sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -67,13 +68,13 @@ a {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-sm: 0;
+  --radius-md: 0;
+  --radius-lg: 0;
+  --radius-xl: 0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
 }
 
 :root {
@@ -103,8 +104,8 @@ a {
   --text-secondary: var(--pb-graphite);
   --text-tertiary: var(--pb-concrete);
   --text-muted: var(--pb-concrete);
-  --border-subtle: color-mix(in srgb, var(--pb-graphite) 15%, transparent);
-  --border-strong: color-mix(in srgb, var(--pb-graphite) 28%, transparent);
+  --border-subtle: color-mix(in srgb, var(--pb-graphite) 12%, transparent);
+  --border-strong: color-mix(in srgb, var(--pb-graphite) 24%, transparent);
   --action-primary: var(--pb-orange);
   --action-primary-hover: var(--pb-orange-warm);
   --action-foreground: var(--pb-white);
@@ -141,7 +142,7 @@ a {
   --chart-3: var(--chart-secondary);
   --chart-4: var(--chart-neutral);
   --chart-5: var(--chart-muted);
-  --radius: 0.625rem;
+  --radius: 0;
   --sidebar: var(--surface-card);
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--pb-black);
@@ -223,10 +224,8 @@ a {
   justify-content: center;
   background-color: var(--pb-orange);
   padding: 0.625rem 1.5rem;
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
   color: var(--pb-white);
   transition: background-color 0.2s ease, transform 0.1s ease;
   clip-path: polygon(
@@ -252,10 +251,8 @@ a {
   background-color: rgba(22, 21, 21, 0.05);
   border: 1px solid var(--border-subtle);
   padding: 0.625rem 1.25rem;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: var(--text-primary);
   transition: background-color 0.2s ease;
   clip-path: polygon(
@@ -275,10 +272,9 @@ a {
 }
 
 [data-slot="card"] {
-  border-radius: 0.75rem;
-  border: 1px solid rgba(61, 51, 54, 0.12);
+  border-radius: 0;
+  border: 1px solid var(--border-subtle);
   background: var(--surface-card);
-  box-shadow: 0 1px 3px rgba(22, 21, 21, 0.04), 0 1px 2px rgba(22, 21, 21, 0.02);
 }
 
 [data-slot="card-header"] {
@@ -289,10 +285,11 @@ a {
   * {
     @apply border-border outline-ring;
   }
+  html {
+    font-family: var(--font-brand), "Archivo", ui-sans-serif, system-ui, sans-serif;
+  }
   body {
     @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
+    font-family: var(--font-brand), "Archivo", ui-sans-serif, system-ui, sans-serif;
   }
 }

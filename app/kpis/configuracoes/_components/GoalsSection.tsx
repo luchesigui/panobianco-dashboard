@@ -21,8 +21,8 @@ export function GoalsSection({ consultoras }: Props) {
 	return (
 		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
-				<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
-					Metas
+				<CardTitle className="text-sm font-bold text-[color:var(--text-primary)]">
+					Metas individuais
 				</CardTitle>
 				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
 					Meta de vendas mensais por consultora.

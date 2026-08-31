@@ -36,7 +36,7 @@ export function MonthPickerControl({ monthValue }: Props) {
 
 	return (
 		<div className="flex flex-col gap-1.5">
-			<Label className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
+			<Label className="text-xs font-semibold text-[color:var(--text-secondary)]">
 				Mês
 			</Label>
 			<div className="flex items-center h-10 border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)] overflow-hidden">

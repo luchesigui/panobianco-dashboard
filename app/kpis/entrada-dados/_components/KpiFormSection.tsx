@@ -57,7 +57,7 @@ export function KpiFormSection({
 			<CardHeader className="pb-3">
 				<div className="flex items-start justify-between gap-2">
 					<div>
-						<CardTitle className="text-xs font-semibold text-[color:var(--text-secondary)] uppercase tracking-wide">
+						<CardTitle className="text-sm font-bold text-[color:var(--text-primary)]">
 							{title}
 						</CardTitle>
 						{description ? (

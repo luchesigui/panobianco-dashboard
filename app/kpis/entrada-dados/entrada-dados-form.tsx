@@ -162,16 +162,16 @@ export function EntradaDadosForm({
 				<StatusAlert message={status.message} />
 
 				<Tabs defaultValue="semanal">
-					<TabsList className="mb-6 h-auto rounded-full bg-white/80 p-1 shadow-sm ring-1 ring-black/10">
+					<TabsList className="mb-6 h-auto rounded-none bg-transparent p-0 gap-2">
 						<TabsTrigger
 							value="semanal"
-							className="rounded-full px-6 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-slate-500 data-[state=active]:bg-[#ff6100] data-[state=active]:text-white data-[state=active]:shadow-sm"
+							className="rounded-none px-6 py-2.5 text-xs font-bold text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] bg-white data-[state=active]:bg-[#ff6100] data-[state=active]:border-[#ff6100] data-[state=active]:text-white transition-all botao-chanfrado-nav cursor-pointer"
 						>
 							Semanal
 						</TabsTrigger>
 						<TabsTrigger
 							value="mensal"
-							className="rounded-full px-6 py-2 text-xs font-extrabold uppercase tracking-[0.06em] text-slate-500 data-[state=active]:bg-[#ff6100] data-[state=active]:text-white data-[state=active]:shadow-sm"
+							className="rounded-none px-6 py-2.5 text-xs font-bold text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] bg-white data-[state=active]:bg-[#ff6100] data-[state=active]:border-[#ff6100] data-[state=active]:text-white transition-all botao-chanfrado-nav cursor-pointer"
 						>
 							Mensal
 						</TabsTrigger>
