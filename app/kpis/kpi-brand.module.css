@@ -15,8 +15,8 @@
   isolation: isolate;
   padding: clamp(1rem, 2vw, 1.5rem);
   color: var(--text-primary);
-  background: var(--surface-card);
-  border: 1px solid var(--border-subtle);
+  background: transparent;
+  border: none;
   clip-path: polygon(0 0, calc(100% - var(--pb-chamfer)) 0, 100% var(--pb-chamfer), 100% 100%, 0 100%);
 }
 

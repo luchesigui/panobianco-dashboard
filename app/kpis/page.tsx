@@ -148,7 +148,7 @@ export default async function KpisPage({ searchParams }: Props) {
 
 	return (
 		<div className={styles.page}>
-			<header className={clsx(styles.header, brandStyles.brandFrame)}>
+			<header className={styles.header}>
 				<div className={styles.headerTop}>
 					<DashboardHeader gymName={data.gymName} />
 					<MonthSelector
