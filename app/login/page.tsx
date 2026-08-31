@@ -48,7 +48,7 @@ export default function LoginPage() {
         }}
       />
 
-      <div className="w-full max-w-md bg-[#1f1f1f] border border-white/10 p-8 sm:p-10 shadow-2xl relative z-10 rounded-none">
+      <div className="w-full max-w-md bg-[#1f1f1f] border border-white/10 p-8 sm:p-10 shadow-2xl relative z-10 shape-chanfrado-menor">
         <div className="flex flex-col items-center text-center mb-8">
           <Logo width={180} height={34} variant="light-on-dark" showLink={false} />
           <p className="text-xs font-semibold text-[#ff6100] mt-4">

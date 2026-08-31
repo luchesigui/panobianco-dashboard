@@ -39,23 +39,37 @@
 
 .salesCompCard {
 	background: var(--bg-card, #ffffff);
-	border-radius: var(--radius-lg, 14px);
 	padding: 16px 18px;
-	box-shadow: var(
-		--shadow-card,
-		0 1px 3px rgba(0, 0, 0, 0.06),
-		0 0 0 0.5px rgba(0, 0, 0, 0.04)
-	);
+	border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
 	display: flex;
 	align-items: center;
 	gap: 14px;
+	clip-path: polygon(
+		12px 0%,
+		calc(100% - 12px) 0%,
+		100% 12px,
+		100% calc(100% - 12px),
+		calc(100% - 12px) 100%,
+		12px 100%,
+		0% calc(100% - 12px),
+		0% 12px
+	);
 }
 
 .salesCompStripe {
 	width: 4px;
 	height: 48px;
-	border-radius: 2px;
 	flex-shrink: 0;
+	clip-path: polygon(
+		2px 0%,
+		calc(100% - 2px) 0%,
+		100% 2px,
+		100% calc(100% - 2px),
+		calc(100% - 2px) 100%,
+		2px 100%,
+		0% calc(100% - 2px),
+		0% 2px
+	);
 }
 
 .salesCompLabel {
@@ -90,7 +104,7 @@
 .funnelRow {
 	display: grid;
 	grid-template-columns: repeat(4, 1fr);
-	gap: 3px;
+	gap: 6px;
 	margin-bottom: 1rem;
 }
 
@@ -103,9 +117,17 @@
 .funnelStep {
 	text-align: center;
 	padding: 14px 8px;
-	border-radius: var(--radius, 10px);
 	position: relative;
-	box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.04));
+	clip-path: polygon(
+		8px 0%,
+		calc(100% - 8px) 0%,
+		100% 8px,
+		100% calc(100% - 8px),
+		calc(100% - 8px) 100%,
+		8px 100%,
+		0% calc(100% - 8px),
+		0% 8px
+	);
 }
 
 .funnelLabel {
@@ -146,12 +168,17 @@
 /* Reference: .chart-card + weekly table */
 .chartCard {
 	background: var(--bg-card, #ffffff);
-	border-radius: var(--radius-lg, 14px);
 	padding: 20px;
-	box-shadow: var(
-		--shadow-card,
-		0 1px 3px rgba(0, 0, 0, 0.06),
-		0 0 0 0.5px rgba(0, 0, 0, 0.04)
+	border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
+	clip-path: polygon(
+		14px 0%,
+		calc(100% - 14px) 0%,
+		100% 14px,
+		100% calc(100% - 14px),
+		calc(100% - 14px) 100%,
+		14px 100%,
+		0% calc(100% - 14px),
+		0% 14px
 	);
 }
 

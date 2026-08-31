@@ -1,14 +1,24 @@
 .card {
 	background: var(--bg-card);
-	border-radius: 0;
 	padding: 16px 18px;
 	position: relative;
 	overflow: hidden;
 	transition: var(--transition);
 	border: 1px solid var(--border);
+	clip-path: polygon(
+		var(--tamanho-chanfro-card) 0%,
+		calc(100% - var(--tamanho-chanfro-card)) 0%,
+		100% var(--tamanho-chanfro-card),
+		100% calc(100% - var(--tamanho-chanfro-card)),
+		calc(100% - var(--tamanho-chanfro-card)) 100%,
+		var(--tamanho-chanfro-card) 100%,
+		0% calc(100% - var(--tamanho-chanfro-card)),
+		0% var(--tamanho-chanfro-card)
+	);
 }
 
 .card:hover {
+	transform: translateY(-2px);
 	border-color: var(--border-strong);
 }
 

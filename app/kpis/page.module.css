@@ -94,11 +94,20 @@
 	gap: 6px;
 	background: var(--pb-black);
 	border: 1px solid rgba(255, 255, 255, 0.12);
-	border-radius: 0;
-	padding: 6px 10px;
+	padding: 6px 12px;
 	font-size: 13px;
 	color: var(--pb-white);
 	font-weight: 600;
+	clip-path: polygon(
+		var(--tamanho-chanfro-botao-nav) 0%,
+		calc(100% - var(--tamanho-chanfro-botao-nav)) 0%,
+		100% var(--tamanho-chanfro-botao-nav),
+		100% calc(100% - var(--tamanho-chanfro-botao-nav)),
+		calc(100% - var(--tamanho-chanfro-botao-nav)) 100%,
+		var(--tamanho-chanfro-botao-nav) 100%,
+		0% calc(100% - var(--tamanho-chanfro-botao-nav)),
+		0% var(--tamanho-chanfro-botao-nav)
+	);
 }
 
 .periodLabelWrapper {
@@ -114,12 +123,21 @@
 	justify-content: center;
 	width: 28px;
 	height: 28px;
-	border-radius: 0;
 	background: rgba(255, 255, 255, 0.12);
 	color: var(--pb-white);
 	border: none;
 	cursor: pointer;
 	transition: background 0.15s ease, transform 0.1s ease;
+	clip-path: polygon(
+		4px 0%,
+		calc(100% - 4px) 0%,
+		100% 4px,
+		100% calc(100% - 4px),
+		calc(100% - 4px) 100%,
+		4px 100%,
+		0% calc(100% - 4px),
+		0% 4px
+	);
 }
 
 .periodNavBtn:hover:not(:disabled) {
@@ -240,15 +258,26 @@
 }
 
 .themeIcon {
-	width: 64px;
-	height: 64px;
+	width: 56px;
+	height: 56px;
+	aspect-ratio: 1;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	font-size: 19px;
-	font-weight: 900;
+	font-size: 18px;
+	font-weight: 700;
 	color: #fff;
 	flex-shrink: 0;
+	clip-path: polygon(
+		29.29% 0%,
+		70.71% 0%,
+		100% 29.29%,
+		100% 70.71%,
+		70.71% 100%,
+		29.29% 100%,
+		0% 70.71%,
+		0% 29.29%
+	);
 }
 
 .themeIconAccent {
@@ -285,11 +314,20 @@
 .themeBadge {
 	font-size: 11px;
 	font-weight: 700;
-	padding: 4px 10px;
-	border-radius: 0;
+	padding: 4px 12px;
 	margin-left: auto;
 	flex-shrink: 0;
 	letter-spacing: 0.02em;
+	clip-path: polygon(
+		var(--tamanho-chanfro-selo) 0%,
+		calc(100% - var(--tamanho-chanfro-selo)) 0%,
+		100% var(--tamanho-chanfro-selo),
+		100% calc(100% - var(--tamanho-chanfro-selo)),
+		calc(100% - var(--tamanho-chanfro-selo)) 100%,
+		var(--tamanho-chanfro-selo) 100%,
+		0% calc(100% - var(--tamanho-chanfro-selo)),
+		0% var(--tamanho-chanfro-selo)
+	);
 }
 
 .badgeOverview {
@@ -363,15 +401,25 @@
 
 .kpiCard {
 	background: var(--bg-card);
-	border-radius: 0;
 	padding: 16px 18px;
 	position: relative;
 	overflow: hidden;
 	transition: var(--transition);
 	border: 1px solid var(--border);
+	clip-path: polygon(
+		var(--tamanho-chanfro-card) 0%,
+		calc(100% - var(--tamanho-chanfro-card)) 0%,
+		100% var(--tamanho-chanfro-card),
+		100% calc(100% - var(--tamanho-chanfro-card)),
+		calc(100% - var(--tamanho-chanfro-card)) 100%,
+		var(--tamanho-chanfro-card) 100%,
+		0% calc(100% - var(--tamanho-chanfro-card)),
+		0% var(--tamanho-chanfro-card)
+	);
 }
 
 .kpiCard:hover {
+	transform: translateY(-2px);
 	border-color: var(--border-strong);
 }
 
@@ -440,8 +488,17 @@
 	align-items: center;
 	font-size: 10px;
 	font-weight: 600;
-	padding: 2px 6px;
-	border-radius: 0;
+	padding: 2px 8px;
+	clip-path: polygon(
+		4px 0%,
+		calc(100% - 4px) 0%,
+		100% 4px,
+		100% calc(100% - 4px),
+		calc(100% - 4px) 100%,
+		4px 100%,
+		0% calc(100% - 4px),
+		0% 4px
+	);
 }
 
 .deltaUp {
@@ -462,12 +519,21 @@
 /* Insight cards */
 .insightCard {
 	background: var(--bg-card);
-	border-radius: 0;
 	padding: 0;
 	margin-bottom: 0;
 	margin-top: 0;
 	overflow: hidden;
 	border: 1px solid var(--border);
+	clip-path: polygon(
+		var(--tamanho-chanfro-card) 0%,
+		calc(100% - var(--tamanho-chanfro-card)) 0%,
+		100% var(--tamanho-chanfro-card),
+		100% calc(100% - var(--tamanho-chanfro-card)),
+		calc(100% - var(--tamanho-chanfro-card)) 100%,
+		var(--tamanho-chanfro-card) 100%,
+		0% calc(100% - var(--tamanho-chanfro-card)),
+		0% var(--tamanho-chanfro-card)
+	);
 }
 
 .insightCardRetention {

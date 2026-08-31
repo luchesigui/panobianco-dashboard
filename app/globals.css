@@ -93,6 +93,7 @@ a {
   --tamanho-chanfro: 72px;
   --tamanho-chanfro-grande: 120px;
   --tamanho-chanfro-menor: 24px;
+  --tamanho-chanfro-card: 14px;
   --tamanho-chanfro-botao: 12px;
   --tamanho-chanfro-botao-nav: 8px;
   --tamanho-chanfro-selo: 5px;
@@ -154,8 +155,64 @@ a {
 }
 
 /* ======================================================================
-   Geometria Panobianco 2026 — Chanfros a 45º
+   Geometria Panobianco 2026 — Chanfros a 45º e Hexágonos / Octógonos
    ====================================================================== */
+
+.shape-chanfrado {
+  clip-path: polygon(
+    var(--tamanho-chanfro) 0%,
+    calc(100% - var(--tamanho-chanfro)) 0%,
+    100% var(--tamanho-chanfro),
+    100% calc(100% - var(--tamanho-chanfro)),
+    calc(100% - var(--tamanho-chanfro)) 100%,
+    var(--tamanho-chanfro) 100%,
+    0% calc(100% - var(--tamanho-chanfro)),
+    0% var(--tamanho-chanfro)
+  );
+  overflow: hidden;
+}
+
+.shape-chanfrado-menor {
+  clip-path: polygon(
+    var(--tamanho-chanfro-menor) 0%,
+    calc(100% - var(--tamanho-chanfro-menor)) 0%,
+    100% var(--tamanho-chanfro-menor),
+    100% calc(100% - var(--tamanho-chanfro-menor)),
+    calc(100% - var(--tamanho-chanfro-menor)) 100%,
+    var(--tamanho-chanfro-menor) 100%,
+    0% calc(100% - var(--tamanho-chanfro-menor)),
+    0% var(--tamanho-chanfro-menor)
+  );
+  overflow: hidden;
+}
+
+.shape-chanfrado-card {
+  clip-path: polygon(
+    var(--tamanho-chanfro-card) 0%,
+    calc(100% - var(--tamanho-chanfro-card)) 0%,
+    100% var(--tamanho-chanfro-card),
+    100% calc(100% - var(--tamanho-chanfro-card)),
+    calc(100% - var(--tamanho-chanfro-card)) 100%,
+    var(--tamanho-chanfro-card) 100%,
+    0% calc(100% - var(--tamanho-chanfro-card)),
+    0% var(--tamanho-chanfro-card)
+  );
+  overflow: hidden;
+}
+
+.shape-octagon-regular {
+  aspect-ratio: 1;
+  clip-path: polygon(
+    29.29% 0%,
+    70.71% 0%,
+    100% 29.29%,
+    100% 70.71%,
+    70.71% 100%,
+    29.29% 100%,
+    0% 70.71%,
+    0% 29.29%
+  );
+}
 
 .botao-chanfrado {
   clip-path: polygon(
@@ -196,22 +253,12 @@ a {
   );
 }
 
-.shape-chanfrado-menor {
-  clip-path: polygon(
-    var(--tamanho-chanfro-menor) 0%,
-    calc(100% - var(--tamanho-chanfro-menor)) 0%,
-    100% var(--tamanho-chanfro-menor),
-    100% calc(100% - var(--tamanho-chanfro-menor)),
-    calc(100% - var(--tamanho-chanfro-menor)) 100%,
-    var(--tamanho-chanfro-menor) 100%,
-    0% calc(100% - var(--tamanho-chanfro-menor)),
-    0% var(--tamanho-chanfro-menor)
-  );
-}
-
 .botao-chanfrado:focus-visible,
 .botao-chanfrado-nav:focus-visible,
-.shape-chanfrado-menor:focus-visible {
+.shape-chanfrado:focus-visible,
+.shape-chanfrado-menor:focus-visible,
+.shape-chanfrado-card:focus-visible,
+.shape-octagon-regular:focus-visible {
   outline: none;
   box-shadow:
     inset 0 0 0 2px var(--pb-black),
@@ -272,7 +319,16 @@ a {
 }
 
 [data-slot="card"] {
-  border-radius: 0;
+  clip-path: polygon(
+    var(--tamanho-chanfro-card) 0%,
+    calc(100% - var(--tamanho-chanfro-card)) 0%,
+    100% var(--tamanho-chanfro-card),
+    100% calc(100% - var(--tamanho-chanfro-card)),
+    calc(100% - var(--tamanho-chanfro-card)) 100%,
+    var(--tamanho-chanfro-card) 100%,
+    0% calc(100% - var(--tamanho-chanfro-card)),
+    0% var(--tamanho-chanfro-card)
+  );
   border: 1px solid var(--border-subtle);
   background: var(--surface-card);
 }

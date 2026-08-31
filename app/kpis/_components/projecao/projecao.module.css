@@ -34,11 +34,20 @@
 
 .kpiCard {
 	background: var(--bg-card, #ffffff);
-	border-radius: 0;
 	padding: 16px 18px;
 	border: 1px solid var(--border-subtle, rgba(0, 0, 0, 0.08));
 	position: relative;
 	overflow: hidden;
+	clip-path: polygon(
+		var(--tamanho-chanfro-card, 14px) 0%,
+		calc(100% - var(--tamanho-chanfro-card, 14px)) 0%,
+		100% var(--tamanho-chanfro-card, 14px),
+		100% calc(100% - var(--tamanho-chanfro-card, 14px)),
+		calc(100% - var(--tamanho-chanfro-card, 14px)) 100%,
+		var(--tamanho-chanfro-card, 14px) 100%,
+		0% calc(100% - var(--tamanho-chanfro-card, 14px)),
+		0% var(--tamanho-chanfro-card, 14px)
+	);
 }
 
 .kpiLabel {
