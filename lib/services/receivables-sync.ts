@@ -90,7 +90,11 @@ export async function runSyncJob(jobId: string): Promise<void> {
 
 				const value = receivable.ammountPaid || receivable.ammount;
 
-				if (receivable.description && receivable.description.toLowerCase().includes("wellhub")) {
+				if (
+					receivable.description &&
+					(receivable.description.toLowerCase().includes("wellhub") ||
+						receivable.description.toLowerCase().includes("receita garantida"))
+				) {
 					partialGroups["Receita Wellhub"] =
 						(partialGroups["Receita Wellhub"] ?? 0) + value;
 					totalFetched++;

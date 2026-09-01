@@ -155,12 +155,13 @@ export function MonthlyTab({
 						(parsePtBrNumber(kpi.kpiInputs["totalpass_revenue"] ?? "") ?? 0) +
 						revenueGroups.products_revenue;
 
-					// Filter out wellhub and totalpass keys to avoid duplication in the breakdown list
+					// Filter out wellhub, receita garantida and totalpass keys to avoid duplication in the breakdown list
 					const filteredBreakdown = Object.fromEntries(
 						Object.entries(kpi.recebimentosBreakdown).filter(([name]) => {
 							const lower = name.toLowerCase();
 							return (
 								!lower.includes("wellhub") &&
+								!lower.includes("receita garantida") &&
 								!lower.includes("totalpass") &&
 								!lower.includes("total pass")
 							);

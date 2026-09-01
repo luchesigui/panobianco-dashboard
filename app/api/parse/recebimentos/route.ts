@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       const valueRawBaixa = row["Valor de baixa"] ?? row["Valor baixa"] ?? row["Valor"];
       let center = typeof centerRaw === "string" ? centerRaw.trim() : "";
 
-      // Check if any column name resembles a description, and if its value contains "Wellhub"
+      // Check if any column name resembles a description, and if its value contains "Wellhub" or "Receita Garantida"
       let rowDescription = "";
       for (const [k, v] of Object.entries(row)) {
         const keyLower = k.toLowerCase();
@@ -77,11 +77,16 @@ export async function POST(req: Request) {
         }
       }
 
-      if (rowDescription.toLowerCase().includes("wellhub")) {
+      const rowDescLower = rowDescription.toLowerCase();
+
+      if (
+        rowDescLower.includes("wellhub") ||
+        rowDescLower.includes("receita garantida")
+      ) {
         center = "Receita Wellhub";
       } else if (
-        rowDescription.toLowerCase().includes("totalpass") ||
-        rowDescription.toLowerCase().includes("total pass")
+        rowDescLower.includes("totalpass") ||
+        rowDescLower.includes("total pass")
       ) {
         center = "Total Pass";
       }

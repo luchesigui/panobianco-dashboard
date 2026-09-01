@@ -12,7 +12,7 @@ export function mapRevenueGroupsToCodes(
 			matriculated += value;
 			continue;
 		}
-		if (lower.includes("wellhub")) {
+		if (lower.includes("wellhub") || lower.includes("receita garantida")) {
 			wellhub += value;
 			continue;
 		}
