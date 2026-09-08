@@ -250,6 +250,7 @@ type Props = {
 	comparisonTotalScheduled?: number | null;
 	comparisonTotalAttendance?: number | null;
 	comparisonTotalClosings?: number | null;
+	periodParam?: string;
 };
 
 export function WeeklyView({
@@ -270,6 +271,7 @@ export function WeeklyView({
 	comparisonTotalScheduled,
 	comparisonTotalAttendance,
 	comparisonTotalClosings,
+	periodParam,
 }: Props) {
 	const weeks = w.weekHeaders;
 	const n = weeks.length;
@@ -349,10 +351,13 @@ export function WeeklyView({
 								if (isSelected) {
 									thClassName = styles.currentWeekHeader;
 								}
+								const weekHref = periodParam
+									? `/kpis?tab=semanal&week=${encodeURIComponent(h)}&period=${encodeURIComponent(periodParam)}`
+									: `/kpis?tab=semanal&week=${encodeURIComponent(h)}`;
 								return (
 									<th key={h} className={clsx(thClassName, styles.clickableTh)}>
 										<Link
-											href={`/kpis?week=${h}`}
+											href={weekHref}
 											scroll={false}
 											className={styles.thLink}
 										>

@@ -13,6 +13,8 @@ import { Projecao } from "./_components/projecao/Projecao";
 import { RetencaoCharts } from "./_components/retencao/RetencaoCharts";
 import { RoiCharts } from "./_components/roi/RoiCharts";
 import { VendasMarketingCharts } from "./_components/vendas-marketing/VendasMarketingCharts";
+import { WeeklySection } from "./_components/vendas-marketing/WeeklySection";
+import { DashboardTabs } from "./_components/DashboardTabs";
 import { clsx } from "clsx";
 import brandStyles from "./kpi-brand.module.css";
 import styles from "./page.module.css";
@@ -124,6 +126,14 @@ export default async function KpisPage({ searchParams }: Props) {
 			: typeof sp.month === "string"
 				? sp.month
 				: undefined;
+	const tabParam = typeof sp.tab === "string" ? sp.tab : undefined;
+	const initialTab =
+		tabParam === "semanal" || sp.week
+			? "semanal"
+			: tabParam === "mensal"
+				? "mensal"
+				: "mensal";
+
 	const data = await getKpiPageData("panobianco-sjc-satelite", periodParam);
 	const smPrimaryShort = data.currentPeriodLabel;
 
@@ -146,19 +156,36 @@ export default async function KpisPage({ searchParams }: Props) {
 		(item) => item.meta_json?.week_header === activeWeekHeader
 	);
 
-	return (
-		<div className={styles.page}>
-			<header className={styles.header}>
-				<div className={styles.headerTop}>
-					<DashboardHeader gymName={data.gymName} />
-					<MonthSelector
-						monthLabel={data.currentMonthLabel}
-						prevPeriodId={data.prevPeriodId}
-						nextPeriodId={data.nextPeriodId}
-					/>
-				</div>
-			</header>
+	const weeklyContent = (
+		<SectionCard
+			title="Acompanhamento semanal"
+			badge={smPrimaryShort}
+		>
+			<WeeklySection
+				dashboard={data.salesMarketingDashboard}
+				salesTotal={data.current["sales_total"] ?? null}
+				monthlyMarketing={{
+					reach: data.current["marketing_reach"] ?? null,
+					frequency: data.current["marketing_frequency"] ?? null,
+					views: data.current["marketing_views"] ?? null,
+					followers: data.current["marketing_followers"] ?? null,
+				}}
+				previousMonthlyMarketing={{
+					reach: data.previous["marketing_reach"] ?? null,
+					frequency: data.previous["marketing_frequency"] ?? null,
+					views: data.previous["marketing_views"] ?? null,
+					followers: data.previous["marketing_followers"] ?? null,
+				}}
+				weeklyInsights={weeklyInsights}
+				weeklyPeriodId={data.smPrimaryPeriod}
+				activeWeekHeader={activeWeekHeader}
+				periodParam={periodParam}
+			/>
+		</SectionCard>
+	);
 
+	const monthlyContent = (
+		<>
 			<SectionCard
 				title="Visão geral"
 				badge={data.currentPeriodLabel}
@@ -185,22 +212,6 @@ export default async function KpisPage({ searchParams }: Props) {
 					<VendasMarketingCharts
 						dashboard={data.salesMarketingDashboard}
 						leadsGenerated={data.current["leads_generated"] ?? null}
-						salesTotal={data.current["sales_total"] ?? null}
-						monthlyMarketing={{
-							reach: data.current["marketing_reach"] ?? null,
-							frequency: data.current["marketing_frequency"] ?? null,
-							views: data.current["marketing_views"] ?? null,
-							followers: data.current["marketing_followers"] ?? null,
-						}}
-						previousMonthlyMarketing={{
-							reach: data.previous["marketing_reach"] ?? null,
-							frequency: data.previous["marketing_frequency"] ?? null,
-							views: data.previous["marketing_views"] ?? null,
-							followers: data.previous["marketing_followers"] ?? null,
-						}}
-						weeklyInsights={weeklyInsights}
-						weeklyPeriodId={data.smPrimaryPeriod}
-						activeWeekHeader={activeWeekHeader}
 					/>
 				) : null}
 			</SectionCard>
@@ -286,6 +297,27 @@ export default async function KpisPage({ searchParams }: Props) {
 					</div>
 				</section>
 			)}
+		</>
+	);
+
+	return (
+		<div className={styles.page}>
+			<header className={styles.header}>
+				<div className={styles.headerTop}>
+					<DashboardHeader gymName={data.gymName} />
+					<MonthSelector
+						monthLabel={data.currentMonthLabel}
+						prevPeriodId={data.prevPeriodId}
+						nextPeriodId={data.nextPeriodId}
+					/>
+				</div>
+			</header>
+
+			<DashboardTabs
+				defaultTab={initialTab}
+				monthlyContent={monthlyContent}
+				weeklyContent={weeklyContent}
+			/>
 		</div>
 	);
 }
