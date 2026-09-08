@@ -25,13 +25,13 @@ export function GoalsSection({ consultoras }: Props) {
 					Metas individuais
 				</CardTitle>
 				<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
-					Meta de vendas mensais por consultora.
+					Meta de vendas mensais por recepcionista / consultora.
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="pt-3 space-y-4">
 				{namedRows.length === 0 ? (
 					<p className="text-xs text-[color:var(--text-muted)]">
-						Cadastre consultoras acima para definir metas individuais.
+						Cadastre recepcionistas acima para definir metas individuais.
 					</p>
 				) : (
 					<div className="space-y-2">

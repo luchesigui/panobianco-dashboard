@@ -185,6 +185,7 @@ export type Consultora = {
   name: string;
   monthly_goal: number | null;
   sort_order: number;
+  deleted_at?: string | null;
 };
 
 export async function loadConsultorasAction(): Promise<Consultora[]> {
@@ -194,7 +195,7 @@ export async function loadConsultorasAction(): Promise<Consultora[]> {
 
   const { data } = await supabase
     .from("consultoras")
-    .select("id,name,monthly_goal,sort_order")
+    .select("id,name,monthly_goal,sort_order,deleted_at")
     .eq("gym_id", gymRow.data.id as string)
     .is("deleted_at", null)
     .order("sort_order", { ascending: true })
@@ -205,7 +206,69 @@ export async function loadConsultorasAction(): Promise<Consultora[]> {
     name: r.name as string,
     monthly_goal: r.monthly_goal != null ? Number(r.monthly_goal) : null,
     sort_order: Number(r.sort_order),
+    deleted_at: (r.deleted_at as string | null) ?? null,
   }));
+}
+
+export async function loadInactiveConsultorasAction(): Promise<Consultora[]> {
+  const supabase = getServiceSupabase();
+  const gymRow = await supabase.from("gyms").select("id").eq("slug", GYM_SLUG).maybeSingle();
+  if (!gymRow.data?.id) return [];
+
+  const { data } = await supabase
+    .from("consultoras")
+    .select("id,name,monthly_goal,sort_order,deleted_at")
+    .eq("gym_id", gymRow.data.id as string)
+    .not("deleted_at", "is", null)
+    .order("deleted_at", { ascending: false });
+
+  return (data ?? []).map((r) => ({
+    id: r.id as string,
+    name: r.name as string,
+    monthly_goal: r.monthly_goal != null ? Number(r.monthly_goal) : null,
+    sort_order: Number(r.sort_order),
+    deleted_at: (r.deleted_at as string | null) ?? null,
+  }));
+}
+
+export async function deactivateConsultoraAction(id: string): Promise<ActionResult> {
+  if (!id) return { ok: false, error: "ID inválido." };
+  const supabase = getServiceSupabase();
+  const gymRow = await supabase.from("gyms").select("id").eq("slug", GYM_SLUG).maybeSingle();
+  if (gymRow.error || !gymRow.data) return { ok: false, error: "Academia não encontrada." };
+
+  const { error } = await supabase
+    .from("consultoras")
+    .update({ deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("gym_id", gymRow.data.id as string);
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/kpis/configuracoes");
+  revalidatePath("/kpis");
+  revalidatePath("/kpis/entrada-dados");
+  return { ok: true };
+}
+
+export async function reactivateConsultoraAction(id: string): Promise<ActionResult> {
+  if (!id) return { ok: false, error: "ID inválido." };
+  const supabase = getServiceSupabase();
+  const gymRow = await supabase.from("gyms").select("id").eq("slug", GYM_SLUG).maybeSingle();
+  if (gymRow.error || !gymRow.data) return { ok: false, error: "Academia não encontrada." };
+
+  const { error } = await supabase
+    .from("consultoras")
+    .update({ deleted_at: null, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .eq("gym_id", gymRow.data.id as string);
+
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/kpis/configuracoes");
+  revalidatePath("/kpis");
+  revalidatePath("/kpis/entrada-dados");
+  return { ok: true };
 }
 
 export async function saveConsultorasAction(
@@ -236,7 +299,7 @@ export async function saveConsultorasAction(
   if (toSoftDelete.length > 0) {
     const { error } = await supabase
       .from("consultoras")
-      .update({ deleted_at: new Date().toISOString() })
+      .update({ deleted_at: new Date().toISOString(), updated_at: new Date().toISOString() })
       .in("id", toSoftDelete);
     if (isMissingTableError(error, "consultoras")) {
       return {
@@ -284,6 +347,8 @@ export async function saveConsultorasAction(
   }
 
   revalidatePath("/kpis/configuracoes");
+  revalidatePath("/kpis");
+  revalidatePath("/kpis/entrada-dados");
   return { ok: true };
 }
 

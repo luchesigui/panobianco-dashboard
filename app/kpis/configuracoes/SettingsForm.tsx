@@ -13,17 +13,20 @@ type Props = {
 	initialSettings: Settings;
 	initialStudentBaseGoals: Record<number, number>;
 	initialConsultoras: Consultora[];
+	initialInactiveConsultoras?: Consultora[];
 };
 
 export function SettingsForm({
 	initialSettings,
 	initialStudentBaseGoals,
 	initialConsultoras,
+	initialInactiveConsultoras = [],
 }: Props) {
 	const form = useSettingsForm({
 		initialSettings,
 		initialStudentBaseGoals,
 		initialConsultoras,
+		initialInactiveConsultoras,
 	});
 
 	return (

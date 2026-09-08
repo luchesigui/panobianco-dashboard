@@ -3,6 +3,8 @@
 import { useCallback, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
+	deactivateConsultoraAction,
+	reactivateConsultoraAction,
 	saveConsultorasAction,
 	saveGymNameAction,
 	saveGymSettingsAction,
@@ -27,6 +29,7 @@ export type ConsultoraRow = {
 	name: string;
 	monthly_goal: string;
 	sort_order: number;
+	deleted_at?: string | null;
 };
 
 type SaveSection =
@@ -43,12 +46,14 @@ type Args = {
 	initialSettings: Settings;
 	initialStudentBaseGoals: Record<number, number>;
 	initialConsultoras: Consultora[];
+	initialInactiveConsultoras?: Consultora[];
 };
 
 export function useSettingsForm({
 	initialSettings,
 	initialStudentBaseGoals,
 	initialConsultoras,
+	initialInactiveConsultoras = [],
 }: Args) {
 	const router = useRouter();
 	const [gymName, setGymName] = useState(initialSettings.gymName);
@@ -75,7 +80,11 @@ export function useSettingsForm({
 			name: c.name,
 			monthly_goal: c.monthly_goal != null ? String(c.monthly_goal) : "",
 			sort_order: c.sort_order,
+			deleted_at: c.deleted_at ?? null,
 		})),
+	);
+	const [inactiveConsultoras, setInactiveConsultoras] = useState<Consultora[]>(
+		() => initialInactiveConsultoras,
 	);
 	const [savingSections, setSavingSections] = useState<
 		Record<SaveSection, boolean>
@@ -213,6 +222,79 @@ export function useSettingsForm({
 		setConsultoras((prev) => prev.filter((_, i) => i !== index));
 	}, []);
 
+	const deactivateConsultora = useCallback(
+		async (index: number) => {
+			const target = consultoras[index];
+			if (!target) return;
+
+			if (!target.id) {
+				// Not yet saved in database, just remove from active list
+				setConsultoras((prev) => prev.filter((_, i) => i !== index));
+				return;
+			}
+
+			setSectionSaving("consultoras", true);
+			setMessage(null);
+			const res = await deactivateConsultoraAction(target.id);
+			if (res.ok) {
+				const nowIso = new Date().toISOString();
+				setConsultoras((prev) => prev.filter((_, i) => i !== index));
+				setInactiveConsultoras((prev) => [
+					{
+						id: target.id!,
+						name: target.name,
+						monthly_goal: target.monthly_goal ? Number(target.monthly_goal) : null,
+						sort_order: target.sort_order,
+						deleted_at: nowIso,
+					},
+					...prev,
+				]);
+				setMessage({
+					type: "ok",
+					text: `Recepcionista "${target.name}" desativada (soft delete).`,
+				});
+				router.refresh();
+			} else {
+				setMessage({ type: "err", text: res.error });
+			}
+			setSectionSaving("consultoras", false);
+		},
+		[consultoras, router, setSectionSaving],
+	);
+
+	const reactivateConsultora = useCallback(
+		async (id: string) => {
+			const target = inactiveConsultoras.find((c) => c.id === id);
+			if (!target) return;
+
+			setSectionSaving("consultoras", true);
+			setMessage(null);
+			const res = await reactivateConsultoraAction(id);
+			if (res.ok) {
+				setInactiveConsultoras((prev) => prev.filter((c) => c.id !== id));
+				setConsultoras((prev) => [
+					...prev,
+					{
+						id: target.id,
+						name: target.name,
+						monthly_goal: target.monthly_goal != null ? String(target.monthly_goal) : "",
+						sort_order: prev.length,
+						deleted_at: null,
+					},
+				]);
+				setMessage({
+					type: "ok",
+					text: `Recepcionista "${target.name}" reativada com sucesso.`,
+				});
+				router.refresh();
+			} else {
+				setMessage({ type: "err", text: res.error });
+			}
+			setSectionSaving("consultoras", false);
+		},
+		[inactiveConsultoras, router, setSectionSaving],
+	);
+
 	const updateConsultora = useCallback(
 		(index: number, field: keyof ConsultoraRow, value: string) => {
 			setConsultoras((prev) =>
@@ -244,11 +326,14 @@ export function useSettingsForm({
 		},
 		consultoras: {
 			rows: consultoras,
+			inactiveRows: inactiveConsultoras,
 			total: consultorasTotal,
 			saving: savingSections.consultoras,
 			savingGoals: savingSections.consultorasGoals,
 			addConsultora,
 			removeConsultora,
+			deactivateConsultora,
+			reactivateConsultora,
 			updateConsultora,
 			handleSaveConsultoras,
 		},
@@ -270,3 +355,4 @@ export function useSettingsForm({
 }
 
 export type UseSettingsForm = ReturnType<typeof useSettingsForm>;
+
