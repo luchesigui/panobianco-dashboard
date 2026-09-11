@@ -8,6 +8,7 @@ export type WeeklyStrings = {
 	clo: string[];
 	leadsTot: string[];
 	salesTot: string[];
+	cancellationsTot: string[];
 };
 
 export type RecepWeekRow = {

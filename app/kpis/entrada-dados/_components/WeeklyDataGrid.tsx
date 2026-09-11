@@ -295,6 +295,75 @@ export function WeeklyDataGrid({
 							</td>
 						))}
 					</tr>
+					<tr className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
+						<td className="text-xs font-medium text-[color:var(--text-secondary)] px-3 py-2">
+							Cancelamentos
+						</td>
+						{weeklyStr.cancellationsTot.map((cell, wi) => (
+							<td
+								key={`cancTot-${weekHeaders[wi] ?? wi}`}
+								className="px-2 py-2 text-center"
+							>
+								<Input
+									value={formatThousands(cell)}
+									onPaste={(e) => {
+										const pastedText = e.clipboardData.getData("text");
+										const cleanedValue = cleanPastedValue(pastedText, false);
+										if (cleanedValue !== pastedText) {
+											e.preventDefault();
+											onMatrixChange("cancellationsTot", wi, cleanedValue);
+										}
+									}}
+									onChange={(e) =>
+										onMatrixChange("cancellationsTot", wi, e.target.value)
+									}
+									tabIndex={
+										wi * gridTotalRows + (7 + recepWeekRows.length * 2 + 2) + 1
+									}
+									className="w-20 h-8 text-right text-sm bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
+								/>
+							</td>
+						))}
+					</tr>
+					<tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--surface-muted)]/30 font-semibold">
+						<td className="text-xs font-bold text-[color:var(--text-primary)] px-3 py-2">
+							Saldo semanal
+						</td>
+						{weekHeaders.map((_, wi) => {
+							const sRaw = (weeklyStr.salesTot[wi] ?? "").trim();
+							const cRaw = (weeklyStr.cancellationsTot[wi] ?? "").trim();
+							if (!sRaw && !cRaw) {
+								return (
+									<td key={`saldo-${weekHeaders[wi] ?? wi}`} className="px-2 py-2 text-center text-xs text-[color:var(--text-muted)]">
+										—
+									</td>
+								);
+							}
+							const sVal = Number(sRaw.replace(/\./g, "").replace(",", ".")) || 0;
+							const cVal = Number(cRaw.replace(/\./g, "").replace(",", ".")) || 0;
+							const net = sVal - cVal;
+							const isPos = net > 0;
+							const isNeg = net < 0;
+							return (
+								<td
+									key={`saldo-${weekHeaders[wi] ?? wi}`}
+									className="px-2 py-2 text-center text-xs"
+								>
+									<span
+										className={
+											isPos
+												? "text-emerald-600 font-bold"
+												: isNeg
+													? "text-rose-600 font-bold"
+													: "text-[color:var(--text-muted)]"
+										}
+									>
+										{isPos ? `+${net}` : `${net}`}
+									</span>
+								</td>
+							);
+						})}
+					</tr>
 				</tbody>
 			</table>
 		</div>

@@ -2,6 +2,7 @@ import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-
 import styles from "./vendas-marketing.module.css";
 import { clsx } from "clsx";
 import Link from "next/link";
+import { WeeklyProgressionChart } from "./WeeklyProgressionChart";
 
 function getWeekIndexAndMonth(date: Date): { monthPeriod: string; weekIdx: number } {
 	const startOfWeek = new Date(date);
@@ -699,9 +700,96 @@ export function WeeklyView({
 								</tr>
 							);
 						})()}
+
+						{/* Linha de Cancelamentos */}
+						{(() => {
+							const cancW = padWeeks(w.salesWeekly.cancellationsByWeek ?? [], n);
+							const cancTotal = w.salesWeekly.cancellationsGrandTotal ?? cancW.reduce((acc: number, v) => acc + (v ?? 0), 0);
+							const prevCanc = comparisonPayload?.weekly.salesWeekly.cancellationsByWeek ?? [];
+							const prevCancTotal = comparisonPayload?.weekly.salesWeekly.cancellationsGrandTotal ?? null;
+
+							return (
+								<WeeklyRow
+									label="Cancelamentos"
+									cells={cancW}
+									comparisonCells={padWeeks(prevCanc, n)}
+									weekSources={weekSources}
+									calendarCurrentMonthLabel={calendarCurrentMonthLabel}
+									primaryPeriodLabel={primaryPeriodLabel}
+									activeWeekIdx={activeWeekIdx}
+									total={cancTotal}
+									comparisonTotal={prevCancTotal}
+									mode="int"
+									weekKeys={weeks}
+									deltaMode="abs"
+								/>
+							);
+						})()}
+
+						{/* Linha de Saldo Líquido semanal */}
+						{(() => {
+							const netW = padWeeks(w.salesWeekly.netBalanceByWeek ?? [], n);
+							const netTotal = (w.salesWeekly.grandTotal ?? 0) - (w.salesWeekly.cancellationsGrandTotal ?? 0);
+
+							return (
+								<tr style={{ background: "rgba(0, 0, 0, 0.03)", fontWeight: 600 }}>
+									<td className={styles.tdLabel} style={{ fontWeight: 700 }}>
+										Saldo semanal
+									</td>
+									{netW.map((v, i) => {
+										const isCurrentWeek = i === activeWeekIdx;
+										const isPos = v !== null && v > 0;
+										const isNeg = v !== null && v < 0;
+										const valStr = v !== null ? (isPos ? `+${v}` : `${v}`) : "—";
+										return (
+											<td
+												key={`net-${weeks[i]}`}
+												className={clsx(styles.tdNum, {
+													[styles.currentWeekCell]: isCurrentWeek,
+												})}
+											>
+												<div className={styles.cellA}>
+													<span
+														className={clsx(
+															styles.cellANum,
+															isPos && styles.deltaUp,
+															isNeg && styles.deltaDown
+														)}
+														style={{ fontWeight: 700 }}
+													>
+														{valStr}
+													</span>
+												</div>
+											</td>
+										);
+									})}
+									<td className={styles.tdTotal}>
+										<div className={styles.cellA}>
+											<span
+												className={clsx(
+													styles.cellANum,
+													netTotal > 0 && styles.deltaUp,
+													netTotal < 0 && styles.deltaDown
+												)}
+												style={{ fontWeight: 700 }}
+											>
+												{netTotal > 0 ? `+${netTotal}` : `${netTotal}`}
+											</span>
+										</div>
+									</td>
+								</tr>
+							);
+						})()}
 					</tbody>
 				</table>
 			</div>
+
+			<WeeklyProgressionChart
+				weeks={weeks}
+				sales={salesW}
+				cancellations={padWeeks(w.salesWeekly.cancellationsByWeek ?? [], n)}
+				netBalance={padWeeks(w.salesWeekly.netBalanceByWeek ?? [], n)}
+			/>
 		</>
 	);
 }

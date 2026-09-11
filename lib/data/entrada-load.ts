@@ -80,7 +80,7 @@ export async function loadEntradaPageData(gymSlug: string, periodId: string): Pr
       supabase.from("funil_mensal").select("scheduled,present,closings").eq("gym_id", gymId).eq("period_id", periodId).maybeSingle(),
       supabase.from("marketing_semanal").select("week_num,reach,frequency,views,followers").eq("gym_id", gymId).eq("period_id", periodId),
       supabase.from("funil_semanal").select("week_num,scheduled,attendance,closings").eq("gym_id", gymId).eq("period_id", periodId),
-      supabase.from("conversoes_semanais").select("week_num,leads,sales").eq("gym_id", gymId).eq("period_id", periodId),
+      supabase.from("conversoes_semanais").select("week_num,leads,sales,cancellations").eq("gym_id", gymId).eq("period_id", periodId),
       supabase.from("recepcao_semanal").select("week_num,receptionist_name,leads,sales").eq("gym_id", gymId).eq("period_id", periodId),
       supabase.from("consultoras").select("name,monthly_goal").eq("gym_id", gymId).is("deleted_at", null).order("sort_order"),
     ]);

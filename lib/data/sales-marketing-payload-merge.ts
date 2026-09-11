@@ -44,6 +44,8 @@ export function recomputeWeeklyTotals(weekly: SalesMarketingDashboardPayload["we
   const sw = weekly.salesWeekly;
   sw.leadsGrandTotal = sumNullable(sw.leadsByWeek);
   sw.grandTotal = sumNullable(sw.totals);
+  sw.cancellationsGrandTotal = sumNullable(sw.cancellationsByWeek ?? []);
+  sw.netBalanceGrandTotal = sw.grandTotal - (sw.cancellationsGrandTotal ?? 0);
   const rows = sw.byReceptionist;
   if (rows?.length) {
     for (const row of rows) {
@@ -98,6 +100,8 @@ export function normalizeSmPayloadWeeks(
   const sw = w.salesWeekly;
   sw.leadsByWeek = padNullable(sw.leadsByWeek ?? [], W);
   sw.totals = padNullable(sw.totals, W);
+  sw.cancellationsByWeek = padNullable(sw.cancellationsByWeek ?? [], W);
+  sw.netBalanceByWeek = padNullable(sw.netBalanceByWeek ?? [], W);
   for (const row of sw.byReceptionist ?? []) {
     row.leadsByWeek = padNullable(row.leadsByWeek, W);
     row.salesByWeek = padNullable(row.salesByWeek, W);
@@ -117,7 +121,8 @@ function columnHasWeeklyData(
     cw.funnelWeekly.scheduled[i] != null ||
     cw.funnelWeekly.attendance[i] != null ||
     cw.funnelWeekly.closings[i] != null ||
-    cw.salesWeekly.totals[i] != null
+    cw.salesWeekly.totals[i] != null ||
+    cw.salesWeekly.cancellationsByWeek?.[i] != null
   );
 }
 
@@ -198,6 +203,10 @@ export function createDefaultSmPayload(periodLabel: string): SalesMarketingDashb
         leadsGrandTotal: 0,
         totals: z(),
         grandTotal: 0,
+        cancellationsByWeek: z(),
+        cancellationsGrandTotal: 0,
+        netBalanceByWeek: z(),
+        netBalanceGrandTotal: 0,
         byReceptionist: [],
       },
     },

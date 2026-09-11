@@ -26,6 +26,7 @@ export type ConversoesSemanalRow = {
   week_num: number;
   leads: number | null;
   sales: number | null;
+  cancellations?: number | null;
 };
 
 export type RecepcaoSemanalRow = {
@@ -94,11 +95,17 @@ export function assemblePayloadFromNormalized({
 
   const leadsByWeek = nullArray();
   const salesByWeek = nullArray();
+  const cancellationsByWeek = nullArray();
+  const netBalanceByWeek = nullArray();
   for (const r of conversoesSemanal) {
     const i = r.week_num - 1;
     if (i >= 0 && i < W) {
       leadsByWeek[i] = r.leads;
       salesByWeek[i] = r.sales;
+      cancellationsByWeek[i] = r.cancellations ?? null;
+      if (r.sales != null || r.cancellations != null) {
+        netBalanceByWeek[i] = (r.sales ?? 0) - (r.cancellations ?? 0);
+      }
     }
   }
 
@@ -188,6 +195,10 @@ export function assemblePayloadFromNormalized({
         leadsGrandTotal: 0,
         totals: salesByWeek,
         grandTotal: 0,
+        cancellationsByWeek,
+        cancellationsGrandTotal: 0,
+        netBalanceByWeek,
+        netBalanceGrandTotal: 0,
         byReceptionist,
       },
     },
@@ -242,8 +253,9 @@ export function decomposePayloadToRows(payload: SalesMarketingDashboardPayload):
   for (let i = 0; i < W; i++) {
     const leads = salesWeekly.leadsByWeek[i] ?? null;
     const sales = salesWeekly.totals[i] ?? null;
-    if (leads !== null || sales !== null) {
-      conversoesSemanal.push({ week_num: i + 1, leads, sales });
+    const cancellations = salesWeekly.cancellationsByWeek?.[i] ?? null;
+    if (leads !== null || sales !== null || cancellations !== null) {
+      conversoesSemanal.push({ week_num: i + 1, leads, sales, cancellations });
     }
   }
 

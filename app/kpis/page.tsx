@@ -3,7 +3,7 @@ import { FinanceiroCardGrid } from "./_components/cards/FinanceiroCardGrid";
 import { RetencaoCardGrid } from "./_components/cards/RetencaoCardGrid";
 import { RoiCardGrid } from "./_components/cards/RoiCardGrid";
 import { VendasMarketingCardGrid } from "./_components/cards/VendasMarketingCardGrid";
-import { VisaoGeralCardGrid } from "./_components/cards/VisaoGeralCardGrid";
+import { ExecutiveSummarySection } from "./_components/visao-geral/ExecutiveSummarySection";
 import { DashboardHeader } from "./_components/DashboardHeader";
 import { MonthSelector } from "./_components/MonthSelector";
 import { SectionCard } from "./_components/SectionCard";
@@ -190,12 +190,7 @@ export default async function KpisPage({ searchParams }: Props) {
 				title="Visão geral"
 				badge={data.currentPeriodLabel}
 			>
-				<VisaoGeralCardGrid data={data} />
-				<SectionInsights
-					variant="overview"
-					items={data.insights.overview ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
+				<ExecutiveSummarySection data={data} />
 			</SectionCard>
 
 			<SectionCard

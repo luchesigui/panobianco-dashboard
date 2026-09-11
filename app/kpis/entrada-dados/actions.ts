@@ -158,7 +158,7 @@ export async function saveSmDashboardAction(raw: z.infer<typeof saveSmSchema>): 
     ] as const;
 
     for (const { table, data } of weeklyTables) {
-      let onlineMap = new Map<number, number>();
+      const onlineMap = new Map<number, number>();
       if (table === "conversoes_semanais") {
         const { data: existing } = await supabase
           .from("conversoes_semanais")

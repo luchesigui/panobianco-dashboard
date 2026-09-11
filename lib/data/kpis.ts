@@ -128,6 +128,77 @@ export type NextMonthForecastPayload = {
 	expenseDonut: Array<{ label: string; value: number; color: string }>;
 };
 
+export type ExecutiveSixMonthsPayload = {
+	periods: string[];
+	periodIds: string[];
+	financial: {
+		revenue: number[];
+		expenses: number[];
+		operationalResult: number[];
+		marginPercent: number[];
+		avgRevenue: number;
+		avgExpenses: number;
+		accumulatedResult: number;
+		avgMarginPercent: number;
+	};
+	students: {
+		baseEnd: (number | null)[];
+		newSales: number[];
+		exits: (number | null)[];
+		cancellations: (number | null)[];
+		nonRenewed: (number | null)[];
+		netGrowth: (number | null)[];
+		goals: (number | null)[];
+		totalNetGrowth: number;
+		avgNewSales: number;
+		avgExits: number;
+	};
+	defaultRisk: {
+		openValues: (number | null)[];
+		recoveredValues: (number | null)[];
+	};
+};
+
+export type ExecutiveMonthSnapshot = {
+	baseStudents: {
+		value: number | null;
+		goal: number | null;
+		isPartial: boolean;
+		pendingNote?: string;
+	};
+	sales: {
+		value: number | null;
+		goal: number | null;
+		gap: number | null;
+		isPartial: boolean;
+	};
+	revenue: {
+		value: number | null;
+		deltaMoM: number | null;
+		matriculatedPercent: number | null;
+	};
+	operationalResult: {
+		value: number | null;
+		marginPercent: number | null;
+		isRecord: boolean;
+		result100PctNf: number | null;
+	};
+	exits: {
+		total: number | null;
+		cancellations: number | null;
+		nonRenewed: number | null;
+		netBalance: number | null;
+	};
+	defaultRisk: {
+		openCount: number | null;
+		openValue: number | null;
+		recoveredCount: number | null;
+		recoveredValue: number | null;
+		recoveryRatePct: number | null;
+		pill3d?: string;
+	};
+};
+
 export type KpiPageData = {
 	gymName: string;
 	kpiDataPeriod: string;
@@ -185,6 +256,10 @@ export type KpiPageData = {
 		goal: number[];
 		/** Monthly sales target = sum of active consultoras' monthly_goal (fallback 150). */
 		salesTarget: number;
+	};
+	executiveSummary: {
+		snapshot: ExecutiveMonthSnapshot;
+		sixMonths: ExecutiveSixMonthsPayload;
 	};
 };
 
@@ -647,7 +722,7 @@ export async function getKpiPageData(
 				supabase.from("funil_mensal").select("period_id,scheduled,present,closings").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
 				supabase.from("marketing_semanal").select("period_id,week_num,reach,frequency,views,followers").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
 				supabase.from("funil_semanal").select("period_id,week_num,scheduled,attendance,closings").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
-				supabase.from("conversoes_semanais").select("period_id,week_num,leads,sales").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
+				supabase.from("conversoes_semanais").select("period_id,week_num,leads,sales,cancellations").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
 				supabase.from("recepcao_semanal").select("period_id,week_num,receptionist_name,leads,sales").eq("gym_id", gym.id).in("period_id", fetchPeriodIds),
 			]),
 			supabase
@@ -1379,6 +1454,221 @@ export async function getKpiPageData(
 		},
 	};
 
+	// Build Executive Summary: Snapshot (6 cards) and Six-Month Trends (Opção B)
+	const expDefId = defsRes.data?.find((d) => d.code === "expenses_total")?.id;
+	const exitsDefId = defsRes.data?.find((d) => d.code === "monthly_exits")?.id;
+	const cancDefId = defsRes.data?.find((d) => d.code === "monthly_cancellations")?.id;
+	const nonRenewedDefId = defsRes.data?.find((d) => d.code === "monthly_non_renewed")?.id;
+	const openValDefId = defsRes.data?.find((d) => d.code === "open_default_value")?.id;
+	const recValDefId = defsRes.data?.find((d) => d.code === "recovered_default_value")?.id;
+
+	const historyByPeriodDef = new Map<string, number>();
+	for (const row of salesHistoryRes.data ?? []) {
+		if (row.value_numeric == null) continue;
+		const pid = normalizePeriodId(row.period_id);
+		historyByPeriodDef.set(`${pid}_${row.kpi_definition_id}`, Number(row.value_numeric));
+	}
+
+	const sixPeriods: string[] = [];
+	for (let offset = -5; offset <= 0; offset++) {
+		sixPeriods.push(getOffsetMonth(kpiDataPeriod, offset));
+	}
+
+	const sixPeriodLabels = sixPeriods.map((pid) => toLabel(pid));
+
+	const sixRevenue: number[] = [];
+	const sixExpenses: number[] = [];
+	const sixOpResult: number[] = [];
+	const sixMargins: number[] = [];
+
+	const sixBaseEnd: (number | null)[] = [];
+	const sixNewSales: number[] = [];
+	const sixExits: (number | null)[] = [];
+	const sixCancellations: (number | null)[] = [];
+	const sixNonRenewed: (number | null)[] = [];
+	const sixNetGrowth: (number | null)[] = [];
+	const sixGoals: (number | null)[] = [];
+
+	const sixOpenValues: (number | null)[] = [];
+	const sixRecoveredValues: (number | null)[] = [];
+
+	for (const pid of sixPeriods) {
+		const isCurrent = pid === kpiDataPeriod;
+
+		// Revenue
+		const rVal = (isCurrent ? current["revenue_total"] : revDefId ? historyByPeriodDef.get(`${pid}_${revDefId}`) : undefined) ?? 0;
+		sixRevenue.push(rVal);
+
+		// Operational Result
+		let opVal = (isCurrent ? current["operational_result"] : opDefId ? historyByPeriodDef.get(`${pid}_${opDefId}`) : undefined) ?? 0;
+
+		// Expenses
+		let eVal = (isCurrent ? current["expenses_total"] : expDefId ? historyByPeriodDef.get(`${pid}_${expDefId}`) : undefined) ?? 0;
+		if (eVal === 0 && rVal > 0 && opVal !== 0) {
+			eVal = rVal - opVal;
+		} else if (opVal === 0 && rVal > 0 && eVal > 0) {
+			opVal = rVal - eVal;
+		}
+		sixExpenses.push(eVal);
+		sixOpResult.push(opVal);
+
+		const margin = rVal > 0 ? (opVal / rVal) * 100 : 0;
+		sixMargins.push(Math.round(margin * 10) / 10);
+
+		// Base End
+		const baseVal = (isCurrent ? current["base_students_end"] : baseDefId ? historyByPeriodDef.get(`${pid}_${baseDefId}`) : undefined) ?? null;
+		sixBaseEnd.push(baseVal);
+
+		// Sales
+		const sVal = (isCurrent ? current["sales_total"] : salesDefId ? historyByPeriodDef.get(`${pid}_${salesDefId}`) : undefined) ?? 0;
+		sixNewSales.push(sVal);
+
+		// Cancellations & Exits
+		const cVal = (isCurrent ? current["monthly_cancellations"] : cancDefId ? historyByPeriodDef.get(`${pid}_${cancDefId}`) : undefined) ?? null;
+		const nrVal = (isCurrent ? current["monthly_non_renewed"] : nonRenewedDefId ? historyByPeriodDef.get(`${pid}_${nonRenewedDefId}`) : undefined) ?? null;
+		sixCancellations.push(cVal);
+		sixNonRenewed.push(nrVal);
+
+		let exitVal: number | null = null;
+		if (cVal != null || nrVal != null) {
+			exitVal = (cVal ?? 0) + (nrVal ?? 0);
+		} else {
+			exitVal = (isCurrent ? current["monthly_exits"] : exitsDefId ? historyByPeriodDef.get(`${pid}_${exitsDefId}`) : undefined) ?? null;
+		}
+		sixExits.push(exitVal);
+
+		if (sVal != null && exitVal != null) {
+			sixNetGrowth.push(sVal - exitVal);
+		} else {
+			sixNetGrowth.push(null);
+		}
+
+		// Goal for the month
+		const pMonth = parseInt(pid.slice(5, 7), 10);
+		const goalVal = (baseStudentsGoalDefId ? historyByPeriodDef.get(`${pid}_${baseStudentsGoalDefId}`) : undefined) ??
+			(pMonth >= 1 && pMonth <= 12 && studentBaseGoalsByMonth[pMonth - 1] > 0 ? studentBaseGoalsByMonth[pMonth - 1] : 875);
+		sixGoals.push(goalVal);
+
+		// Default risk
+		const openV = (isCurrent ? current["open_default_value"] : openValDefId ? historyByPeriodDef.get(`${pid}_${openValDefId}`) : undefined) ?? null;
+		const recV = (isCurrent ? current["recovered_default_value"] : recValDefId ? historyByPeriodDef.get(`${pid}_${recValDefId}`) : undefined) ?? null;
+		sixOpenValues.push(openV);
+		sixRecoveredValues.push(recV);
+	}
+
+	const sumRevenue = sixRevenue.reduce((a, b) => a + b, 0);
+	const avgRevenue = Math.round(sumRevenue / sixRevenue.length);
+	const sumExpenses = sixExpenses.reduce((a, b) => a + b, 0);
+	const avgExpenses = Math.round(sumExpenses / sixExpenses.length);
+	const accumulatedResult = sixOpResult.reduce((a, b) => a + b, 0);
+	const avgMarginPercent = sumRevenue > 0 ? Math.round((accumulatedResult / sumRevenue) * 1000) / 10 : 0;
+
+	const validNetGrowths = sixNetGrowth.filter((v): v is number => v !== null);
+	const totalNetGrowth = validNetGrowths.reduce((a, b) => a + b, 0);
+	const avgNewSales = Math.round(sixNewSales.reduce((a, b) => a + b, 0) / sixNewSales.length);
+	const validExits = sixExits.filter((v): v is number => v !== null);
+	const avgExits = validExits.length > 0 ? Math.round(validExits.reduce((a, b) => a + b, 0) / validExits.length) : 0;
+
+	const sixMonthsPayload: ExecutiveSixMonthsPayload = {
+		periods: sixPeriodLabels,
+		periodIds: sixPeriods,
+		financial: {
+			revenue: sixRevenue,
+			expenses: sixExpenses,
+			operationalResult: sixOpResult,
+			marginPercent: sixMargins,
+			avgRevenue,
+			avgExpenses,
+			accumulatedResult,
+			avgMarginPercent,
+		},
+		students: {
+			baseEnd: sixBaseEnd,
+			newSales: sixNewSales,
+			exits: sixExits,
+			cancellations: sixCancellations,
+			nonRenewed: sixNonRenewed,
+			netGrowth: sixNetGrowth,
+			goals: sixGoals,
+			totalNetGrowth,
+			avgNewSales,
+			avgExits,
+		},
+		defaultRisk: {
+			openValues: sixOpenValues,
+			recoveredValues: sixRecoveredValues,
+		},
+	};
+
+	// Snapshot (6 cards)
+	const baseGoal = (currentMeta.base_students_end?.goal as number | undefined) ?? current["base_students_goal"] ?? 875;
+	const salesGoal = (currentMeta.sales_total?.goal as number | undefined) ?? consultorasSalesTarget ?? 150;
+	const salesVal = current["sales_total"] ?? null;
+	const salesGap = salesVal != null ? salesVal - salesGoal : null;
+
+	const revVal = current["revenue_total"] ?? null;
+	const prevRevVal = previous["revenue_total"] ?? null;
+	const revDeltaMoM = revVal != null && prevRevVal != null && prevRevVal > 0 ? ((revVal - prevRevVal) / prevRevVal) * 100 : null;
+	const matRevVal = current["matriculated_revenue"] ?? null;
+	const matPct = revVal != null && matRevVal != null && revVal > 0 ? Math.round((matRevVal / revVal) * 100) : null;
+
+	const opResultVal = current["operational_result"] ?? null;
+	const opMargin = revVal != null && opResultVal != null && revVal > 0 ? (opResultVal / revVal) * 100 : (currentMeta["operational_result"]?.margin_percent as number | undefined) ?? null;
+
+	const cancVal = current["monthly_cancellations"] ?? null;
+	const nonRenVal = current["monthly_non_renewed"] ?? null;
+	const exitsCurrentSum = cancVal != null || nonRenVal != null ? (cancVal ?? 0) + (nonRenVal ?? 0) : (current["monthly_exits"] ?? null);
+	const netBal = salesVal != null && exitsCurrentSum != null ? salesVal - exitsCurrentSum : null;
+
+	const openDefaultC = current["open_default_count"] ?? null;
+	const openDefaultV = current["open_default_value"] ?? null;
+	const recDefaultC = current["recovered_default_count"] ?? null;
+	const recDefaultV = current["recovered_default_value"] ?? null;
+	const recRate = typeof openMeta.recovery_rate_pct === "number"
+		? openMeta.recovery_rate_pct
+		: (recordCount > 0 && recC > 0 ? Math.round((recC / recordCount) * 100) : null);
+	const pill3d = typeof openMeta.recovery_3d_pill === "string" ? openMeta.recovery_3d_pill : undefined;
+
+	const snapshot: ExecutiveMonthSnapshot = {
+		baseStudents: {
+			value: current["base_students_end"] ?? null,
+			goal: baseGoal,
+			isPartial: currentMeta.base_students_end?.partial === true,
+			pendingNote: currentMeta.base_students_end?.pending_note as string | undefined,
+		},
+		sales: {
+			value: salesVal,
+			goal: salesGoal,
+			gap: salesGap,
+			isPartial: currentMeta.sales_total?.partial === true,
+		},
+		revenue: {
+			value: revVal,
+			deltaMoM: revDeltaMoM != null ? Math.round(revDeltaMoM * 10) / 10 : null,
+			matriculatedPercent: matPct,
+		},
+		operationalResult: {
+			value: opResultVal,
+			marginPercent: opMargin != null ? Math.round(opMargin * 10) / 10 : null,
+			isRecord: currentMeta.operational_result?.record === true,
+			result100PctNf: current["operational_result_100pct_nf"] ?? null,
+		},
+		exits: {
+			total: exitsCurrentSum,
+			cancellations: cancVal,
+			nonRenewed: nonRenVal,
+			netBalance: netBal,
+		},
+		defaultRisk: {
+			openCount: openDefaultC,
+			openValue: openDefaultV,
+			recoveredCount: recDefaultC,
+			recoveredValue: recDefaultV,
+			recoveryRatePct: recRate,
+			pill3d,
+		},
+	};
+
 	return {
 		gymName: gym.name,
 		kpiDataPeriod,
@@ -1411,6 +1701,10 @@ export async function getKpiPageData(
 		gymConfiguration: {
 			goal: studentBaseGoalsByMonth,
 			salesTarget: salesMarketingDashboard.salesTarget,
+		},
+		executiveSummary: {
+			snapshot,
+			sixMonths: sixMonthsPayload,
 		},
 	};
 }

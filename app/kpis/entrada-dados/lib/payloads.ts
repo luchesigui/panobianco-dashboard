@@ -26,6 +26,7 @@ export function buildWeeklyStrings(
 		clo: numRowToStrings(w.funnelWeekly.closings, n),
 		leadsTot: numRowToStrings(w.salesWeekly.leadsByWeek, n),
 		salesTot: numRowToStrings(w.salesWeekly.totals, n),
+		cancellationsTot: numRowToStrings(w.salesWeekly.cancellationsByWeek ?? [], n),
 	};
 }
 
@@ -169,6 +170,15 @@ export function assembleSmPayload(
 	out.weekly.funnelWeekly.closings = stringsToNumRow(weeklyStr.clo);
 	out.weekly.salesWeekly.leadsByWeek = stringsToNumRow(weeklyStr.leadsTot);
 	out.weekly.salesWeekly.totals = stringsToNumRow(weeklyStr.salesTot);
+	out.weekly.salesWeekly.cancellationsByWeek = stringsToNumRow(weeklyStr.cancellationsTot);
+	const cRow = out.weekly.salesWeekly.cancellationsByWeek;
+	const sRow = out.weekly.salesWeekly.totals;
+	out.weekly.salesWeekly.netBalanceByWeek = Array.from({ length: n }, (_, i) => {
+		const s = sRow[i];
+		const c = cRow[i];
+		if (s == null && c == null) return null;
+		return (s ?? 0) - (c ?? 0);
+	});
 	out.weekly.salesWeekly.byReceptionist = recepRows
 		.filter((r) => r.name.trim() !== "")
 		.map((r) => {

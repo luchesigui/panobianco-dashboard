@@ -58,6 +58,10 @@ export type SalesMarketingDashboardPayload = {
       leadsGrandTotal: number;
       totals: Array<number | null>;
       grandTotal: number;
+      cancellationsByWeek?: Array<number | null>;
+      cancellationsGrandTotal?: number;
+      netBalanceByWeek?: Array<number | null>;
+      netBalanceGrandTotal?: number;
       /** Optional breakdown: one row per receptionist × week (dom–sáb columns). */
       byReceptionist?: Array<{
         name: string;

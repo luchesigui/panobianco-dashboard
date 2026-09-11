@@ -69,7 +69,7 @@ export function useSmDashboard({
 
 	const weekHeaders = smPayload.weekly.weekHeaders;
 	const nWeeks = weekHeaders.length;
-	const smGridTotalRows = 9 + recepWeekRows.length * 2;
+	const smGridTotalRows = 10 + recepWeekRows.length * 2;
 
 	const setFunnelField = useCallback(
 		(key: keyof FunnelState, value: string) => {
