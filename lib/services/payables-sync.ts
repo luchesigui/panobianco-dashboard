@@ -1,5 +1,9 @@
 import { CRMService } from "./crm-service";
-import { slugifyExpenseCode, titleFromExpenseCode } from "@/lib/data/expense-mapping";
+import {
+	isDividendExpense,
+	slugifyExpenseCode,
+	titleFromExpenseCode,
+} from "@/lib/data/expense-mapping";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -134,12 +138,30 @@ async function saveExpenseKpis(
 ): Promise<void> {
 	const periodId = dueDateStart.slice(0, 7) + "-01";
 
-	const expensesTotal = Object.values(groups).reduce((a, v) => a + v, 0);
-	const allGroups = { ...groups, expenses_total: expensesTotal };
+	let operationalTotal = 0;
+	let dividendsTotal = 0;
+	for (const [code, value] of Object.entries(groups)) {
+		if (isDividendExpense(code)) {
+			dividendsTotal += value;
+		} else {
+			operationalTotal += value;
+		}
+	}
+
+	const allGroups = {
+		...groups,
+		expenses_total: operationalTotal,
+		dividends_total: dividendsTotal,
+	};
 
 	const definitions = Object.entries(allGroups).map(([code]) => ({
 		code,
-		label: code === "expenses_total" ? "Total de despesas" : titleFromExpenseCode(code),
+		label:
+			code === "expenses_total"
+				? "Total de despesas operacionais"
+				: code === "dividends_total"
+					? "Dividendos distribuídos"
+					: titleFromExpenseCode(code),
 		unit: "currency_brl",
 		category: "finance",
 	}));
@@ -176,5 +198,45 @@ async function saveExpenseKpis(
 		await supabase
 			.from("kpi_values")
 			.upsert(rows, { onConflict: "gym_id,period_id,kpi_definition_id" });
+	}
+
+	// Recalculate operational_result if revenue_total exists for this period
+	const { data: revDef } = await supabase
+		.from("kpi_definitions")
+		.select("id")
+		.eq("code", "revenue_total")
+		.maybeSingle();
+
+	if (revDef) {
+		const { data: revVal } = await supabase
+			.from("kpi_values")
+			.select("value_numeric")
+			.eq("gym_id", gymId)
+			.eq("period_id", periodId)
+			.eq("kpi_definition_id", revDef.id)
+			.maybeSingle();
+
+		if (revVal?.value_numeric != null) {
+			const opResult = Number(revVal.value_numeric) - operationalTotal;
+			const { data: opDef } = await supabase
+				.from("kpi_definitions")
+				.select("id")
+				.eq("code", "operational_result")
+				.maybeSingle();
+			if (opDef) {
+				await supabase.from("kpi_values").upsert(
+					[
+						{
+							gym_id: gymId,
+							period_id: periodId,
+							kpi_definition_id: opDef.id,
+							value_numeric: opResult,
+							meta_json: {},
+						},
+					],
+					{ onConflict: "gym_id,period_id,kpi_definition_id" },
+				);
+			}
+		}
 	}
 }

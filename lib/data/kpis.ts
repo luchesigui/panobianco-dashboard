@@ -1,3 +1,4 @@
+import { isDividendExpense } from "@/lib/data/expense-mapping";
 import { applyFinancePageFallbacks } from "@/lib/data/finance-fallbacks";
 import {
 	applyRoiPageFallbacks,
@@ -182,6 +183,8 @@ export type ExecutiveMonthSnapshot = {
 		marginPercent: number | null;
 		isRecord: boolean;
 		result100PctNf: number | null;
+		dividendsDistributed?: number | null;
+		netProfitAfterDividends?: number | null;
 	};
 	exits: {
 		total: number | null;
@@ -855,6 +858,7 @@ export async function getKpiPageData(
 
 
 	const revDefId = defsRes.data?.find((d) => d.code === "revenue_total")?.id;
+	const expDefId = defsRes.data?.find((d) => d.code === "expenses_total")?.id;
 	const matDefId = defsRes.data?.find(
 		(d) => d.code === "matriculated_revenue",
 	)?.id;
@@ -873,6 +877,7 @@ export async function getKpiPageData(
 		string,
 		{
 			rev?: number;
+			exp?: number;
 			m?: number;
 			w?: number;
 			t?: number;
@@ -886,6 +891,7 @@ export async function getKpiPageData(
 		const v = Number(row.value_numeric);
 		const slot = byPeriodFinance.get(pid) ?? {};
 		if (row.kpi_definition_id === revDefId) slot.rev = v;
+		if (row.kpi_definition_id === expDefId) slot.exp = v;
 		if (row.kpi_definition_id === matDefId) slot.m = v;
 		if (row.kpi_definition_id === whDefId) slot.w = v;
 		if (row.kpi_definition_id === tpDefId) slot.t = v;
@@ -922,7 +928,8 @@ export async function getKpiPageData(
 		financeCharts.stacked.totalpass.push(t);
 		financeCharts.stacked.products.push(p);
 		financeCharts.stacked.uncategorized.push(unc);
-		financeCharts.operationalResult.push(s.op ?? 0);
+		const op = s.op ?? (s.rev != null && s.exp != null ? s.rev - s.exp : 0);
+		financeCharts.operationalResult.push(op);
 	}
 
 	const monthlySalesChart: MonthlySalesBar[] = [];
@@ -1199,6 +1206,32 @@ export async function getKpiPageData(
 		}
 	}
 
+	// Ensure dividends_total and clean operational expenses for current, previous, and third
+	const sanitizeDividendsAndExpenses = (map: KpiMap) => {
+		let divSum = map["dividends_total"] ?? 0;
+		let rawExpDivSum = 0;
+		for (const [k, v] of Object.entries(map)) {
+			if (k.startsWith("expense_") && isDividendExpense(k)) {
+				rawExpDivSum += v;
+			}
+		}
+		if (rawExpDivSum > 0) {
+			divSum = Math.max(divSum, rawExpDivSum);
+		}
+		map["dividends_total"] = divSum;
+
+		const expenseKeys = Object.keys(map).filter((k) => k.startsWith("expense_"));
+		if (expenseKeys.length > 0) {
+			const opExp = expenseKeys
+				.filter((k) => !isDividendExpense(k))
+				.reduce((acc, k) => acc + (map[k] ?? 0), 0);
+			map["expenses_total"] = opExp;
+		}
+	};
+	sanitizeDividendsAndExpenses(current);
+	sanitizeDividendsAndExpenses(previous);
+	sanitizeDividendsAndExpenses(previousPrevious);
+
 	// operational_result: always computed from revenue_total - expenses_total
 	{
 		const rev = current["revenue_total"];
@@ -1222,6 +1255,29 @@ export async function getKpiPageData(
 		if (rev != null && exp != null) {
 			current["operational_result_100pct_nf"] = rev - exp - 0.134 * rev;
 		}
+	}
+
+	if (
+		current["operational_result"] != null &&
+		current["revenue_total"] != null &&
+		current["revenue_total"] > 0
+	) {
+		currentMeta["operational_result"] = {
+			...(currentMeta["operational_result"] ?? {}),
+			margin_percent:
+				(current["operational_result"] / current["revenue_total"]) * 100,
+		};
+	}
+	if (
+		current["dividends_total"] != null &&
+		current["operational_result"] != null &&
+		current["operational_result"] > 0
+	) {
+		currentMeta["dividends_total"] = {
+			...(currentMeta["dividends_total"] ?? {}),
+			pct_of_operational_result:
+				(current["dividends_total"] / current["operational_result"]) * 100,
+		};
 	}
 
 	// no_show_rate and present_conversion_rate: computed from SM payload funnel
@@ -1455,7 +1511,6 @@ export async function getKpiPageData(
 	};
 
 	// Build Executive Summary: Snapshot (6 cards) and Six-Month Trends (Opção B)
-	const expDefId = defsRes.data?.find((d) => d.code === "expenses_total")?.id;
 	const exitsDefId = defsRes.data?.find((d) => d.code === "monthly_exits")?.id;
 	const cancDefId = defsRes.data?.find((d) => d.code === "monthly_cancellations")?.id;
 	const nonRenewedDefId = defsRes.data?.find((d) => d.code === "monthly_non_renewed")?.id;
@@ -1652,6 +1707,11 @@ export async function getKpiPageData(
 			marginPercent: opMargin != null ? Math.round(opMargin * 10) / 10 : null,
 			isRecord: currentMeta.operational_result?.record === true,
 			result100PctNf: current["operational_result_100pct_nf"] ?? null,
+			dividendsDistributed: current["dividends_total"] ?? null,
+			netProfitAfterDividends:
+				opResultVal != null && current["dividends_total"] != null
+					? opResultVal - current["dividends_total"]
+					: null,
 		},
 		exits: {
 			total: exitsCurrentSum,

@@ -19,3 +19,16 @@ export function titleFromExpenseCode(code: string): string {
 		.map((w) => w.charAt(0).toUpperCase() + w.slice(1))
 		.join(" ");
 }
+
+/**
+ * Checks if an expense center or code refers to dividend distribution (e.g. "Dividendos mensais", "expense_dividendos_eventuais").
+ * Dividends are distribution of profits, not operational expenses (OPEX).
+ */
+export function isDividendExpense(labelOrCode: string | null | undefined): boolean {
+	if (!labelOrCode) return false;
+	const normalized = labelOrCode
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.toLowerCase();
+	return normalized.includes("dividendo");
+}

@@ -200,6 +200,15 @@ export function ExecutiveMonthSnapshot({ snapshot }: Props) {
 							</span>
 						</span>
 					)}
+					{operationalResult.dividendsDistributed != null &&
+						operationalResult.dividendsDistributed > 0 && (
+							<span>
+								Divid.:{" "}
+								<span className={styles.cardMetaHighlight}>
+									{formatCompactBrl(operationalResult.dividendsDistributed)}
+								</span>
+							</span>
+						)}
 				</div>
 				<div
 					className={styles.cardBottomBar}

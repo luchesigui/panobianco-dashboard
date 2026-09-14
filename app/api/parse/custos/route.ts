@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import * as XLSX from "xlsx";
 import { saveMonthlyKpisAction } from "@/app/kpis/entrada-dados/actions";
-import { slugifyExpenseCode } from "@/lib/data/expense-mapping";
+import { isDividendExpense, slugifyExpenseCode } from "@/lib/data/expense-mapping";
 import { validateApiRequest } from "@/lib/auth";
 
 function parseCurrency(value: unknown): number {
@@ -87,8 +87,15 @@ export async function POST(req: Request) {
       items[center] = (items[center] ?? 0) + parseCurrency(valueRawBaixa);
     }
 
-    const total = Object.values(items).reduce((acc, value) => acc + value, 0);
-    const response = { items, total };
+    const operationalTotal = Object.entries(items)
+      .filter(([center]) => !isDividendExpense(center))
+      .reduce((acc, [, value]) => acc + value, 0);
+
+    const dividendsTotal = Object.entries(items)
+      .filter(([center]) => isDividendExpense(center))
+      .reduce((acc, [, value]) => acc + value, 0);
+
+    const response = { items, total: operationalTotal, dividendsTotal };
 
     if (save && periodParam) {
       const expenseItems = Object.fromEntries(
@@ -102,7 +109,8 @@ export async function POST(req: Request) {
         gymSlug: gymParam,
         periodId: periodParam,
         values: {
-          expenses_total: total,
+          expenses_total: operationalTotal,
+          dividends_total: dividendsTotal,
         },
         expenseItems,
       });

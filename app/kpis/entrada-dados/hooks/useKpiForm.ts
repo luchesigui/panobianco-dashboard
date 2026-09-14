@@ -7,7 +7,7 @@ import {
 	type KpiFormField,
 } from "@/lib/data/dashboard-input-requirements";
 import { mapRevenueGroupsToCodes } from "@/lib/data/revenue-mapping";
-import { slugifyExpenseCode } from "@/lib/data/expense-mapping";
+import { isDividendExpense, slugifyExpenseCode } from "@/lib/data/expense-mapping";
 import { saveMonthlyKpisAction } from "../actions";
 import { titleFromExpenseCode } from "../lib/expense";
 import { parsePtBrNumber } from "../lib/parsers";
@@ -189,14 +189,22 @@ export function useKpiForm({
 				}
 			}
 			const expenseItems = structuredClone(custosBreakdown);
-			const expensesTotal =
-				Object.keys(expenseItems).length > 0
-					? Object.values(expenseItems).reduce(
-							(acc, v) => acc + (Number.isFinite(v) ? v : 0),
-							0,
-						)
-					: (values["expenses_total"] ?? 0);
-			values["expenses_total"] = expensesTotal;
+			let operationalExpensesTotal = 0;
+			let dividendsTotal = 0;
+			if (Object.keys(expenseItems).length > 0) {
+				for (const [code, v] of Object.entries(expenseItems)) {
+					const val = Number.isFinite(v) ? v : 0;
+					if (isDividendExpense(code)) {
+						dividendsTotal += val;
+					} else {
+						operationalExpensesTotal += val;
+					}
+				}
+			} else {
+				operationalExpensesTotal = values["expenses_total"] ?? 0;
+			}
+			values["expenses_total"] = operationalExpensesTotal;
+			values["dividends_total"] = dividendsTotal;
 
 			if (Object.keys(recebimentosBreakdown).length > 0) {
 				const revenueFromGroups = mapRevenueGroupsToCodes(recebimentosBreakdown);
@@ -209,6 +217,7 @@ export function useKpiForm({
 				(values["totalpass_revenue"] ?? 0) +
 				(values["products_revenue"] ?? 0);
 			values["revenue_total"] = revenueTotal;
+			values["operational_result"] = revenueTotal - operationalExpensesTotal;
 
 			let metaByCode: Record<string, Record<string, unknown>> | undefined;
 			if (metaJson.trim()) {

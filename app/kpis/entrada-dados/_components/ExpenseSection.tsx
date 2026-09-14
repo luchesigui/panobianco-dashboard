@@ -11,6 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Lock, LockOpen } from "lucide-react";
+import { isDividendExpense } from "@/lib/data/expense-mapping";
 import { formatCurrency, formatThousands, cleanPastedValue, parsePtBrNumber } from "../lib/parsers";
 import { FileUploadArea } from "./FileUploadArea";
 
@@ -37,7 +38,12 @@ export function ExpenseSection({
 	onUploadFile,
 	onChange,
 }: Props) {
-	const total = entries.reduce((acc, item) => acc + item.value, 0);
+	const operationalTotal = entries
+		.filter((item) => !isDividendExpense(item.code) && !isDividendExpense(item.label))
+		.reduce((acc, item) => acc + item.value, 0);
+	const dividendsTotal = entries
+		.filter((item) => isDividendExpense(item.code) || isDividendExpense(item.label))
+		.reduce((acc, item) => acc + item.value, 0);
 	return (
 		<Card className="border border-[color:var(--border-subtle)] bg-[color:var(--surface-card)]">
 			<CardHeader className="pb-3">
@@ -47,7 +53,7 @@ export function ExpenseSection({
 							Financeiro — Despesas
 						</CardTitle>
 						<CardDescription className="text-xs text-[color:var(--text-muted)] mt-0.5">
-							Despesas totais calculadas automaticamente.
+							Despesas operacionais e dividendos calculados automaticamente.
 						</CardDescription>
 					</div>
 					<Button
@@ -110,14 +116,26 @@ export function ExpenseSection({
 						})}
 						<div className="flex flex-col gap-2">
 							<Label className="text-xs font-medium text-[color:var(--text-secondary)]">
-								Despesas totais
+								Despesas operacionais
 							</Label>
 							<Input
 								disabled
-								value={formatCurrency(String(total))}
+								value={formatCurrency(String(operationalTotal))}
 								className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] disabled:bg-[color:var(--surface-muted)] disabled:text-[color:var(--text-muted)]"
 							/>
 						</div>
+						{dividendsTotal > 0 && (
+							<div className="flex flex-col gap-2">
+								<Label className="text-xs font-medium text-[color:var(--text-secondary)]">
+									Dividendos distribuídos
+								</Label>
+								<Input
+									disabled
+									value={formatCurrency(String(dividendsTotal))}
+									className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)] disabled:bg-[color:var(--surface-muted)] disabled:text-[color:var(--text-muted)]"
+								/>
+							</div>
+						)}
 					</div>
 				) : null}
 			</CardContent>

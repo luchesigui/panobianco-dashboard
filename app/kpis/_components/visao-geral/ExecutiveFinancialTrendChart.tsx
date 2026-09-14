@@ -55,7 +55,7 @@ export function ExecutiveFinancialTrendChart({ sixMonths }: Props) {
 				},
 				{
 					type: "bar" as const,
-					label: "Despesas totais",
+					label: "Despesas operacionais",
 					data: financial.expenses,
 					backgroundColor: CHART_COLOR.neutral,
 					borderRadius: 3,
@@ -172,7 +172,7 @@ export function ExecutiveFinancialTrendChart({ sixMonths }: Props) {
 					</h3>
 				</div>
 				<p className={styles.chartSub}>
-					Receita Total vs Despesas Totais e Resultado Operacional
+					Receita Total vs Despesas Operacionais e Resultado Operacional
 				</p>
 			</div>
 

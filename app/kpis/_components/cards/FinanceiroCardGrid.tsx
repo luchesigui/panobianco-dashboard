@@ -21,7 +21,7 @@ type KpiMeta = Record<string, unknown>;
 
 const CARDS: KpiCard[] = [
 	{ key: "revenue_total", label: "Receita total", unit: "currency" },
-	{ key: "expenses_total", label: "Despesa total", unit: "currency" },
+	{ key: "expenses_total", label: "Despesa operacional", unit: "currency" },
 	{
 		key: "operational_result",
 		label: "Resultado operacional",
@@ -31,6 +31,11 @@ const CARDS: KpiCard[] = [
 	{
 		key: "operational_result_100pct_nf",
 		label: "Resultado se 100% NF",
+		unit: "currency",
+	},
+	{
+		key: "dividends_total",
+		label: "Dividendos distribuídos",
 		unit: "currency",
 	},
 	{
@@ -67,6 +72,7 @@ function financeMainDisplay(
 	if (cardKey === "revenue_total") return formatCompactBrl(current);
 	if (
 		cardKey === "expenses_total" ||
+		cardKey === "dividends_total" ||
 		cardKey === "matriculated_revenue" ||
 		cardKey === "wellhub_revenue" ||
 		cardKey === "totalpass_revenue"
@@ -164,6 +170,14 @@ export function FinanceiroCardGrid({ data }: { data: KpiPageData }) {
 					</p>,
 				);
 			}
+			const divVal = data.current.dividends_total;
+			if (divVal != null && divVal > 0) {
+				metaLines.push(
+					<p key="opdiv" className={styles.kpiDetailLine}>
+						Distribuição: {formatCompactBrl(divVal)} dividendos
+					</p>,
+				);
+			}
 			const deltaOpts =
 				typeof m.delta_pct_display === "number"
 					? {
@@ -219,6 +233,40 @@ export function FinanceiroCardGrid({ data }: { data: KpiPageData }) {
 				metaLines.push(
 					<p key="m2" className={styles.kpiDetailLine}>
 						{m.tax_theory_line}
+					</p>,
+				);
+			}
+		} else if (key === "dividends_total") {
+			const delta = renderDelta(current, previous, vsLabel, {
+				pctAsInteger: true,
+			});
+			deltaBlock = (
+				<div className={styles.kpiSub}>
+					{delta.pill ? (
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
+					) : (
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{delta.tail}
+						</span>
+					)}
+				</div>
+			);
+			const pctOp = meta?.pct_of_operational_result;
+			if (typeof pctOp === "number") {
+				metaLines.push(
+					<p key="divpct" className={styles.kpiMetaLine}>
+						{pctOp.toFixed(1).replace(".", ",")}% do resultado operacional
+					</p>,
+				);
+			}
+			const opRes = data.current.operational_result;
+			if (current != null && opRes != null) {
+				const retained = opRes - current;
+				metaLines.push(
+					<p key="divret" className={styles.kpiDetailLine}>
+						Lucro retido: {formatCurrencySignedK(retained)}
 					</p>,
 				);
 			}
