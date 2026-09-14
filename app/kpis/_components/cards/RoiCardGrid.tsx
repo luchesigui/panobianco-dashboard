@@ -78,6 +78,16 @@ export function RoiCardGrid({ data }: { data: KpiPageData }) {
 				{typeof recM.subline === "string" ? (
 					<p className={styles.kpiMetaLine}>{recM.subline}</p>
 				) : null}
+				{typeof recM.detail_line === "string" ? (
+					<p className={styles.kpiDetailLine}>{recM.detail_line}</p>
+				) : null}
+				{typeof recM.delta_pill === "string" ? (
+					<div className={styles.kpiSub}>
+						<span className={`${styles.kpiDelta} ${styles.deltaUp}`}>
+							{recM.delta_pill}
+						</span>
+					</div>
+				) : null}
 				<div
 					className={styles.kpiBar}
 					style={{ background: barColor("recovery_balance") }}

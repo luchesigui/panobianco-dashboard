@@ -150,91 +150,11 @@
 	color: var(--text-secondary, #6b6a65);
 }
 
-.analysisWrap {
-	margin-bottom: 1.25rem;
-}
-
-.analysisCard {
-	background: var(--bg-card, #ffffff);
-	border-radius: 18px;
-	box-shadow: var(
-		--shadow-card,
-		0 1px 3px rgba(0, 0, 0, 0.06),
-		0 0 0 0.5px rgba(0, 0, 0, 0.04)
-	);
-	overflow: hidden;
-	border: 0.5px solid var(--border, rgba(0, 0, 0, 0.08));
-}
-
-.analysisHeader {
-	background: var(--pb-orange, #ff6100);
-	color: #fff;
-	font-size: 11px;
-	font-weight: 900;
-	letter-spacing: 0.06em;
-	padding: 10px 16px;
-	border-bottom: 1px solid rgba(255, 97, 0, 0.12);
-}
-
-.analysisBody {
-	padding: 14px 16px 16px;
-}
-
-.analysisItem {
-	display: flex;
-	gap: 10px;
-	align-items: flex-start;
-	margin-bottom: 12px;
-}
-
-.analysisItem:last-child {
-	margin-bottom: 0;
-}
-
-.analysisIcon {
-	width: 22px;
-	height: 22px;
-	border-radius: 50%;
-	flex-shrink: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 11px;
-	font-weight: 700;
-	line-height: 1;
-}
-
-.iconInfo {
-	background: color-mix(in srgb, var(--pb-graphite) 12%, var(--pb-white));
-	color: var(--pb-graphite);
-}
-
-.iconGood {
-	background: color-mix(in srgb, var(--pb-orange) 14%, var(--pb-white));
-	color: var(--pb-orange-warm);
-}
-
-.iconBad {
-	background: color-mix(in srgb, var(--pb-grena) 12%, var(--pb-white));
-	color: var(--pb-grena);
-}
-
-.iconWarn {
-	background: color-mix(in srgb, var(--pb-orange-warm) 14%, var(--pb-white));
-	color: var(--pb-orange-warm);
-}
-
-.analysisText {
-	font-size: 12px;
-	color: var(--text-secondary, #6b6a65);
-	line-height: 1.5;
-	margin: 0;
-}
-
 .chartRow {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 14px;
+	margin-top: 1.25rem;
 }
 
 @media (max-width: 900px) {

@@ -10,7 +10,12 @@ import {
 	normalizeSmPayloadWeeks,
 } from "@/lib/data/sales-marketing-payload-merge";
 import { assemblePayloadFromNormalized } from "@/lib/data/vendas-marketing-assembler";
-import { EXPENSE_DONUT_COLOR, HISTORY_BAR_COLORS } from "@/lib/kpis/card-bar-colors";
+import {
+	EXPENSE_DONUT_COLOR,
+	HISTORY_BAR_COLORS,
+	ROI_COMPOSITION_COLOR,
+} from "@/lib/kpis/card-bar-colors";
+import { formatCompactBrl } from "@/lib/kpis/format";
 import { getServiceSupabase } from "@/lib/supabase/server";
 import type {
 	MonthlySalesBar,
@@ -1459,13 +1464,198 @@ export async function getKpiPageData(
 		};
 	}
 
-	// roi_payback_months: computed from entered data, never stored in DB
+	// recovery_balance: total_invested minus all profit/dividends distributed up to kpiDataPeriod
+	const periodDivTotal = new Map<string, number>();
+	const periodExpDivSum = new Map<string, number>();
+	const allHistoricalPids = new Set<string>();
+
+	for (const row of salesHistoryRes.data ?? []) {
+		if (row.value_numeric == null) continue;
+		const pid = normalizePeriodId(row.period_id);
+		if (pid > kpiDataPeriod) continue;
+		allHistoricalPids.add(pid);
+		const code = defIdToCode.get(row.kpi_definition_id);
+		if (!code) continue;
+
+		if (code === "dividends_total") {
+			periodDivTotal.set(
+				pid,
+				Math.max(periodDivTotal.get(pid) ?? 0, Number(row.value_numeric)),
+			);
+		} else if (code.startsWith("expense_") && isDividendExpense(code)) {
+			periodExpDivSum.set(
+				pid,
+				(periodExpDivSum.get(pid) ?? 0) + Number(row.value_numeric),
+			);
+		}
+	}
+	allHistoricalPids.add(kpiDataPeriod);
+	if (current["dividends_total"] != null) {
+		periodDivTotal.set(
+			kpiDataPeriod,
+			Math.max(
+				periodDivTotal.get(kpiDataPeriod) ?? 0,
+				current["dividends_total"],
+			),
+		);
+	}
+
+	const effectiveTotalInvested =
+		current["total_invested"] ??
+		(Number.isFinite(configuredTotalInvested) && configuredTotalInvested > 0
+			? configuredTotalInvested
+			: 1_020_300);
+
+	const sortedHistoricPids = Array.from(allHistoricalPids).sort();
+	const dynamicRecoveryLabels: string[] = [];
+	const dynamicRecoveryValues: number[] = [];
+
+	let runningRecoveryBalance = effectiveTotalInvested;
+	let totalDividendsDistributed = 0;
+	let prevPeriodRecoveryBalance = effectiveTotalInvested;
+	let currentMonthDividends = 0;
+
+	for (const pid of sortedHistoricPids) {
+		const monthDiv = Math.max(
+			periodDivTotal.get(pid) ?? 0,
+			periodExpDivSum.get(pid) ?? 0,
+		);
+		totalDividendsDistributed += monthDiv;
+		runningRecoveryBalance = Math.max(0, runningRecoveryBalance - monthDiv);
+		dynamicRecoveryLabels.push(toLabel(pid));
+		dynamicRecoveryValues.push(runningRecoveryBalance);
+
+		if (previousPeriod && pid === previousPeriod) {
+			prevPeriodRecoveryBalance = runningRecoveryBalance;
+			previous["recovery_balance"] = runningRecoveryBalance;
+			previousMeta["recovery_balance"] = {
+				card_title: "A recuperar",
+				subline: "investido - lucro distribuído",
+			};
+		}
+		if (thirdPeriod && pid === thirdPeriod) {
+			previousPrevious["recovery_balance"] = runningRecoveryBalance;
+		}
+		if (pid === kpiDataPeriod) {
+			currentMonthDividends = monthDiv;
+		}
+	}
+
+	current["recovery_balance"] = runningRecoveryBalance;
+
+	const hasCurrentMonthDiv = currentMonthDividends > 0;
+	const subline = hasCurrentMonthDiv
+		? `Saldo ant. ${formatCompactBrl(prevPeriodRecoveryBalance)} − ${formatCompactBrl(currentMonthDividends)} no mês`
+		: totalDividendsDistributed > 0
+			? `Saldo progressivo (${formatCompactBrl(totalDividendsDistributed)} amortizados)`
+			: "Saldo inicial a recuperar";
+
+	const detailLine =
+		totalDividendsDistributed > 0
+			? `Total amortizado: ${formatCompactBrl(totalDividendsDistributed)} de ${formatCompactBrl(effectiveTotalInvested)} investidos`
+			: undefined;
+
+	const deltaPill = hasCurrentMonthDiv
+		? `-${formatCompactBrl(currentMonthDividends)} no mês`
+		: undefined;
+
+	currentMeta["recovery_balance"] = {
+		...(currentMeta["recovery_balance"] ?? {}),
+		card_title: "A recuperar",
+		subline,
+		detail_line: detailLine,
+		delta_pill: deltaPill,
+	};
+
+	currentMeta["total_invested"] = {
+		...(currentMeta["total_invested"] ?? {}),
+		roi_charts: {
+			composition: [
+				{
+					label: "Materiais",
+					value: 497_000,
+					color: ROI_COMPOSITION_COLOR.materials,
+				},
+				{
+					label: "Serviços",
+					value: 351_000,
+					color: ROI_COMPOSITION_COLOR.services,
+				},
+				{
+					label: "Franquia",
+					value: 80_000,
+					color: ROI_COMPOSITION_COLOR.franchise,
+				},
+				{ label: "Outros", value: 65_000, color: ROI_COMPOSITION_COLOR.other },
+			],
+			recoveryEvolution: {
+				labels: dynamicRecoveryLabels,
+				values: dynamicRecoveryValues,
+			},
+		},
+	};
+
+	// roi_payback_months: computed from recovery_balance divided by 3-month average of profit distribution
 	{
-		const margem =
-			(current["revenue_total"] ?? 0) - (current["expenses_total"] ?? 0);
+		const divCurrent = currentMonthDividends;
+		const divPrev = previousPeriod
+			? Math.max(
+					periodDivTotal.get(previousPeriod) ?? 0,
+					periodExpDivSum.get(previousPeriod) ?? 0,
+				)
+			: 0;
+		const divThird = thirdPeriod
+			? Math.max(
+					periodDivTotal.get(thirdPeriod) ?? 0,
+					periodExpDivSum.get(thirdPeriod) ?? 0,
+				)
+			: 0;
+
+		const samples = [divCurrent];
+		if (previousPeriod) samples.push(divPrev);
+		if (thirdPeriod) samples.push(divThird);
+		const avgDividends3m =
+			samples.reduce((a, b) => a + b, 0) / Math.max(1, samples.length);
+
 		const rec = current["recovery_balance"];
-		if (margem > 0 && rec != null) {
-			current["roi_payback_months"] = Math.ceil(rec / margem);
+		if (avgDividends3m > 0 && rec != null && rec > 0) {
+			const paybackMonths = Math.round(rec / avgDividends3m);
+			current["roi_payback_months"] = paybackMonths;
+
+			const years = Math.floor(paybackMonths / 12);
+			const remainingMos = paybackMonths % 12;
+			const timeStr =
+				years > 0
+					? `${years} ${years === 1 ? "ano" : "anos"}${remainingMos > 0 ? ` e ${remainingMos} ${remainingMos === 1 ? "mês" : "meses"}` : ""}`
+					: `${paybackMonths} meses`;
+
+			const singleMonthPayback =
+				divCurrent > 0 ? Math.round(rec / divCurrent) : null;
+			const latestPaceStr =
+				singleMonthPayback != null && singleMonthPayback !== paybackMonths
+					? ` · No ritmo de ${toLabel(kpiDataPeriod)} (${formatCompactBrl(divCurrent)}): ~${singleMonthPayback} meses`
+					: "";
+
+			currentMeta["roi_payback_months"] = {
+				...(currentMeta["roi_payback_months"] ?? {}),
+				subline: `no ritmo atual (média 3m: ${formatCompactBrl(Math.round(avgDividends3m))}/mês)`,
+				detail_line: `~${timeStr} para recuperar ${formatCompactBrl(rec)}${latestPaceStr}`,
+				avg_dividends_3m: avgDividends3m,
+			};
+		} else if (rec === 0) {
+			current["roi_payback_months"] = 0;
+			currentMeta["roi_payback_months"] = {
+				...(currentMeta["roi_payback_months"] ?? {}),
+				subline: "investimento 100% recuperado",
+				detail_line: "Todo o capital investido foi retornado",
+			};
+		} else {
+			// Fallback to operational margin if no dividends were distributed yet
+			const margem =
+				(current["revenue_total"] ?? 0) - (current["expenses_total"] ?? 0);
+			if (margem > 0 && rec != null) {
+				current["roi_payback_months"] = Math.ceil(rec / margem);
+			}
 		}
 	}
 

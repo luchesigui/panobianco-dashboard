@@ -119,7 +119,7 @@ export function SaldoRecuperar({ recoveryEvolution }: Props) {
 	return (
 		<div className={styles.chartCard}>
 			<h3 className={styles.chartTitle}>Evolução do saldo a recuperar</h3>
-			<p className={styles.chartSub}>Aportes − resultado operacional acumulado</p>
+			<p className={styles.chartSub}>Total investido − lucro distribuído acumulado</p>
 			<div className={styles.chartCanvas}>
 				<Line data={lineData} options={lineOptions} />
 			</div>

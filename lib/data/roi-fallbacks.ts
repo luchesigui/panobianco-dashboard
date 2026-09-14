@@ -1,4 +1,5 @@
 import { ROI_COMPOSITION_COLOR } from "@/lib/kpis/card-bar-colors";
+import { formatCompactBrl } from "@/lib/kpis/format";
 
 type KpiMap = Record<string, number>;
 type KpiMetaMap = Record<string, Record<string, unknown>>;
@@ -42,7 +43,7 @@ export const DEFAULT_ROI_CHARTS: RoiChartPayload = {
 const ROI_VALUE_FALLBACK: Record<string, number> = {
   total_invested: 1_020_300,
   cash_balance: 61_367,
-  recovery_balance: 958_933,
+  recovery_balance: 887_000,
   // roi_payback_months is computed in kpis.ts — no fallback here
 };
 
@@ -62,11 +63,11 @@ const ROI_META_FALLBACK: KpiMetaMap = {
   },
   recovery_balance: {
     card_title: "A recuperar",
-    subline: "investido - saldo em caixa",
+    subline: "investido - lucro distribuído",
   },
   roi_payback_months: {
-    subline: "no ritmo atual (R$ 19.462/mês)",
-    detail_line: "Com Wellhub (Ago/26): ~19 meses (-R$ 50.133/mês)",
+    subline: "no ritmo atual",
+    detail_line: "Média de distribuição dos últimos 3 meses",
   },
 };
 
@@ -87,7 +88,7 @@ const DEFAULT_ROI_INSIGHTS: RoiInsight[] = [
     type: "neutral",
     title: "",
     body:
-      "Faltam R$ 958.933 para recuperar. No ritmo atual (média R$ 19.462/mês), o payback levaria ~49 meses (4 anos e 1 meses).",
+      "Faltam R$ 887.000 para recuperar (total investido menos lucro distribuído acumulado).",
   },
   {
     type: "good",
@@ -125,6 +126,30 @@ export function applyRoiPageFallbacks(
   const list = insights.roi ?? [];
   if (list.length < 4) {
     insights.roi = [...DEFAULT_ROI_INSIGHTS];
+  }
+
+  const recVal = current.recovery_balance;
+  const payMos = current.roi_payback_months;
+  const payMeta = currentMeta.roi_payback_months;
+  const avgDiv = payMeta?.avg_dividends_3m as number | undefined;
+  const avgDivStr =
+    avgDiv != null && avgDiv > 0
+      ? ` (${formatCompactBrl(Math.round(avgDiv))}/mês)`
+      : "";
+  const paySub =
+    payMos != null && payMos > 0
+      ? ` No ritmo de distribuição dos últimos 3 meses${avgDivStr}, o payback levaria ~${payMos} meses.`
+      : "";
+  if (insights.roi && recVal != null) {
+    const neutralIdx = insights.roi.findIndex(
+      (i) => i.type === "neutral" || i.body.includes("recuperar")
+    );
+    if (neutralIdx >= 0) {
+      insights.roi[neutralIdx] = {
+        ...insights.roi[neutralIdx],
+        body: `Faltam ${formatCompactBrl(recVal)} para recuperar (total investido menos lucro distribuído acumulado).${paySub}`,
+      };
+    }
   }
 
   const ti = currentMeta.total_invested ?? {};

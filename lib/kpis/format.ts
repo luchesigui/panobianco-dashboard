@@ -4,7 +4,7 @@ export type KpiUnit = "currency" | "percent" | "count";
 
 export function formatCompactBrl(value: number): string {
 	const k = Math.round(value / 1000);
-	return `R$ ${k}k`;
+	return `R$ ${k.toLocaleString("pt-BR")}k`;
 }
 
 export function formatCompactBrlOneDecimal(value: number): string {
