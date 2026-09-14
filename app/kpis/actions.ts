@@ -9,6 +9,7 @@ import { generateSalesMarketingWeeklyInsights } from "@/lib/ai/services/salesMar
 import { generateRetentionInsights } from "@/lib/ai/services/retention";
 import { generateFinanceInsights } from "@/lib/ai/services/finance";
 import { generateForecastInsights } from "@/lib/ai/services/forecast";
+import { generateRoiInsights } from "@/lib/ai/services/roi";
 
 const GYM_SLUG = "panobianco-sjc-satelite";
 
@@ -83,6 +84,8 @@ export async function generateAiInsightsAction(
       insights = await generateFinanceInsights(data, apiKey);
     } else if (category === "forecast") {
       insights = await generateForecastInsights(data, apiKey);
+    } else if (category === "roi") {
+      insights = await generateRoiInsights(data, apiKey);
     } else {
       return { ok: false, error: "Categoria de insights não suportada." };
     }
@@ -130,7 +133,11 @@ export async function generateAiInsightsAction(
     }
 
     // 6. Trigger page revalidation to update the view
-    revalidatePath("/kpis");
+    try {
+      revalidatePath("/kpis");
+    } catch (e) {
+      // Ignored if called outside Next.js request context (e.g. tests/scripts)
+    }
     return { ok: true };
   } catch (err) {
     console.error("Falha geral ao gerar insights:", err);

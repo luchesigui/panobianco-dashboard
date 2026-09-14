@@ -124,31 +124,31 @@ export function applyRoiPageFallbacks(
   }
 
   const list = insights.roi ?? [];
-  if (list.length < 4) {
+  if (list.length === 0) {
     insights.roi = [...DEFAULT_ROI_INSIGHTS];
-  }
 
-  const recVal = current.recovery_balance;
-  const payMos = current.roi_payback_months;
-  const payMeta = currentMeta.roi_payback_months;
-  const avgDiv = payMeta?.avg_dividends_3m as number | undefined;
-  const avgDivStr =
-    avgDiv != null && avgDiv > 0
-      ? ` (${formatCompactBrl(Math.round(avgDiv))}/mês)`
-      : "";
-  const paySub =
-    payMos != null && payMos > 0
-      ? ` No ritmo de distribuição dos últimos 3 meses${avgDivStr}, o payback levaria ~${payMos} meses.`
-      : "";
-  if (insights.roi && recVal != null) {
-    const neutralIdx = insights.roi.findIndex(
-      (i) => i.type === "neutral" || i.body.includes("recuperar")
-    );
-    if (neutralIdx >= 0) {
-      insights.roi[neutralIdx] = {
-        ...insights.roi[neutralIdx],
-        body: `Faltam ${formatCompactBrl(recVal)} para recuperar (total investido menos lucro distribuído acumulado).${paySub}`,
-      };
+    const recVal = current.recovery_balance;
+    const payMos = current.roi_payback_months;
+    const payMeta = currentMeta.roi_payback_months;
+    const avgDiv = payMeta?.avg_dividends_3m as number | undefined;
+    const avgDivStr =
+      avgDiv != null && avgDiv > 0
+        ? ` (${formatCompactBrl(Math.round(avgDiv))}/mês)`
+        : "";
+    const paySub =
+      payMos != null && payMos > 0
+        ? ` No ritmo de distribuição dos últimos 3 meses${avgDivStr}, o payback levaria ~${payMos} meses.`
+        : "";
+    if (recVal != null) {
+      const neutralIdx = insights.roi.findIndex(
+        (i) => i.type === "neutral" || i.body.includes("recuperar")
+      );
+      if (neutralIdx >= 0) {
+        insights.roi[neutralIdx] = {
+          ...insights.roi[neutralIdx],
+          body: `Faltam ${formatCompactBrl(recVal)} para recuperar (total investido menos lucro distribuído acumulado).${paySub}`,
+        };
+      }
     }
   }
 

@@ -197,6 +197,7 @@ export function SectionInsights({ variant, items, periodId, weekOfMonth }: Secti
 		"retention",
 		"finance",
 		"forecast",
+		"roi",
 	].includes(variant);
 
 	const cardClass = clsx(styles.insightCard, {
