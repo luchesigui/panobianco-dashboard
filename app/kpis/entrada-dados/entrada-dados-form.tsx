@@ -165,13 +165,13 @@ export function EntradaDadosForm({
 					<TabsList className="mb-6 h-auto rounded-none bg-transparent p-0 gap-2">
 						<TabsTrigger
 							value="semanal"
-							className="rounded-none px-6 py-2.5 text-xs font-bold text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] bg-white data-[state=active]:bg-[#ff6100] data-[state=active]:border-[#ff6100] data-[state=active]:text-white transition-all botao-chanfrado-nav cursor-pointer"
+							className="rounded-none px-6 py-2.5 text-xs font-bold text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] bg-white data-active:!bg-[#ff6100] data-active:!border-[#ff6100] data-active:!text-white data-[state=active]:!bg-[#ff6100] data-[state=active]:!border-[#ff6100] data-[state=active]:!text-white transition-all botao-chanfrado-nav cursor-pointer shadow-sm hover:text-[color:var(--text-primary)]"
 						>
 							Semanal
 						</TabsTrigger>
 						<TabsTrigger
 							value="mensal"
-							className="rounded-none px-6 py-2.5 text-xs font-bold text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] bg-white data-[state=active]:bg-[#ff6100] data-[state=active]:border-[#ff6100] data-[state=active]:text-white transition-all botao-chanfrado-nav cursor-pointer"
+							className="rounded-none px-6 py-2.5 text-xs font-bold text-[color:var(--text-secondary)] border border-[color:var(--border-subtle)] bg-white data-active:!bg-[#ff6100] data-active:!border-[#ff6100] data-active:!text-white data-[state=active]:!bg-[#ff6100] data-[state=active]:!border-[#ff6100] data-[state=active]:!text-white transition-all botao-chanfrado-nav cursor-pointer shadow-sm hover:text-[color:var(--text-primary)]"
 						>
 							Mensal
 						</TabsTrigger>
