@@ -76,6 +76,7 @@ type WeeklyRowProps = {
 	deltaMode?: "pct" | "abs";
 	primaryPeriodLabel?: string;
 	showWeeklyDelta?: boolean;
+	customSubtextCells?: Array<string | null>;
 };
 
 function getDeltaPct(curr: number | null, prev: number | null): { value: string; isPositive: boolean; isNegative: boolean } | null {
@@ -142,6 +143,7 @@ function WeeklyRow({
 	deltaMode,
 	primaryPeriodLabel,
 	showWeeklyDelta,
+	customSubtextCells,
 }: WeeklyRowProps) {
 	return (
 		<tr>
@@ -167,11 +169,13 @@ function WeeklyRow({
 					? (deltaMode === "abs" ? getDeltaAbs(c, prevVal) : getDeltaPct(c, prevVal))
 					: null;
 
+				const customSubtext = customSubtextCells?.[i];
+
 				return (
 					<td key={`${label}-${weekKeys[i]}`} className={tdClassName}>
 						<div className={styles.cellA}>
 							<span className={styles.cellANum}>{currStr}{weekRateStr}</span>
-							{showMonthComparison && (
+							{showMonthComparison ? (
 								<div className={styles.cellASub}>
 									<span className={styles.cellAPrev}>{prevStr}</span>
 									{delta && (
@@ -185,7 +189,13 @@ function WeeklyRow({
 										</span>
 									)}
 								</div>
-							)}
+							) : customSubtext ? (
+								<div className={styles.cellASub}>
+									<span className={styles.cellAPrev} style={{ fontSize: "0.7rem", opacity: 0.8 }}>
+										{customSubtext}
+									</span>
+								</div>
+							) : null}
 						</div>
 					</td>
 				);
@@ -704,9 +714,16 @@ export function WeeklyView({
 						{/* Linha de Cancelamentos */}
 						{(() => {
 							const cancW = padWeeks(w.salesWeekly.cancellationsByWeek ?? [], n);
+							const cancCumW = padWeeks(w.salesWeekly.cancellationsCumulativeByWeek ?? [], n);
 							const cancTotal = w.salesWeekly.cancellationsGrandTotal ?? cancW.reduce((acc: number, v) => acc + (v ?? 0), 0);
 							const prevCanc = comparisonPayload?.weekly.salesWeekly.cancellationsByWeek ?? [];
 							const prevCancTotal = comparisonPayload?.weekly.salesWeekly.cancellationsGrandTotal ?? null;
+
+							const subtextCells = cancCumW.map((cum, i) => {
+								const wk = cancW[i];
+								if (cum === null || wk === null) return null;
+								return `acum. ${cum}`;
+							});
 
 							return (
 								<WeeklyRow
@@ -722,6 +739,7 @@ export function WeeklyView({
 									mode="int"
 									weekKeys={weeks}
 									deltaMode="abs"
+									customSubtextCells={subtextCells}
 								/>
 							);
 						})()}

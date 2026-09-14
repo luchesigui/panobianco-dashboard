@@ -1,5 +1,9 @@
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
-import { createDefaultSmPayload, recomputeWeeklyTotals } from "@/lib/data/sales-marketing-payload-merge";
+import {
+  computeWeeklyCancellations,
+  createDefaultSmPayload,
+  recomputeWeeklyTotals,
+} from "@/lib/data/sales-marketing-payload-merge";
 
 export type FunilMensalRow = {
   scheduled: number;
@@ -95,17 +99,23 @@ export function assemblePayloadFromNormalized({
 
   const leadsByWeek = nullArray();
   const salesByWeek = nullArray();
-  const cancellationsByWeek = nullArray();
-  const netBalanceByWeek = nullArray();
+  const cancellationsCumulativeByWeek = nullArray();
   for (const r of conversoesSemanal) {
     const i = r.week_num - 1;
     if (i >= 0 && i < W) {
       leadsByWeek[i] = r.leads;
       salesByWeek[i] = r.sales;
-      cancellationsByWeek[i] = r.cancellations ?? null;
-      if (r.sales != null || r.cancellations != null) {
-        netBalanceByWeek[i] = (r.sales ?? 0) - (r.cancellations ?? 0);
-      }
+      cancellationsCumulativeByWeek[i] = r.cancellations ?? null;
+    }
+  }
+
+  const cancellationsByWeek = computeWeeklyCancellations(cancellationsCumulativeByWeek);
+  const netBalanceByWeek = nullArray();
+  for (let i = 0; i < W; i++) {
+    const s = salesByWeek[i];
+    const c = cancellationsByWeek[i];
+    if (s != null || c != null) {
+      netBalanceByWeek[i] = (s ?? 0) - (c ?? 0);
     }
   }
 
@@ -196,6 +206,7 @@ export function assemblePayloadFromNormalized({
         totals: salesByWeek,
         grandTotal: 0,
         cancellationsByWeek,
+        cancellationsCumulativeByWeek,
         cancellationsGrandTotal: 0,
         netBalanceByWeek,
         netBalanceGrandTotal: 0,
@@ -253,7 +264,7 @@ export function decomposePayloadToRows(payload: SalesMarketingDashboardPayload):
   for (let i = 0; i < W; i++) {
     const leads = salesWeekly.leadsByWeek[i] ?? null;
     const sales = salesWeekly.totals[i] ?? null;
-    const cancellations = salesWeekly.cancellationsByWeek?.[i] ?? null;
+    const cancellations = salesWeekly.cancellationsCumulativeByWeek?.[i] ?? salesWeekly.cancellationsByWeek?.[i] ?? null;
     if (leads !== null || sales !== null || cancellations !== null) {
       conversoesSemanal.push({ week_num: i + 1, leads, sales, cancellations });
     }

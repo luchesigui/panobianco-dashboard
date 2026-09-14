@@ -1,6 +1,9 @@
 import type { Consultora } from "@/app/kpis/configuracoes/actions";
 import type { SalesMarketingDashboardPayload } from "@/lib/data/sales-marketing-dashboard";
-import { recomputeWeeklyTotals } from "@/lib/data/sales-marketing-payload-merge";
+import {
+	computeWeeklyCancellations,
+	recomputeWeeklyTotals,
+} from "@/lib/data/sales-marketing-payload-merge";
 import { numRowToStrings, parsePtBrNumber, stringsToNumRow } from "./parsers";
 import type {
 	FunnelState,
@@ -26,7 +29,12 @@ export function buildWeeklyStrings(
 		clo: numRowToStrings(w.funnelWeekly.closings, n),
 		leadsTot: numRowToStrings(w.salesWeekly.leadsByWeek, n),
 		salesTot: numRowToStrings(w.salesWeekly.totals, n),
-		cancellationsTot: numRowToStrings(w.salesWeekly.cancellationsByWeek ?? [], n),
+		cancellationsTot: numRowToStrings(
+			w.salesWeekly.cancellationsCumulativeByWeek ??
+				w.salesWeekly.cancellationsByWeek ??
+				[],
+			n,
+		),
 	};
 }
 
@@ -170,7 +178,9 @@ export function assembleSmPayload(
 	out.weekly.funnelWeekly.closings = stringsToNumRow(weeklyStr.clo);
 	out.weekly.salesWeekly.leadsByWeek = stringsToNumRow(weeklyStr.leadsTot);
 	out.weekly.salesWeekly.totals = stringsToNumRow(weeklyStr.salesTot);
-	out.weekly.salesWeekly.cancellationsByWeek = stringsToNumRow(weeklyStr.cancellationsTot);
+	const cumCanc = stringsToNumRow(weeklyStr.cancellationsTot);
+	out.weekly.salesWeekly.cancellationsCumulativeByWeek = cumCanc;
+	out.weekly.salesWeekly.cancellationsByWeek = computeWeeklyCancellations(cumCanc);
 	const cRow = out.weekly.salesWeekly.cancellationsByWeek;
 	const sRow = out.weekly.salesWeekly.totals;
 	out.weekly.salesWeekly.netBalanceByWeek = Array.from({ length: n }, (_, i) => {

@@ -59,6 +59,7 @@ export type SalesMarketingDashboardPayload = {
       totals: Array<number | null>;
       grandTotal: number;
       cancellationsByWeek?: Array<number | null>;
+      cancellationsCumulativeByWeek?: Array<number | null>;
       cancellationsGrandTotal?: number;
       netBalanceByWeek?: Array<number | null>;
       netBalanceGrandTotal?: number;

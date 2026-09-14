@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Input } from "@/components/ui/input";
+import { computeWeeklyCancellations } from "@/lib/data/sales-marketing-payload-merge";
 import type { RecepWeekRow, WeeklyStrings } from "../lib/types";
 import { cleanPastedValue, formatThousands } from "../lib/parsers";
 
@@ -45,6 +46,16 @@ export function WeeklyDataGrid({
 	onRecepCellChange,
 }: Props) {
 	const nWeeks = weekHeaders.length;
+
+	const weeklyCancVals = React.useMemo(() => {
+		const rawNums: Array<number | null> = weekHeaders.map((_, i) => {
+			const raw = (weeklyStr.cancellationsTot[i] ?? "").trim();
+			if (!raw) return null;
+			const n = Number(raw.replace(/\./g, "").replace(",", "."));
+			return Number.isFinite(n) ? n : null;
+		});
+		return computeWeeklyCancellations(rawNums);
+	}, [weekHeaders, weeklyStr.cancellationsTot]);
 
 	return (
 		<div className="overflow-x-auto">
@@ -297,33 +308,44 @@ export function WeeklyDataGrid({
 					</tr>
 					<tr className="border-b border-[color:var(--border-subtle)] hover:bg-black/[0.02]">
 						<td className="text-xs font-medium text-[color:var(--text-secondary)] px-3 py-2">
-							Cancelamentos
+							<div>Cancelamentos</div>
+							<div className="text-[10px] text-[color:var(--text-muted)] font-normal leading-tight">
+								total do mês até aqui
+							</div>
 						</td>
-						{weeklyStr.cancellationsTot.map((cell, wi) => (
-							<td
-								key={`cancTot-${weekHeaders[wi] ?? wi}`}
-								className="px-2 py-2 text-center"
-							>
-								<Input
-									value={formatThousands(cell)}
-									onPaste={(e) => {
-										const pastedText = e.clipboardData.getData("text");
-										const cleanedValue = cleanPastedValue(pastedText, false);
-										if (cleanedValue !== pastedText) {
-											e.preventDefault();
-											onMatrixChange("cancellationsTot", wi, cleanedValue);
+						{weeklyStr.cancellationsTot.map((cell, wi) => {
+							const cancSem = weeklyCancVals[wi];
+							return (
+								<td
+									key={`cancTot-${weekHeaders[wi] ?? wi}`}
+									className="px-2 py-2 text-center align-top"
+								>
+									<Input
+										value={formatThousands(cell)}
+										onPaste={(e) => {
+											const pastedText = e.clipboardData.getData("text");
+											const cleanedValue = cleanPastedValue(pastedText, false);
+											if (cleanedValue !== pastedText) {
+												e.preventDefault();
+												onMatrixChange("cancellationsTot", wi, cleanedValue);
+											}
+										}}
+										onChange={(e) =>
+											onMatrixChange("cancellationsTot", wi, e.target.value)
 										}
-									}}
-									onChange={(e) =>
-										onMatrixChange("cancellationsTot", wi, e.target.value)
-									}
-									tabIndex={
-										wi * gridTotalRows + (7 + recepWeekRows.length * 2 + 2) + 1
-									}
-									className="w-20 h-8 text-right text-sm bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
-								/>
-							</td>
-						))}
+										tabIndex={
+											wi * gridTotalRows + (7 + recepWeekRows.length * 2 + 2) + 1
+										}
+										className="w-20 h-8 text-right text-sm bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
+									/>
+									{cancSem !== null && (
+										<div className="text-[10px] text-[color:var(--text-muted)] text-right pr-1 mt-0.5 tabular-nums">
+											{cancSem >= 0 ? `-${cancSem}` : `+${Math.abs(cancSem)}`} sem.
+										</div>
+									)}
+								</td>
+							);
+						})}
 					</tr>
 					<tr className="border-b border-[color:var(--border-subtle)] bg-[color:var(--surface-muted)]/30 font-semibold">
 						<td className="text-xs font-bold text-[color:var(--text-primary)] px-3 py-2">
@@ -331,17 +353,16 @@ export function WeeklyDataGrid({
 						</td>
 						{weekHeaders.map((_, wi) => {
 							const sRaw = (weeklyStr.salesTot[wi] ?? "").trim();
-							const cRaw = (weeklyStr.cancellationsTot[wi] ?? "").trim();
-							if (!sRaw && !cRaw) {
+							const cVal = weeklyCancVals[wi];
+							if (!sRaw && cVal === null) {
 								return (
 									<td key={`saldo-${weekHeaders[wi] ?? wi}`} className="px-2 py-2 text-center text-xs text-[color:var(--text-muted)]">
 										—
 									</td>
 								);
 							}
-							const sVal = Number(sRaw.replace(/\./g, "").replace(",", ".")) || 0;
-							const cVal = Number(cRaw.replace(/\./g, "").replace(",", ".")) || 0;
-							const net = sVal - cVal;
+							const sVal = sRaw ? (Number(sRaw.replace(/\./g, "").replace(",", ".")) || 0) : 0;
+							const net = sVal - (cVal ?? 0);
 							const isPos = net > 0;
 							const isNeg = net < 0;
 							return (
