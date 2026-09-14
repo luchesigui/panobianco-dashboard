@@ -8,6 +8,7 @@ import { generateSalesMarketingMonthlyInsights } from "@/lib/ai/services/salesMa
 import { generateSalesMarketingWeeklyInsights } from "@/lib/ai/services/salesMarketingWeekly";
 import { generateRetentionInsights } from "@/lib/ai/services/retention";
 import { generateFinanceInsights } from "@/lib/ai/services/finance";
+import { generateForecastInsights } from "@/lib/ai/services/forecast";
 
 const GYM_SLUG = "panobianco-sjc-satelite";
 
@@ -80,6 +81,8 @@ export async function generateAiInsightsAction(
       insights = await generateRetentionInsights(data, apiKey);
     } else if (category === "finance") {
       insights = await generateFinanceInsights(data, apiKey);
+    } else if (category === "forecast") {
+      insights = await generateForecastInsights(data, apiKey);
     } else {
       return { ok: false, error: "Categoria de insights não suportada." };
     }

@@ -245,13 +245,12 @@ export default async function KpisPage({ searchParams }: Props) {
 						: data.currentPeriodLabel
 				}
 			>
-				<SectionInsights
-					variant="forecast"
-					items={data.insights.forecast ?? []}
-					periodId={data.kpiDataPeriod}
-				/>
 				{data.nextMonthForecast.hasData ? (
-					<Projecao forecast={data.nextMonthForecast} />
+					<Projecao
+						forecast={data.nextMonthForecast}
+						insights={data.insights.forecast ?? []}
+						periodId={data.kpiDataPeriod}
+					/>
 				) : (
 					<p className={styles.subtitle}>
 						Dados insuficientes para montar a projeção do mês seguinte.

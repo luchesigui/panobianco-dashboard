@@ -1640,6 +1640,14 @@ export async function getKpiPageData(
 		forecastWeeklyBalance,
 	);
 
+	if (!insights.forecast || insights.forecast.length === 0) {
+		insights.forecast = nextMonthForecast.analysis.map((a) => ({
+			type: a.type,
+			title: "",
+			body: a.body,
+		}));
+	}
+
 	const retentionCharts: RetentionChartPayload = {
 		chartLabels,
 		baseHistoric,

@@ -37,7 +37,7 @@ const CAPS_HEADER: Record<InsightVariant, boolean> = {
 	sales_marketing_weekly: true,
 	retention: true,
 	finance: true,
-	forecast: false,
+	forecast: true,
 	roi: true,
 };
 
@@ -156,6 +156,7 @@ function isSingleStyle(variant: InsightVariant, item: InsightItem): boolean {
 	if (variant === "overview" && !hasTitle) return true;
 	if (variant === "finance" && !hasTitle) return true;
 	if (variant === "roi" && !hasTitle) return true;
+	if (variant === "forecast" && !hasTitle) return true;
 	if (variant === "sales_marketing" && hasTitle) return true;
 	if (variant === "sales_marketing_weekly" && hasTitle) return true;
 	if (variant === "retention" && hasTitle) return true;
@@ -189,7 +190,14 @@ export function SectionInsights({ variant, items, periodId, weekOfMonth }: Secti
 		}
 	};
 
-	const showAiButton = ["overview", "sales_marketing", "sales_marketing_weekly", "retention", "finance"].includes(variant);
+	const showAiButton = [
+		"overview",
+		"sales_marketing",
+		"sales_marketing_weekly",
+		"retention",
+		"finance",
+		"forecast",
+	].includes(variant);
 
 	const cardClass = clsx(styles.insightCard, {
 		[styles.insightCardRetention]: variant === "retention",
