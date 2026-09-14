@@ -127,6 +127,13 @@ export type NextMonthForecastPayload = {
 		};
 	};
 	expenseDonut: Array<{ label: string; value: number; color: string }>;
+	projectedStudents?: number;
+	baseStudentsPast?: number;
+	weeklyNetBalance?: number | null;
+	ticketMedio?: number;
+	expenseTooltip?: string;
+	productsTooltip?: string;
+	resultTooltip?: string;
 };
 
 export type ExecutiveSixMonthsPayload = {
@@ -411,6 +418,7 @@ function buildNextMonthForecast(
 	current: KpiMap,
 	previous: KpiMap,
 	currentMeta: KpiMetaMap,
+	weeklyNetBalance?: number | null,
 ): NextMonthForecastPayload {
 	const empty = (): NextMonthForecastPayload => ({
 		hasData: false,
@@ -455,7 +463,66 @@ function buildNextMonthForecast(
 
 	const prevRev = previous.revenue_total ?? revBasis;
 	const growthRev = monthOverMonthGrowth(revBasis, prevRev, 0.85, 1.15);
-	const revenueForecast = revBasis * growthRev;
+
+	// User rule: Wellhub fixed to 104.848 (R$ 104.848)
+	const w1 = 104848;
+
+	// User rule: (base de alunos do mês passado + saldo de alunos das semanas já preenchidas do mês corrente) * ticket médio
+	let baseStudentsPast = current.base_students_end ?? 0;
+	let ticketMedio = current.avg_ticket ?? 0;
+
+	if (
+		baseStudentsPast <= 0 &&
+		previous.base_students_end != null &&
+		previous.base_students_end > 0
+	) {
+		baseStudentsPast = previous.base_students_end;
+		ticketMedio = previous.avg_ticket ?? ticketMedio;
+	}
+
+	if (ticketMedio <= 0 && baseStudentsPast > 0) {
+		const mBasis = current.matriculated_revenue ?? m0;
+		ticketMedio = Math.round(
+			mBasis > 0
+				? mBasis / baseStudentsPast
+				: Math.max(0, revBasis - w0 - t0) / baseStudentsPast,
+		);
+	}
+
+	const netBalance = weeklyNetBalance ?? 0;
+	const projectedStudents =
+		baseStudentsPast > 0 ? baseStudentsPast + netBalance : 0;
+
+	const matBasis = current.matriculated_revenue ?? m0;
+	const matriculatedForecast =
+		projectedStudents > 0 && ticketMedio > 0
+			? Math.round(projectedStudents * ticketMedio)
+			: matBasis * growthRev;
+
+	// 3-month average for products revenue up to currentPeriod
+	const allPeriodsUpToCurrent = [...byPeriodFinance.keys()]
+		.filter((k) => k <= currentPeriod)
+		.sort((a, b) => a.localeCompare(b));
+	const last3Periods = allPeriodsUpToCurrent.slice(-3);
+	const productsHistory = last3Periods
+		.map((pid) => byPeriodFinance.get(pid)?.p ?? 0)
+		.filter((v) => v > 0);
+
+	const avgProducts3m =
+		productsHistory.length > 0
+			? Math.round(
+					(productsHistory.reduce((sum, v) => sum + v, 0) /
+						productsHistory.length) *
+						100,
+				) / 100
+			: p0;
+
+	const t1 = t0;
+	const p1 = avgProducts3m;
+	const u1 = u0;
+	const m1 = matriculatedForecast;
+
+	const revenueForecast = m1 + w1 + t1 + p1 + u1;
 
 	const expBasis = current.expenses_total;
 	let expF = 0;
@@ -475,9 +542,6 @@ function buildNextMonthForecast(
 	}
 
 	if (expF <= 0) return empty();
-
-	const matBasis = current.matriculated_revenue ?? m0;
-	const matriculatedForecast = matBasis * growthRev;
 
 	const resultForecast = revenueForecast - expF;
 	const marginPct =
@@ -505,17 +569,24 @@ function buildNextMonthForecast(
 			else if (lower.includes("mensal") || lower.includes("mensalidade")) menVal += val;
 		}
 	}
-	if (
+	const fmt = (v: number) => {
+		const k = v / 1000;
+		return k >= 100
+			? `R$ ${Math.round(k)}k`
+			: `R$ ${k.toFixed(1).replace(".", ",")}k`;
+	};
+	if (projectedStudents > 0 && ticketMedio > 0) {
+		if ((recVal > 0 || anuVal > 0 || menVal > 0) && matBasis > 0) {
+			const s = matriculatedForecast / matBasis;
+			matriculatedSubline = `${projectedStudents} alunos · Recorrente ${fmt(recVal * s)} · Anual ${fmt(anuVal * s)}`;
+		} else {
+			matriculatedSubline = `${projectedStudents} alunos · Ticket R$ ${ticketMedio}`;
+		}
+	} else if (
 		(recVal > 0 || anuVal > 0 || menVal > 0) &&
 		matBasis > 0
 	) {
 		const s = matriculatedForecast / matBasis;
-		const fmt = (v: number) => {
-			const k = v / 1000;
-			return k >= 100
-				? `R$ ${Math.round(k)}k`
-				: `R$ ${k.toFixed(1).replace(".", ",")}k`;
-		};
 		matriculatedSubline = `Recorrente ${fmt(recVal * s)} · Anual ${fmt(anuVal * s)} · Mensal ${fmt(menVal * s)}`;
 	}
 
@@ -523,19 +594,25 @@ function buildNextMonthForecast(
 	const nextLabelFull = toLabel(nextPeriodFirstDay(currentPeriod));
 	const forecastLabel = `${nextLabelFull} (previsto)`;
 
-	const g = growthRev;
-	const m1 = m0 * g;
-	const w1 = w0 * g;
-	const t1 = t0 * g;
-	const p1 = p0 * g;
-	const u1 = u0 * g;
-
 	const analysis: ForecastAnalysisItem[] = [];
 	const prevLab = previousPeriod ? toLabel(previousPeriod) : null;
-	analysis.push({
-		type: "info",
-		body: `A projeção de ${nextLabelFull} replica o ritmo entre ${prevLab ?? "o mês anterior"} e ${toLabel(currentPeriod)} (receita e despesas), com limites para suavizar picos. Não substitui o fechamento contábil.`,
-	});
+	const balancePart =
+		weeklyNetBalance != null
+			? ` (${baseStudentsPast} em ${toLabel(currentPeriod)} ${weeklyNetBalance >= 0 ? "+" : ""}${weeklyNetBalance} saldo semanas preenchidas)`
+			: "";
+
+	if (projectedStudents > 0 && ticketMedio > 0) {
+		analysis.push({
+			type: "info",
+			body: `A projeção de ${nextLabelFull} considera Wellhub em R$ 104,8k, produtos em ${brlKShort(avgProducts3m)} (média 3m) e base de ${projectedStudents} alunos${balancePart} × ticket médio de R$ ${ticketMedio}. Não substitui o fechamento contábil.`,
+		});
+	} else {
+		analysis.push({
+			type: "info",
+			body: `A projeção de ${nextLabelFull} replica o ritmo entre ${prevLab ?? "o mês anterior"} e ${toLabel(currentPeriod)} (receita e despesas), com limites para suavizar picos. Não substitui o fechamento contábil.`,
+		});
+	}
+
 	const revPctRounded = Math.round(revenueVsBasisPct);
 	if (revenueVsBasisPct >= 0) {
 		analysis.push({
@@ -564,6 +641,17 @@ function buildNextMonthForecast(
 		{ label: "Demais / pontuais", value: expF * 0.12, color: EXPENSE_DONUT_COLOR.other },
 	];
 
+	const gExpPct = expBasis > 0 ? ((expF - expBasis) / expBasis) * 100 : 0;
+	const expSign = gExpPct >= 0 ? "+" : "";
+	const expenseTooltip = `Projetada a partir da evolução entre ${prevLab ?? "o mês anterior"} e ${toLabel(currentPeriod)} (${expSign}${gExpPct.toFixed(1).replace(".", ",")}%), aplicando a taxa sobre a base de ${toLabel(currentPeriod)} (${brlKShort(expBasis)}). Estimativa: ${expenseSubline.toLowerCase()}.`;
+
+	const productsFormattedList = last3Periods
+		.map((pid) => `${toLabel(pid)}: ${brlKShort(byPeriodFinance.get(pid)?.p ?? 0)}`)
+		.join(", ");
+	const productsTooltip = `Média dos últimos ${last3Periods.length} meses (${productsFormattedList}) = ${brlKShort(avgProducts3m)}.`;
+
+	const resultTooltip = `Resultado previsto = Receita prevista (${brlKShort(revenueForecast)}) − Despesas previstas (${brlKShort(expF)}). Margem estimada de ${marginPct.toFixed(1).replace(".", ",")}% sobre a receita.`;
+
 	return {
 		hasData: true,
 		nextPeriodLabel: nextLabelFull,
@@ -590,6 +678,13 @@ function buildNextMonthForecast(
 			},
 		},
 		expenseDonut,
+		projectedStudents: projectedStudents > 0 ? projectedStudents : undefined,
+		baseStudentsPast: baseStudentsPast > 0 ? baseStudentsPast : undefined,
+		weeklyNetBalance,
+		ticketMedio: ticketMedio > 0 ? ticketMedio : undefined,
+		expenseTooltip,
+		productsTooltip,
+		resultTooltip,
 	};
 }
 
@@ -693,10 +788,13 @@ export async function getKpiPageData(
 		if (availablePeriods.includes(calcNext)) nextPeriodId = calcNext;
 	}
 
+	const forecastPeriodId = nextPeriodFirstDay(kpiDataPeriod);
+
 	const fetchPeriodIds = Array.from(
 		new Set([
 			currentMonthPeriod,
 			kpiDataPeriod,
+			forecastPeriodId,
 			previousPeriod,
 			thirdPeriod,
 			fourthPeriod,
@@ -730,7 +828,7 @@ export async function getKpiPageData(
 			]),
 			supabase
 				.from("kpi_values")
-				.select("period_id,kpi_definition_id,value_numeric")
+				.select("period_id,kpi_definition_id,value_numeric,meta_json")
 				.eq("gym_id", gym.id)
 				.gte("period_id", "2025-04-01")
 				.lte("period_id", kpiDataPeriod)
@@ -890,12 +988,38 @@ export async function getKpiPageData(
 		const pid = normalizePeriodId(row.period_id);
 		const v = Number(row.value_numeric);
 		const slot = byPeriodFinance.get(pid) ?? {};
-		if (row.kpi_definition_id === revDefId) slot.rev = v;
+		if (row.kpi_definition_id === revDefId) {
+			slot.rev = v;
+			if (
+				(slot.p == null || slot.p === 0) &&
+				row.meta_json &&
+				typeof row.meta_json === "object"
+			) {
+				const b = (row.meta_json as Record<string, any>).breakdown;
+				if (b && typeof b === "object") {
+					let prodSum = 0;
+					for (const [name, val] of Object.entries(b)) {
+						const l = name.toLowerCase();
+						if (
+							l.includes("boutique") ||
+							l.includes("lanchonete") ||
+							l.includes("outros") ||
+							l.includes("não informado")
+						) {
+							prodSum += Number(val);
+						}
+					}
+					if (prodSum > 0) {
+						slot.p = prodSum;
+					}
+				}
+			}
+		}
 		if (row.kpi_definition_id === expDefId) slot.exp = v;
 		if (row.kpi_definition_id === matDefId) slot.m = v;
 		if (row.kpi_definition_id === whDefId) slot.w = v;
 		if (row.kpi_definition_id === tpDefId) slot.t = v;
-		if (row.kpi_definition_id === prDefId) slot.p = v;
+		if (row.kpi_definition_id === prDefId && v > 0) slot.p = v;
 		if (row.kpi_definition_id === opDefId) slot.op = v;
 		byPeriodFinance.set(pid, slot);
 	}
@@ -1485,6 +1609,27 @@ export async function getKpiPageData(
 
 	const roiCharts = applyRoiPageFallbacks(current, currentMeta, insights);
 
+	let forecastWeeklyBalance: number | null = null;
+	const forecastSm = buildSmPayload(forecastPeriodId);
+	if (forecastSm?.weekly?.salesWeekly?.netBalanceByWeek) {
+		const filled = forecastSm.weekly.salesWeekly.netBalanceByWeek.filter(
+			(v): v is number => v !== null && v !== undefined,
+		);
+		if (filled.length > 0) {
+			forecastWeeklyBalance = filled.reduce((a, b) => a + b, 0);
+		}
+	} else if (kpiDataPeriod === currentMonthPeriod) {
+		const currSm = buildSmPayload(currentMonthPeriod);
+		if (currSm?.weekly?.salesWeekly?.netBalanceByWeek) {
+			const filled = currSm.weekly.salesWeekly.netBalanceByWeek.filter(
+				(v): v is number => v !== null && v !== undefined,
+			);
+			if (filled.length > 0) {
+				forecastWeeklyBalance = filled.reduce((a, b) => a + b, 0);
+			}
+		}
+	}
+
 	const nextMonthForecast = buildNextMonthForecast(
 		kpiDataPeriod,
 		previousPeriod,
@@ -1492,6 +1637,7 @@ export async function getKpiPageData(
 		current,
 		previous,
 		currentMeta,
+		forecastWeeklyBalance,
 	);
 
 	const retentionCharts: RetentionChartPayload = {

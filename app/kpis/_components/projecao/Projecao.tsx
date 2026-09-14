@@ -26,6 +26,9 @@ export function Projecao({ forecast }: Props) {
 				expenseSubline={forecast.expenseSubline}
 				matriculatedSubline={forecast.matriculatedSubline}
 				basisPeriodLabel={forecast.basisPeriodLabel}
+				expenseTooltip={forecast.expenseTooltip}
+				resultTooltip={forecast.resultTooltip}
+				productsTooltip={forecast.productsTooltip}
 			/>
 			<ProjecaoAnalise
 				nextPeriodLabel={forecast.nextPeriodLabel}

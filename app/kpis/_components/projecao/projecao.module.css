@@ -50,13 +50,49 @@
 	);
 }
 
+.kpiHeaderRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 6px;
+}
+
 .kpiLabel {
 	font-size: 12px;
 	color: var(--text-secondary, #6b6a65);
 	font-weight: 600;
 	display: block;
-	margin-bottom: 6px;
 	letter-spacing: 0.01em;
+}
+
+.infoTrigger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	background: transparent;
+	border: none;
+	padding: 2px;
+	cursor: pointer;
+	color: var(--text-secondary, #6b6a65);
+	border-radius: 4px;
+	transition: color 0.15s ease, background 0.15s ease;
+}
+
+.infoTrigger:hover {
+	color: var(--text-primary, #161515);
+	background: rgba(0, 0, 0, 0.05);
+}
+
+.infoIcon {
+	width: 13px;
+	height: 13px;
+}
+
+.tooltipContent {
+	max-width: 280px;
+	font-size: 11px;
+	line-height: 1.4;
+	text-align: left;
 }
 
 .kpiValue {

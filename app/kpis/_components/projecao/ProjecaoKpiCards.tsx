@@ -5,6 +5,12 @@ import {
 import styles from "./projecao.module.css";
 import { clsx } from "clsx";
 import { PROJECTION_KPI_COLOR } from "@/lib/kpis/card-bar-colors";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 type Props = {
 	revenueForecast: number;
@@ -17,6 +23,9 @@ type Props = {
 	expenseSubline: string;
 	matriculatedSubline: string | null;
 	basisPeriodLabel: string;
+	expenseTooltip?: string;
+	resultTooltip?: string;
+	productsTooltip?: string;
 };
 
 export function ProjecaoKpiCards({
@@ -30,6 +39,9 @@ export function ProjecaoKpiCards({
 	expenseSubline,
 	matriculatedSubline,
 	basisPeriodLabel,
+	expenseTooltip,
+	resultTooltip,
+	productsTooltip,
 }: Props) {
 	const revPill = `${revenueVsBasisPct >= 0 ? "+" : ""}${Math.round(revenueVsBasisPct)}%`;
 	const matPill = `${matriculatedVsBasisPct >= 0 ? "+" : ""}${Math.round(matriculatedVsBasisPct)}%`;
@@ -37,7 +49,22 @@ export function ProjecaoKpiCards({
 	return (
 		<div className={styles.kpiGrid}>
 			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Receita prevista</span>
+				<div className={styles.kpiHeaderRow}>
+					<span className={styles.kpiLabel}>Receita prevista</span>
+					{productsTooltip ? (
+						<Tooltip>
+							<TooltipTrigger
+								className={styles.infoTrigger}
+								aria-label="Detalhes de produtos na receita prevista"
+							>
+								<Info className={styles.infoIcon} />
+							</TooltipTrigger>
+							<TooltipContent side="top" className={styles.tooltipContent}>
+								{productsTooltip}
+							</TooltipContent>
+						</Tooltip>
+					) : null}
+				</div>
 				<p className={styles.kpiValue}>{formatCompactBrl(revenueForecast)}</p>
 				<div className={styles.kpiSub}>
 					<span
@@ -57,7 +84,22 @@ export function ProjecaoKpiCards({
 			</article>
 
 			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Despesa prevista</span>
+				<div className={styles.kpiHeaderRow}>
+					<span className={styles.kpiLabel}>Despesa prevista</span>
+					{expenseTooltip ? (
+						<Tooltip>
+							<TooltipTrigger
+								className={styles.infoTrigger}
+								aria-label="Como a despesa prevista é calculada"
+							>
+								<Info className={styles.infoIcon} />
+							</TooltipTrigger>
+							<TooltipContent side="top" className={styles.tooltipContent}>
+								{expenseTooltip}
+							</TooltipContent>
+						</Tooltip>
+					) : null}
+				</div>
 				<p className={styles.kpiValue}>{formatCompactBrl(expenseForecast)}</p>
 				<p className={styles.kpiMetaLine}>{expenseSubline}</p>
 				<div
@@ -67,7 +109,22 @@ export function ProjecaoKpiCards({
 			</article>
 
 			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>Resultado previsto</span>
+				<div className={styles.kpiHeaderRow}>
+					<span className={styles.kpiLabel}>Resultado previsto</span>
+					{resultTooltip ? (
+						<Tooltip>
+							<TooltipTrigger
+								className={styles.infoTrigger}
+								aria-label="Como o resultado previsto é calculado"
+							>
+								<Info className={styles.infoIcon} />
+							</TooltipTrigger>
+							<TooltipContent side="top" className={styles.tooltipContent}>
+								{resultTooltip}
+							</TooltipContent>
+						</Tooltip>
+					) : null}
+				</div>
 				<p className={styles.kpiValue}>{formatCurrencySignedK(resultForecast)}</p>
 				<p className={styles.kpiMetaLine}>
 					margem {marginPct.toFixed(1).replace(".", ",")}%
