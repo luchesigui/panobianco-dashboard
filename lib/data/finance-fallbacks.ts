@@ -7,7 +7,7 @@ const FINANCE_VALUE_FALLBACK: Record<string, number> = {
 	invoice_tax_nf: 25,
 	accumulated_operational_no_contributions: -194000,
 	accumulated_with_contributions: 61367,
-	royalties_validation: 18497,
+	royalties_validation: 18491,
 };
 
 const FINANCE_META_FALLBACK: KpiMetaMap = {
@@ -36,8 +36,8 @@ const FINANCE_META_FALLBACK: KpiMetaMap = {
 	},
 	royalties_validation: {
 		partial: true,
-		pct_line: "9,3% da receita (deveria ser 12%)",
-		shortfall_pill: "−R$ 5.385",
+		pct_line: "10,1% da receita anterior (deveria ser 12%)",
+		shortfall_pill: "−R$ 3.430",
 	},
 	expenses_total: {
 		delta_abs_line: "+R$ 5,2k",
@@ -58,7 +58,7 @@ const DEFAULT_FINANCE_INSIGHTS: FinanceInsight[] = [
 	{
 		type: "bad",
 		title: "",
-		body: "Royalties divergentes pelo 2º mês: pagou R$ 18,5k (9,3%) vs R$ 23,9k devidos (12%). Faltam R$ 5.385 em março. Acumulado: R$ 9.902 a menos. Investigar com a franqueadora.",
+		body: "Royalties divergentes: pagou R$ 18,5k (10,1% da receita de Fev) vs R$ 21,9k devidos (12%). Faltam R$ 3.430 em março. Investigar com a franqueadora.",
 	},
 	{
 		type: "good",

@@ -1376,6 +1376,27 @@ export async function getKpiPageData(
 			previous["operational_result"] = rev - exp;
 		}
 	}
+	{
+		const rev = previousPrevious["revenue_total"];
+		const exp = previousPrevious["expenses_total"];
+		if (rev != null && exp != null) {
+			previousPrevious["operational_result"] = rev - exp;
+		}
+	}
+
+	// cash_generation: operational_result - dividends_total
+	if (current["operational_result"] != null || current["dividends_total"] != null) {
+		current["cash_generation"] =
+			(current["operational_result"] ?? 0) - (current["dividends_total"] ?? 0);
+	}
+	if (previous["operational_result"] != null || previous["dividends_total"] != null) {
+		previous["cash_generation"] =
+			(previous["operational_result"] ?? 0) - (previous["dividends_total"] ?? 0);
+	}
+	if (previousPrevious["operational_result"] != null || previousPrevious["dividends_total"] != null) {
+		previousPrevious["cash_generation"] =
+			(previousPrevious["operational_result"] ?? 0) - (previousPrevious["dividends_total"] ?? 0);
+	}
 
 	// operational_result_100pct_nf: revenue - expenses (includes royalties) - 13.4% tax on revenue
 	{
@@ -1397,15 +1418,11 @@ export async function getKpiPageData(
 				(current["operational_result"] / current["revenue_total"]) * 100,
 		};
 	}
-	if (
-		current["dividends_total"] != null &&
-		current["operational_result"] != null &&
-		current["operational_result"] > 0
-	) {
+	if (current["dividends_total"] != null) {
 		currentMeta["dividends_total"] = {
 			...(currentMeta["dividends_total"] ?? {}),
-			pct_of_operational_result:
-				(current["dividends_total"] / current["operational_result"]) * 100,
+			ref_period: "previous_month",
+			ref_label: "Ref. resultado do mês anterior",
 		};
 	}
 
@@ -1794,6 +1811,33 @@ export async function getKpiPageData(
 				margin_line: `margem ${pct.toFixed(1).replace(".", ",")}% (simulação 13,4%)`,
 				tax_theory_line: `Imposto teórico: R$ ${brlWholePtBr(taxTheory)}/mês sobre receita total`,
 			};
+		}
+	}
+
+	// Royalties validation: 12% sobre o faturamento do mês anterior
+	{
+		const prevRev = previous["revenue_total"];
+		if (prevRev != null && prevRev > 0) {
+			const devidos = Math.round(prevRev * 0.12);
+			const pagos =
+				current["royalties_validation"] ?? getRoyaltiesExpenseValue(current);
+			if (pagos != null) {
+				current["royalties_validation"] = pagos;
+				const diff = pagos - devidos;
+				const pct = (pagos / prevRev) * 100;
+				const shortfallPill =
+					diff < -10
+						? `−R$ ${new Intl.NumberFormat("pt-BR").format(Math.round(Math.abs(diff)))}`
+						: diff > 10
+							? `+R$ ${new Intl.NumberFormat("pt-BR").format(Math.round(diff))}`
+							: "OK";
+
+				currentMeta["royalties_validation"] = {
+					...(currentMeta["royalties_validation"] ?? {}),
+					pct_line: `${pct.toFixed(1).replace(".", ",")}% da receita anterior (deveria ser 12%)`,
+					shortfall_pill: shortfallPill,
+				};
+			}
 		}
 	}
 

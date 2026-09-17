@@ -35,8 +35,9 @@ function fmtKFull(value: number): string {
 }
 
 function fmtKShort(value: number): string {
+	if (value === 0) return "R$ 0";
 	const k = value / 1000;
-	return `R$ ${k >= 100 ? Math.round(k) : Math.round(k)}k`;
+	return `R$ ${Math.round(k)}k`;
 }
 
 type Props = {
@@ -68,11 +69,9 @@ export function SaldoRecuperar({ recoveryEvolution }: Props) {
 
 	const lineOptions = useMemo(() => {
 		const vals = recoveryEvolution.values;
-		const minV = Math.min(...vals);
-		const maxV = Math.max(...vals);
-		const pad = 20_000;
-		const yMin = Math.floor((minV - pad) / 10_000) * 10_000;
-		const yMax = Math.ceil((maxV + pad) / 10_000) * 10_000;
+		const maxV = vals.length > 0 ? Math.max(...vals) : 0;
+		const pad = 50_000;
+		const yMax = Math.max(50_000, Math.ceil((maxV + pad) / 50_000) * 50_000);
 		return {
 			responsive: true,
 			maintainAspectRatio: false,
@@ -102,7 +101,8 @@ export function SaldoRecuperar({ recoveryEvolution }: Props) {
 					border: { display: false },
 				},
 				y: {
-					min: yMin,
+					min: 0,
+					beginAtZero: true,
 					max: yMax,
 					ticks: {
 						color: CHART_PAINT.axisText,

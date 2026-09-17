@@ -81,6 +81,7 @@ export const KPI_BAR: Record<string, string> = {
 	sales_total: PRIMARY,
 	revenue_total: PRIMARY,
 	operational_result: COMPARISON,
+	cash_generation: PRIMARY,
 	leads_generated: SECONDARY,
 	experimental_scheduled: SECONDARY,
 	experimental_attendance: PRIMARY,

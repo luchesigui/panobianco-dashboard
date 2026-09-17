@@ -11,12 +11,13 @@ Você está analisando a seção FINANCEIRO da academia.
 O objetivo é avaliar a saúde e lucratividade operacional. Preste especial atenção a:
 1. Composição de receitas (Matriculados com seus planos, Wellhub/Gympass, Totalpass, Vendas de Produtos).
 2. Detalhamento de custos operacionais (Leasing de equipamentos, aluguel, salários, etc.).
-3. Diferenças entre royalties de franquia devidos (12% da receita total) versus royalties declarados/pagos no banco.
+3. Diferenças entre royalties de franquia devidos (12% do faturamento do mês anterior) versus royalties declarados/pagos no banco.
 4. Passivo fiscal oculto gerado por emissão mínima de notas fiscais sob a alíquota do Fator R (13,4% da receita).
 `;
 
-  // Royalties calculation
-  const royaltiesDue = data.current.revenue_total ? Math.round(data.current.revenue_total * 0.12) : 0;
+  // Royalties calculation (12% sobre o faturamento do mês anterior)
+  const baseRevenue = data.previous?.revenue_total || data.current.revenue_total || 0;
+  const royaltiesDue = baseRevenue ? Math.round(baseRevenue * 0.12) : 0;
   const royaltiesPaid = data.current.royalties_validation || 0;
   const royaltiesDiff = royaltiesPaid - royaltiesDue;
 
@@ -27,6 +28,7 @@ O objetivo é avaliar a saúde e lucratividade operacional. Preste especial aten
     finance_charts_stacked_revenue: data.financeCharts,
     royalties: {
       devido_12pct: royaltiesDue,
+      faturamento_base: baseRevenue,
       pago_declarado: royaltiesPaid,
       diferenca_mes: royaltiesDiff,
     },

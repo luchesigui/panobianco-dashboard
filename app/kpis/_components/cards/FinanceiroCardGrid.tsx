@@ -27,6 +27,11 @@ const CARDS: KpiCard[] = [
 		label: "Resultado operacional",
 		unit: "currency",
 	},
+	{
+		key: "cash_generation",
+		label: "Geração de caixa",
+		unit: "currency",
+	},
 	{ key: "invoice_tax_nf", label: "Imposto NF emitido", unit: "currency" },
 	{
 		key: "operational_result_100pct_nf",
@@ -39,22 +44,11 @@ const CARDS: KpiCard[] = [
 		unit: "currency",
 	},
 	{
-		key: "accumulated_operational_no_contributions",
-		label: "Acumulado sem aportes",
-		unit: "currency",
-	},
-	{
-		key: "accumulated_with_contributions",
-		label: "Acumulado com aportes",
-		unit: "currency",
-	},
-	{
 		key: "matriculated_revenue",
 		label: "Receita matriculados",
 		unit: "currency",
 	},
 	{ key: "wellhub_revenue", label: "Receita Wellhub", unit: "currency" },
-	{ key: "totalpass_revenue", label: "Receita Totalpass", unit: "currency" },
 	{
 		key: "royalties_validation",
 		label: "Royalties (validação)",
@@ -74,24 +68,15 @@ function financeMainDisplay(
 		cardKey === "expenses_total" ||
 		cardKey === "dividends_total" ||
 		cardKey === "matriculated_revenue" ||
-		cardKey === "wellhub_revenue" ||
-		cardKey === "totalpass_revenue"
+		cardKey === "wellhub_revenue"
 	) {
 		return formatCompactBrl(current);
 	}
 	if (
 		cardKey === "operational_result" ||
-		cardKey === "operational_result_100pct_nf" ||
-		cardKey === "accumulated_operational_no_contributions"
+		cardKey === "cash_generation" ||
+		cardKey === "operational_result_100pct_nf"
 	) {
-		return formatCurrencySignedK(current);
-	}
-	if (cardKey === "accumulated_with_contributions") {
-		if (m.compact_currency === true) {
-			const k = Math.round(Math.abs(current) / 1000);
-			const sign = current >= 0 ? "+" : "-";
-			return `${sign}R$ ${k}k`;
-		}
 		return formatCurrencySignedK(current);
 	}
 	if (cardKey === "invoice_tax_nf") {
@@ -199,6 +184,28 @@ export function FinanceiroCardGrid({ data }: { data: KpiPageData }) {
 					)}
 				</div>
 			);
+		} else if (key === "cash_generation") {
+			metaLines.push(
+				<p key="c1" className={styles.kpiMetaLine}>
+					Resultado − dividendos
+				</p>,
+			);
+			const delta = renderDelta(current, previous, vsLabel, {
+				pctAsInteger: true,
+			});
+			deltaBlock = (
+				<div className={styles.kpiSub}>
+					{delta.pill ? (
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
+					) : (
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{delta.tail}
+						</span>
+					)}
+				</div>
+			);
 		} else if (key === "invoice_tax_nf") {
 			if (typeof m.pct_revenue_line === "string") {
 				metaLines.push(
@@ -253,69 +260,18 @@ export function FinanceiroCardGrid({ data }: { data: KpiPageData }) {
 					)}
 				</div>
 			);
-			const pctOp = meta?.pct_of_operational_result;
-			if (typeof pctOp === "number") {
-				metaLines.push(
-					<p key="divpct" className={styles.kpiMetaLine}>
-						{pctOp.toFixed(1).replace(".", ",")}% do resultado operacional
-					</p>,
-				);
-			}
-			const opRes = data.current.operational_result;
-			if (current != null && opRes != null) {
-				const retained = opRes - current;
+			metaLines.push(
+				<p key="divref" className={styles.kpiMetaLine}>
+					Ref. resultado do mês anterior
+				</p>,
+			);
+			const prevOpRes = data.previous.operational_result;
+			if (current != null && prevOpRes != null) {
+				const retained = prevOpRes - current;
 				metaLines.push(
 					<p key="divret" className={styles.kpiDetailLine}>
 						Lucro retido: {formatCurrencySignedK(retained)}
 					</p>,
-				);
-			}
-		} else if (key === "accumulated_operational_no_contributions") {
-			if (typeof m.subline === "string") {
-				metaLines.push(
-					<p key="s1" className={styles.kpiMetaLine}>
-						{m.subline}
-					</p>,
-				);
-			}
-			if (typeof m.delta_vs_prev_pill === "string") {
-				deltaBlock = (
-					<div className={styles.kpiSub}>
-						<span className={`${styles.kpiDelta} ${styles.deltaUp}`}>
-							{m.delta_vs_prev_pill}
-						</span>
-					</div>
-				);
-			}
-			if (typeof m.footnote === "string") {
-				afterDelta = (
-					<p key="s2" className={styles.kpiDetailLine}>
-						{m.footnote}
-					</p>
-				);
-			}
-		} else if (key === "accumulated_with_contributions") {
-			if (typeof m.subline === "string") {
-				metaLines.push(
-					<p key="a1" className={styles.kpiMetaLine}>
-						{m.subline}
-					</p>,
-				);
-			}
-			if (typeof m.delta_vs_prev_pill === "string") {
-				deltaBlock = (
-					<div className={styles.kpiSub}>
-						<span className={`${styles.kpiDelta} ${styles.deltaUp}`}>
-							{m.delta_vs_prev_pill}
-						</span>
-					</div>
-				);
-			}
-			if (typeof m.aportes_line === "string") {
-				afterDelta = (
-					<p key="a2" className={styles.kpiDetailLine}>
-						{m.aportes_line}
-					</p>
 				);
 			}
 		} else if (key === "matriculated_revenue") {
@@ -363,7 +319,7 @@ export function FinanceiroCardGrid({ data }: { data: KpiPageData }) {
 					</p>
 				);
 			}
-		} else if (key === "wellhub_revenue" || key === "totalpass_revenue") {
+		} else if (key === "wellhub_revenue") {
 			if (revenueTotal != null && revenueTotal > 0 && current != null) {
 				const pct = ((current / revenueTotal) * 100)
 					.toFixed(1)
@@ -404,9 +360,12 @@ export function FinanceiroCardGrid({ data }: { data: KpiPageData }) {
 				);
 			}
 			if (typeof m.shortfall_pill === "string") {
+				const isNegative =
+					m.shortfall_pill.startsWith("−") || m.shortfall_pill.startsWith("-");
+				const pillClass = isNegative ? styles.deltaDown : styles.deltaUp;
 				deltaBlock = (
 					<div className={styles.kpiSub}>
-						<span className={`${styles.kpiDelta} ${styles.deltaDown}`}>
+						<span className={`${styles.kpiDelta} ${pillClass}`}>
 							{m.shortfall_pill}
 						</span>
 					</div>
