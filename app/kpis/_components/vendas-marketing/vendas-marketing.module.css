@@ -600,5 +600,21 @@ th.currentWeekHeader {
 	color: var(--text-tertiary, #9c9b96);
 }
 
+/* Pilha de comparações sob o valor da célula: semana anterior + mesma semana do mês anterior. */
+.cellCmpStack {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1px;
+	width: 100%;
+}
+
+.cellCmpLabel {
+	font-size: 9px;
+	color: var(--text-tertiary, #9c9b96);
+	opacity: 0.75;
+	white-space: nowrap;
+}
+
 
 

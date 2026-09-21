@@ -117,7 +117,7 @@ export async function generateSalesMarketingWeeklyInsights(
   const systemPrompt = `${PROMPT_MASTER}
 
 Você está analisando a seção VENDAS E MARKETING SEMANAL.
-Foco principal de análise: Semana ${targetWeekHeader} do mês de ${data.salesMarketingDashboard.calendarCurrentMonthLabel}.
+Foco principal de análise: Semana ${targetWeekHeader} do mês de ${data.salesMarketingDashboard.primaryPeriodLabel}.
 
 Seu objetivo é analisar as flutuações de tráfego pago (Instagram/Meta Ads) semana a semana, a constância do funil semanal (agendadas, comparecimentos e fechamentos) e as oscilações de conversão semana a semana.
 
@@ -130,7 +130,7 @@ REGRAS COMERCIAIS IMPORTANTES (EVITE CONFUSÃO DE CONCEITOS):
 
   const payload = {
     semana_foco: targetWeekHeader,
-    mes_atual_label: data.salesMarketingDashboard.calendarCurrentMonthLabel,
+    mes_atual_label: data.salesMarketingDashboard.primaryPeriodLabel,
     mes_anterior_label: data.salesMarketingDashboard.comparisonPeriodLabel,
     semanas_mes_atual_dados_brutos: primarySm.weekly,
     semanas_mes_anterior_dados_brutos: prevSm?.weekly || null,

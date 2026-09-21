@@ -159,25 +159,11 @@ export default async function KpisPage({ searchParams }: Props) {
 	const weeklyContent = (
 		<SectionCard
 			title="Acompanhamento semanal"
-			badge={smPrimaryShort}
+			badge={data.salesMarketingDashboard.primaryPeriodLongLabel}
 		>
 			<WeeklySection
 				dashboard={data.salesMarketingDashboard}
-				salesTotal={data.current["sales_total"] ?? null}
-				monthlyMarketing={{
-					reach: data.current["marketing_reach"] ?? null,
-					frequency: data.current["marketing_frequency"] ?? null,
-					views: data.current["marketing_views"] ?? null,
-					followers: data.current["marketing_followers"] ?? null,
-				}}
-				previousMonthlyMarketing={{
-					reach: data.previous["marketing_reach"] ?? null,
-					frequency: data.previous["marketing_frequency"] ?? null,
-					views: data.previous["marketing_views"] ?? null,
-					followers: data.previous["marketing_followers"] ?? null,
-				}}
 				weeklyInsights={weeklyInsights}
-				weeklyPeriodId={data.smPrimaryPeriod}
 				activeWeekHeader={activeWeekHeader}
 				periodParam={periodParam}
 			/>

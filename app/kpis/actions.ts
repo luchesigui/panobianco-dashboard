@@ -63,8 +63,8 @@ export async function generateAiInsightsAction(
       };
     }
 
-    // 3. Load consolidated dashboard data
-    const data = await getKpiPageData(GYM_SLUG);
+    // 3. Load consolidated dashboard data for the very period being analysed
+    const data = await getKpiPageData(GYM_SLUG, periodId);
 
     // 4. Dispatch to the specific analysis service
     let insights: Array<{ type: string; title: string; body: string }> = [];

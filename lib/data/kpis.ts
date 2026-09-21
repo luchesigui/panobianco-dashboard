@@ -258,6 +258,16 @@ export type KpiPageData = {
 		primaryPeriodLabel: string;
 		/** Comparison month for deltas (previous calendar month in the chosen window), e.g. "Abr/26". */
 		comparisonPeriodLabel: string | null;
+		/** Rótulo longo do mês primário da visão semanal, e.g. "Setembro de 2026". */
+		primaryPeriodLongLabel: string;
+		/** Period id (YYYY-MM-01) do mês primário da visão semanal. */
+		primaryPeriodId: string;
+		/** Period id (YYYY-MM-01) do mês usado como comparativo da visão semanal. */
+		comparisonPeriodId: string;
+		/** KPIs mensais (kpi_values) do mês primário da visão semanal. */
+		primaryMonthly: KpiMap;
+		/** KPIs mensais (kpi_values) do mês comparativo da visão semanal. */
+		comparisonMonthly: KpiMap;
 		/** Per-week source label (same format as primaryPeriodLabel). */
 		weekSourcePeriod: string[];
 		/** Rótulo curto do mês corrente no calendário — colunas semanais sem sufixo são deste mês. */
@@ -770,9 +780,14 @@ export async function getKpiPageData(
 			(row) => normalizePeriodId(row.period_id) === currentMonthPeriod,
 		),
 	);
-	const smPrimaryPeriod = hasCurrentMonthWeeklyData
-		? currentMonthPeriod
-		: kpiDataPeriod;
+	// Quando o usuário escolhe um mês no seletor, a visão semanal segue essa escolha.
+	// Sem escolha explícita, o padrão é o mês corrente do calendário (se já tiver dados semanais).
+	const hasExplicitPeriod = Boolean(selectedPeriod && normalizePeriodId(selectedPeriod));
+	const smPrimaryPeriod = hasExplicitPeriod
+		? kpiDataPeriod
+		: hasCurrentMonthWeeklyData
+			? currentMonthPeriod
+			: kpiDataPeriod;
 	const smComparisonPeriod = getOffsetMonth(smPrimaryPeriod, -1);
 
 	const currentIndex = availablePeriods.indexOf(kpiDataPeriod);
@@ -1193,6 +1208,18 @@ export async function getKpiPageData(
 	const comparisonPeriodLabel =
 		comparisonPayload != null ? toLabel(smComparisonPeriod) : null;
 
+	// Totais mensais (kpi_values) dos meses que a visão semanal realmente usa.
+	// Evita comparar o mês primário contra ele mesmo quando smPrimaryPeriod != kpiDataPeriod.
+	const smPrimaryMonthly: KpiMap = {};
+	const smComparisonMonthly: KpiMap = {};
+	for (const row of valuesRes.data ?? []) {
+		const code = defIdToCode.get(row.kpi_definition_id);
+		if (!code || row.value_numeric == null) continue;
+		const rowPeriod = normalizePeriodId(row.period_id);
+		if (rowPeriod === smPrimaryPeriod) smPrimaryMonthly[code] = Number(row.value_numeric);
+		if (rowPeriod === smComparisonPeriod) smComparisonMonthly[code] = Number(row.value_numeric);
+	}
+
 	const salesMarketingDashboard = {
 		payload: smDashboardPayload,
 		previousPayload: prevSmDashboardPayload,
@@ -1201,7 +1228,12 @@ export async function getKpiPageData(
 		monthlySalesChart,
 		salesTarget: consultorasSalesTarget > 0 ? consultorasSalesTarget : 150,
 		primaryPeriodLabel,
+		primaryPeriodLongLabel: toLongLabel(smPrimaryPeriod),
 		comparisonPeriodLabel,
+		primaryPeriodId: smPrimaryPeriod,
+		comparisonPeriodId: smComparisonPeriod,
+		primaryMonthly: smPrimaryMonthly,
+		comparisonMonthly: smComparisonMonthly,
 		weekSourcePeriod,
 		calendarCurrentMonthLabel: toLabel(currentMonthPeriod),
 	};
