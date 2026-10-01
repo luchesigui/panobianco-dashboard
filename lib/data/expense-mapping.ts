@@ -32,3 +32,17 @@ export function isDividendExpense(labelOrCode: string | null | undefined): boole
 		.toLowerCase();
 	return normalized.includes("dividendo");
 }
+
+/**
+ * Checks if an expense center or code refers specifically to eventual dividends
+ * (e.g. "Dividendos eventuais", "expense_dividendos_eventuais").
+ * Only eventual dividends are considered for capital recovery ("a recuperar") of investor partners.
+ */
+export function isEventualDividendExpense(labelOrCode: string | null | undefined): boolean {
+	if (!labelOrCode) return false;
+	const normalized = labelOrCode
+		.normalize("NFD")
+		.replace(/[\u0300-\u036f]/g, "")
+		.toLowerCase();
+	return normalized.includes("dividendo") && normalized.includes("eventua");
+}

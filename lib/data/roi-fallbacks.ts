@@ -43,7 +43,7 @@ export const DEFAULT_ROI_CHARTS: RoiChartPayload = {
 const ROI_VALUE_FALLBACK: Record<string, number> = {
   total_invested: 1_020_300,
   cash_balance: 61_367,
-  recovery_balance: 887_000,
+  recovery_balance: 842_000,
   // roi_payback_months is computed in kpis.ts — no fallback here
 };
 
@@ -63,7 +63,7 @@ const ROI_META_FALLBACK: KpiMetaMap = {
   },
   recovery_balance: {
     card_title: "A recuperar",
-    subline: "investido - lucro distribuído",
+    subline: "investido - dividendos eventuais",
   },
   roi_payback_months: {
     subline: "no ritmo atual",
@@ -88,7 +88,7 @@ const DEFAULT_ROI_INSIGHTS: RoiInsight[] = [
     type: "neutral",
     title: "",
     body:
-      "Faltam R$ 887.000 para recuperar (total investido menos lucro distribuído acumulado).",
+      "Faltam R$ 842.000 para recuperar (total investido menos dividendos eventuais acumulados).",
   },
   {
     type: "good",
@@ -146,7 +146,7 @@ export function applyRoiPageFallbacks(
       if (neutralIdx >= 0) {
         insights.roi[neutralIdx] = {
           ...insights.roi[neutralIdx],
-          body: `Faltam ${formatCompactBrl(recVal)} para recuperar (total investido menos lucro distribuído acumulado).${paySub}`,
+          body: `Faltam ${formatCompactBrl(recVal)} para recuperar (total investido menos dividendos eventuais acumulados).${paySub}`,
         };
       }
     }

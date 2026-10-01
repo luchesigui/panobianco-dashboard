@@ -1,4 +1,4 @@
-import { isDividendExpense } from "@/lib/data/expense-mapping";
+import { isDividendExpense, isEventualDividendExpense } from "@/lib/data/expense-mapping";
 import { applyFinancePageFallbacks } from "@/lib/data/finance-fallbacks";
 import {
 	applyRoiPageFallbacks,
@@ -1513,9 +1513,9 @@ export async function getKpiPageData(
 		};
 	}
 
-	// recovery_balance: total_invested minus all profit/dividends distributed up to kpiDataPeriod
-	const periodDivTotal = new Map<string, number>();
-	const periodExpDivSum = new Map<string, number>();
+	// recovery_balance: total_invested minus eventual dividends distributed up to kpiDataPeriod
+	const periodDirectEventualSum = new Map<string, number>();
+	const periodBreakdownEventualSum = new Map<string, number>();
 	const allHistoricalPids = new Set<string>();
 
 	for (const row of salesHistoryRes.data ?? []) {
@@ -1526,25 +1526,92 @@ export async function getKpiPageData(
 		const code = defIdToCode.get(row.kpi_definition_id);
 		if (!code) continue;
 
-		if (code === "dividends_total") {
-			periodDivTotal.set(
+		if (code.startsWith("expense_") && isEventualDividendExpense(code)) {
+			periodDirectEventualSum.set(
 				pid,
-				Math.max(periodDivTotal.get(pid) ?? 0, Number(row.value_numeric)),
+				(periodDirectEventualSum.get(pid) ?? 0) + Number(row.value_numeric),
 			);
-		} else if (code.startsWith("expense_") && isDividendExpense(code)) {
-			periodExpDivSum.set(
-				pid,
-				(periodExpDivSum.get(pid) ?? 0) + Number(row.value_numeric),
-			);
+		} else if (
+			(code === "dividends_total" || code === "expenses_total") &&
+			row.meta_json &&
+			typeof row.meta_json === "object" &&
+			"breakdown" in row.meta_json
+		) {
+			const breakdown = (
+				row.meta_json as { breakdown?: Record<string, unknown> }
+			).breakdown;
+			if (breakdown && typeof breakdown === "object") {
+				let breakdownEventual = 0;
+				for (const [k, v] of Object.entries(breakdown)) {
+					if (isEventualDividendExpense(k)) {
+						breakdownEventual += Number(v) || 0;
+					}
+				}
+				if (breakdownEventual > 0) {
+					periodBreakdownEventualSum.set(
+						pid,
+						Math.max(
+							periodBreakdownEventualSum.get(pid) ?? 0,
+							breakdownEventual,
+						),
+					);
+				}
+			}
 		}
 	}
 	allHistoricalPids.add(kpiDataPeriod);
-	if (current["dividends_total"] != null) {
-		periodDivTotal.set(
+
+	// Eventual dividend for each period: direct expense lines take priority, fallback to breakdown.
+	// For historical periods before July 2026, EVO grouped partner distributions under "Dividendos Mensais".
+	// We recognize Bruno and Guilherme's withdrawals in Abr (25k), Mai (20k), Jun (20k).
+	// From July 2026 onwards, we strictly consider what is recorded under eventual dividends.
+	const HISTORICAL_PRE_JULY_EVENTUAL: Record<string, number> = {
+		"2026-04-01": 25_000,
+		"2026-05-01": 20_000,
+		"2026-06-01": 20_000,
+	};
+
+	const periodEventualDivSum = new Map<string, number>();
+	for (const pid of allHistoricalPids) {
+		const direct = periodDirectEventualSum.get(pid) ?? 0;
+		const bd = periodBreakdownEventualSum.get(pid) ?? 0;
+		const preJulyFallback =
+			pid < "2026-07-01" ? (HISTORICAL_PRE_JULY_EVENTUAL[pid] ?? 0) : 0;
+		periodEventualDivSum.set(pid, Math.max(direct, bd, preJulyFallback));
+	}
+
+	// Also account for eventual dividends in the current period map
+	let currentEventualFromMap = 0;
+	for (const [k, v] of Object.entries(current)) {
+		if (k.startsWith("expense_") && isEventualDividendExpense(k)) {
+			currentEventualFromMap += v;
+		}
+	}
+	const currentDivMeta = currentMeta["dividends_total"];
+	if (
+		currentDivMeta &&
+		typeof currentDivMeta === "object" &&
+		"breakdown" in currentDivMeta
+	) {
+		const bd = (
+			currentDivMeta as { breakdown?: Record<string, unknown> }
+		).breakdown;
+		if (bd && typeof bd === "object") {
+			let bdSum = 0;
+			for (const [k, v] of Object.entries(bd)) {
+				if (isEventualDividendExpense(k)) {
+					bdSum += Number(v) || 0;
+				}
+			}
+			currentEventualFromMap = Math.max(currentEventualFromMap, bdSum);
+		}
+	}
+	if (currentEventualFromMap > 0) {
+		periodEventualDivSum.set(
 			kpiDataPeriod,
 			Math.max(
-				periodDivTotal.get(kpiDataPeriod) ?? 0,
-				current["dividends_total"],
+				periodEventualDivSum.get(kpiDataPeriod) ?? 0,
+				currentEventualFromMap,
 			),
 		);
 	}
@@ -1565,10 +1632,7 @@ export async function getKpiPageData(
 	let currentMonthDividends = 0;
 
 	for (const pid of sortedHistoricPids) {
-		const monthDiv = Math.max(
-			periodDivTotal.get(pid) ?? 0,
-			periodExpDivSum.get(pid) ?? 0,
-		);
+		const monthDiv = periodEventualDivSum.get(pid) ?? 0;
 		totalDividendsDistributed += monthDiv;
 		runningRecoveryBalance = Math.max(0, runningRecoveryBalance - monthDiv);
 		dynamicRecoveryLabels.push(toLabel(pid));
@@ -1579,7 +1643,7 @@ export async function getKpiPageData(
 			previous["recovery_balance"] = runningRecoveryBalance;
 			previousMeta["recovery_balance"] = {
 				card_title: "A recuperar",
-				subline: "investido - lucro distribuído",
+				subline: "investido - dividendos eventuais",
 			};
 		}
 		if (thirdPeriod && pid === thirdPeriod) {
@@ -1601,7 +1665,7 @@ export async function getKpiPageData(
 
 	const detailLine =
 		totalDividendsDistributed > 0
-			? `Total amortizado: ${formatCompactBrl(totalDividendsDistributed)} de ${formatCompactBrl(effectiveTotalInvested)} investidos`
+			? `Total amortizado: ${formatCompactBrl(totalDividendsDistributed)} de ${formatCompactBrl(effectiveTotalInvested)} investidos (dividendos eventuais)`
 			: undefined;
 
 	const deltaPill = hasCurrentMonthDiv
@@ -1644,20 +1708,14 @@ export async function getKpiPageData(
 		},
 	};
 
-	// roi_payback_months: computed from recovery_balance divided by 3-month average of profit distribution
+	// roi_payback_months: computed from recovery_balance divided by 3-month average of eventual dividends
 	{
 		const divCurrent = currentMonthDividends;
 		const divPrev = previousPeriod
-			? Math.max(
-					periodDivTotal.get(previousPeriod) ?? 0,
-					periodExpDivSum.get(previousPeriod) ?? 0,
-				)
+			? (periodEventualDivSum.get(previousPeriod) ?? 0)
 			: 0;
 		const divThird = thirdPeriod
-			? Math.max(
-					periodDivTotal.get(thirdPeriod) ?? 0,
-					periodExpDivSum.get(thirdPeriod) ?? 0,
-				)
+			? (periodEventualDivSum.get(thirdPeriod) ?? 0)
 			: 0;
 
 		const samples = [divCurrent];

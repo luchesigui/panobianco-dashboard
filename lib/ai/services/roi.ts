@@ -29,8 +29,8 @@ O objetivo é avaliar o progresso da recuperação do capital investido através
 Regras e premissas do ROI:
 1. Total Investido: ${formatCompactBrl(totalInvested)} (R$ 765,2k pré-inauguração + R$ 255,1k de aportes operacionais entre Abr e Ago/25). Sem novos aportes desde Set/25.
 2. Gabriel entrou com trabalho gerencial e não com capital — a distribuição de lucro histórica dele (R$ 11.500) não entra na conta do retorno dos investidores.
-3. Saldo a recuperar: Calculado de forma estritamente progressiva mês a mês como o Total Investido menos o total acumulado distribuído de lucros aos sócios.
-4. Ritmo de Payback: Calculado dividindo o saldo a recuperar pela média de lucros distribuídos dos últimos 3 meses.
+3. Saldo a recuperar: Calculado de forma estritamente progressiva mês a mês como o Total Investido menos o total acumulado de dividendos eventuais distribuídos aos sócios investidores (apenas linhas de dividendos eventuais abatem o saldo a recuperar; dividendos mensais não amortizam o investimento).
+4. Ritmo de Payback: Calculado dividindo o saldo a recuperar pela média de dividendos eventuais dos últimos 3 meses.
 `;
 
   const payload = {
@@ -56,7 +56,7 @@ Aqui estão os dados consolidados do Retorno do Investimento (ROI) em ${data.cur
 ${JSON.stringify(payload, null, 2)}
 
 Faça um diagnóstico executivo do ROI para os sócios Bruno e Guilherme, destacando:
-1. O saldo restante a recuperar e o total amortizado via lucro distribuído.
+1. O saldo restante a recuperar e o total amortizado via dividendos eventuais.
 2. A velocidade da amortização recente e a estimativa de payback no ritmo atual.
 3. A sustentabilidade do fluxo de caixa e o impacto do resultado operacional na capacidade de continuar distribuindo dividendos.
 Gere de 3 a 5 insights objetivos e acionáveis.
