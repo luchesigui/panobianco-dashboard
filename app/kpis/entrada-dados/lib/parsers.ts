@@ -1,5 +1,5 @@
 export function parsePtBrNumber(raw: string): number | undefined {
-	const t = raw.trim();
+	const t = raw.replace(/^R\$\s*/i, "").trim();
 	if (t === "") return undefined;
 	const hasComma = t.includes(",");
 	const hasDot = t.includes(".");
@@ -39,7 +39,11 @@ export function formatCurrency(raw: string): string {
 	if (!raw.trim()) return "";
 	const num = parsePtBrNumber(raw);
 	if (num === undefined) return raw;
-	return `R$ ${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(num)}`;
+	const hasDecimals = num % 1 !== 0;
+	return `R$ ${new Intl.NumberFormat("pt-BR", {
+		minimumFractionDigits: hasDecimals ? 2 : 0,
+		maximumFractionDigits: 2,
+	}).format(num)}`;
 }
 
 export function formatMonthPtBr(yyyyMm: string): string {

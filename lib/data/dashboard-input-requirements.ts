@@ -80,8 +80,9 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
       },
       {
         code: "totalpass_revenue",
-        label: "Receita Totalpass",
+        label: "Receita Garantida",
         unit: "currency",
+        hint: "Calculado automaticamente: R$ 104.847,60 - Receita Wellhub",
       },
     ],
   },

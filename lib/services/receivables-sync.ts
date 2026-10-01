@@ -92,8 +92,17 @@ export async function runSyncJob(jobId: string): Promise<void> {
 
 				if (
 					receivable.description &&
-					(receivable.description.toLowerCase().includes("wellhub") ||
-						receivable.description.toLowerCase().includes("receita garantida"))
+					receivable.description.toLowerCase().includes("receita garantida")
+				) {
+					partialGroups["Receita Garantida"] =
+						(partialGroups["Receita Garantida"] ?? 0) + value;
+					totalFetched++;
+					continue;
+				}
+
+				if (
+					receivable.description &&
+					receivable.description.toLowerCase().includes("wellhub")
 				) {
 					partialGroups["Receita Wellhub"] =
 						(partialGroups["Receita Wellhub"] ?? 0) + value;

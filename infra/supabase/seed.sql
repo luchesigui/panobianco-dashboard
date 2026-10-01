@@ -38,7 +38,7 @@ with definitions(code, label, unit, category) as (
     ('expenses_financing', 'Despesas com financiamento', 'currency_brl', 'finance'),
     ('matriculated_revenue', 'Receita matriculados', 'currency_brl', 'finance'),
     ('wellhub_revenue', 'Receita Wellhub', 'currency_brl', 'finance'),
-    ('totalpass_revenue', 'Receita Totalpass', 'currency_brl', 'finance'),
+    ('totalpass_revenue', 'Receita Garantida', 'currency_brl', 'finance'),
     ('products_revenue', 'Receita Produtos', 'currency_brl', 'finance'),
     ('open_default_count', 'Inadimplencia em aberto (qtd)', 'count', 'retention'),
     ('open_default_value', 'Inadimplencia em aberto (R$)', 'currency_brl', 'retention'),

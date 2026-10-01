@@ -21,6 +21,20 @@ type Args = {
 	onErr: (text: string) => void;
 };
 
+export const WELLHUB_GUARANTEED_TOTAL = 104847.6;
+
+export function calculateReceitaGarantida(
+	wellhubRaw: string | number | undefined | null,
+): number | undefined {
+	if (wellhubRaw === "" || wellhubRaw == null) return undefined;
+	const num =
+		typeof wellhubRaw === "number"
+			? wellhubRaw
+			: parsePtBrNumber(String(wellhubRaw));
+	if (num === undefined) return undefined;
+	return Math.max(0, Math.round((WELLHUB_GUARANTEED_TOTAL - num) * 100) / 100);
+}
+
 function fieldToInputKey(f: KpiFormField): string {
 	return f.code;
 }
@@ -43,6 +57,13 @@ export function useKpiForm({
 				const k = fieldToInputKey(f);
 				const v = initialKpiValues[f.code];
 				o[k] = v === undefined ? "" : String(v);
+			}
+		}
+		const initialWellhub = initialKpiValues["wellhub_revenue"];
+		if (initialWellhub !== undefined && initialWellhub !== null) {
+			const guaranteed = calculateReceitaGarantida(initialWellhub);
+			if (guaranteed !== undefined) {
+				o["totalpass_revenue"] = String(guaranteed);
 			}
 		}
 		return o;
@@ -102,7 +123,15 @@ export function useKpiForm({
 	);
 
 	const setKpiInput = useCallback((key: string, value: string) => {
-		setKpiInputs((prev) => ({ ...prev, [key]: value }));
+		setKpiInputs((prev) => {
+			const next = { ...prev, [key]: value };
+			if (key === "wellhub_revenue") {
+				const guaranteed = calculateReceitaGarantida(value);
+				next["totalpass_revenue"] =
+					guaranteed !== undefined ? String(guaranteed) : "";
+			}
+			return next;
+		});
 	}, []);
 
 	const updateExpense = useCallback((code: string, value: number) => {
@@ -152,11 +181,12 @@ export function useKpiForm({
 				: {};
 		setRecebimentosBreakdown(groups);
 		const mapped = mapRevenueGroupsToCodes(groups);
+		const guaranteed = calculateReceitaGarantida(mapped.wellhub_revenue);
 		setKpiInputs((prev) => ({
 			...prev,
 			matriculated_revenue: String(mapped.matriculated_revenue),
 			wellhub_revenue: String(mapped.wellhub_revenue),
-			totalpass_revenue: String(mapped.totalpass_revenue),
+			totalpass_revenue: guaranteed !== undefined ? String(guaranteed) : "",
 			products_revenue: String(mapped.products_revenue),
 		}));
 	}, []);
@@ -186,6 +216,13 @@ export function useKpiForm({
 					const k = fieldToInputKey(f);
 					const num = parsePtBrNumber(kpiInputs[k] ?? "");
 					values[f.code] = num ?? 0;
+				}
+			}
+			const wellhubNum = parsePtBrNumber(kpiInputs["wellhub_revenue"] ?? "");
+			if (wellhubNum !== undefined) {
+				const guaranteed = calculateReceitaGarantida(wellhubNum);
+				if (guaranteed !== undefined) {
+					values["totalpass_revenue"] = guaranteed;
 				}
 			}
 			const expenseItems = structuredClone(custosBreakdown);

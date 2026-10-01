@@ -62,7 +62,7 @@ export function ProjecaoReceita({ revenueChart }: Props) {
 					borderWidth: 0,
 				},
 				{
-					label: "Totalpass",
+					label: "Receita Garantida",
 					data: [...revenueChart.stacked.totalpass],
 					backgroundColor: COL.totalpass,
 					borderWidth: 0,

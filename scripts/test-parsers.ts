@@ -160,8 +160,8 @@ async function runTests() {
     assert(json.total === 4100, `Recebimentos total correct (got ${json.total}, expected 4100)`);
     assert(json.groups["Matriculado - Mensalidade"] === 1500, "Matriculado correct");
     assert(json.groups["Wellhub - Repasse"] === 800, "Wellhub - Repasse correct");
-    assert(json.groups["Receita Garantida"] === 300, "Receita Garantida center correct");
-    assert(json.groups["Receita Wellhub"] === 700, `Receita Wellhub from description correct (got ${json.groups["Receita Wellhub"]}, expected 700)`);
+    assert(json.groups["Receita Garantida"] === 500, `Receita Garantida center correct (got ${json.groups["Receita Garantida"]}, expected 500)`);
+    assert(json.groups["Receita Wellhub"] === 500, `Receita Wellhub from description correct (got ${json.groups["Receita Wellhub"]}, expected 500)`);
     assert(json.groups["Totalpass"] === 400, "Totalpass correct");
     assert(json.groups["Total Pass"] === 250, "Total Pass from description correct");
     assert(json.groups["Venda de Água"] === 150, "Products correct");
@@ -193,8 +193,8 @@ async function runTests() {
     assert(call.data.gymSlug === "test-gym", "Passed gym slug is correct");
     assert(call.data.periodId === "2026-05-01", "Period matches");
     assert(call.data.values.matriculated_revenue === 1500, "Matriculated revenue saved");
-    assert(call.data.values.wellhub_revenue === 1800, `Wellhub revenue saved (got ${call.data.values.wellhub_revenue}, expected 1800)`);
-    assert(call.data.values.totalpass_revenue === 650, `Totalpass revenue saved (got ${call.data.values.totalpass_revenue}, expected 650)`);
+    assert(call.data.values.wellhub_revenue === 1300, `Wellhub revenue saved (got ${call.data.values.wellhub_revenue}, expected 1300)`);
+    assert(call.data.values.totalpass_revenue === 1150, `Totalpass/Receita Garantida revenue saved (got ${call.data.values.totalpass_revenue}, expected 1150)`);
     assert(call.data.values.products_revenue === 150, "Products revenue saved");
     assert(call.data.values.revenue_total === 4100, "Revenue total saved");
   }

@@ -20,7 +20,7 @@ export function useFormLockState() {
 
 	const isRevenueFieldAlwaysEditable = useCallback(
 		(code: string): boolean =>
-			code === "wellhub_revenue" || code === "totalpass_revenue",
+			code === "wellhub_revenue",
 		[],
 	);
 

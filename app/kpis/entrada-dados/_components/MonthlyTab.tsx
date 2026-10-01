@@ -63,11 +63,15 @@ export function MonthlyTab({
 	const onBlur = () => setFocusedKey(null);
 
 	const shouldShowRevenueField = (code: string): boolean =>
-		lock.isRevenueFieldAlwaysEditable(code) || kpi.hasRecebimentosBreakdown;
+		code === "wellhub_revenue" ||
+		code === "totalpass_revenue" ||
+		lock.isRevenueFieldAlwaysEditable(code) ||
+		kpi.hasRecebimentosBreakdown;
 
 	const getFieldDisabledFor = (groupId: string) => (field: KpiFormField) => {
 		if (groupId === "overview") return lock.isGroupLocked("overview");
 		if (groupId === "finance_revenues") {
+			if (field.code === "totalpass_revenue") return true;
 			if (lock.isRevenueFieldAlwaysEditable(field.code)) return false;
 			return lock.isGroupLocked("finance_revenues");
 		}

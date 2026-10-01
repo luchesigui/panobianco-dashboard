@@ -60,7 +60,7 @@ export function ReceitaPorComposicao({ labels, stacked }: Props) {
 					borderWidth: 0,
 				},
 				{
-					label: "Totalpass",
+					label: "Receita Garantida",
 					data: stacked.totalpass,
 					backgroundColor: COL.totalpass,
 					borderWidth: 0,

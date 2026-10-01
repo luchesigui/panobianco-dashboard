@@ -79,10 +79,9 @@ export async function POST(req: Request) {
 
       const rowDescLower = rowDescription.toLowerCase();
 
-      if (
-        rowDescLower.includes("wellhub") ||
-        rowDescLower.includes("receita garantida")
-      ) {
+      if (rowDescLower.includes("receita garantida")) {
+        center = "Receita Garantida";
+      } else if (rowDescLower.includes("wellhub")) {
         center = "Receita Wellhub";
       } else if (
         rowDescLower.includes("totalpass") ||
