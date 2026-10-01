@@ -5,10 +5,6 @@ import styles from "../../page.module.css";
 
 export function RoiCardGrid({ data }: { data: KpiPageData }) {
 	const ti = (data.currentMeta.total_invested ?? {}) as Record<string, unknown>;
-	const cashM = (data.currentMeta.cash_balance ?? {}) as Record<
-		string,
-		unknown
-	>;
 	const recM = (data.currentMeta.recovery_balance ?? {}) as Record<
 		string,
 		unknown
@@ -19,7 +15,6 @@ export function RoiCardGrid({ data }: { data: KpiPageData }) {
 	>;
 
 	const total = data.current.total_invested;
-	const cashV = data.current.cash_balance;
 	const recV = data.current.recovery_balance;
 	const payMos = data.current.roi_payback_months;
 
@@ -27,7 +22,7 @@ export function RoiCardGrid({ data }: { data: KpiPageData }) {
 		typeof m.card_title === "string" ? m.card_title : fallback;
 
 	return (
-		<div className={styles.kpiGrid}>
+		<div className={styles.roiGrid}>
 			<article className={styles.kpiCard}>
 				<span className={styles.kpiLabel}>
 					{cardTitle(ti, "Total investido (Bruno+Guilherme)")}
@@ -44,29 +39,6 @@ export function RoiCardGrid({ data }: { data: KpiPageData }) {
 				<div
 					className={styles.kpiBar}
 					style={{ background: barColor("total_invested") }}
-				/>
-			</article>
-
-			<article className={styles.kpiCard}>
-				<span className={styles.kpiLabel}>
-					{cardTitle(cashM, "Saldo em caixa (fluxo real)")}
-				</span>
-				<p className={styles.kpiValue}>
-					{cashV != null ? formatCompactBrl(cashV) : "N/A"}
-				</p>
-				{typeof cashM.subline === "string" ? (
-					<p className={styles.kpiMetaLine}>{cashM.subline}</p>
-				) : null}
-				{typeof cashM.pct_of_investment_pill === "string" ? (
-					<div className={styles.kpiSub}>
-						<span className={`${styles.kpiDelta} ${styles.deltaUp}`}>
-							{cashM.pct_of_investment_pill}
-						</span>
-					</div>
-				) : null}
-				<div
-					className={styles.kpiBar}
-					style={{ background: barColor("cash_balance") }}
 				/>
 			</article>
 

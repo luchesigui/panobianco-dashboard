@@ -373,6 +373,13 @@
 	margin-bottom: 1rem;
 }
 
+.roiGrid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 12px;
+	margin-bottom: 1rem;
+}
+
 .retentionGrid {
 	display: grid;
 	grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -382,7 +389,8 @@
 
 /* Keep 4 columns from tablet width; narrow phones use a fluid grid */
 @media (max-width: 640px) {
-	.kpiGrid {
+	.kpiGrid,
+	.roiGrid {
 		grid-template-columns: repeat(
 			auto-fit,
 			minmax(max(148px, calc((100% - 12px) / 2)), 1fr)

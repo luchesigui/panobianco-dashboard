@@ -86,14 +86,6 @@ export const KPI_FORM_GROUPS: KpiFormGroup[] = [
       },
     ],
   },
-  {
-    id: "roi",
-    title: "Retorno do investimento",
-    fields: [
-      { code: "cash_balance", label: "Saldo em caixa", unit: "currency" },
-      { code: "recovery_balance", label: "Saldo a recuperar", unit: "currency" },
-    ],
-  },
 ];
 
 /** Unique KPI codes across groups.
