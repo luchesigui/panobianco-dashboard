@@ -13,7 +13,9 @@ import {
 } from "../actions";
 import {
 	formatBrlIntegerMask,
+	formatBrlSignedIntegerMask,
 	parseBrlIntegerMask,
+	parseBrlSignedIntegerMask,
 } from "../lib/brl-mask";
 
 export type Settings = {
@@ -22,6 +24,7 @@ export type Settings = {
 	claudeApiKey: string;
 	evoApiToken: string;
 	totalInvested: string;
+	cashInitialBalance: string;
 };
 
 export type ConsultoraRow = {
@@ -35,6 +38,7 @@ export type ConsultoraRow = {
 type SaveSection =
 	| "gymName"
 	| "totalInvested"
+	| "cashInitialBalance"
 	| "consultoras"
 	| "consultorasGoals"
 	| "studentBaseGoals"
@@ -61,6 +65,9 @@ export function useSettingsForm({
 	const [evoApiToken, setEvoApiToken] = useState(initialSettings.evoApiToken);
 	const [totalInvested, setTotalInvested] = useState(() =>
 		formatBrlIntegerMask(initialSettings.totalInvested),
+	);
+	const [cashInitialBalance, setCashInitialBalance] = useState(() =>
+		formatBrlSignedIntegerMask(initialSettings.cashInitialBalance),
 	);
 	const [studentBaseGoals, setStudentBaseGoals] = useState<
 		Record<number, string>
@@ -91,6 +98,7 @@ export function useSettingsForm({
 	>({
 		gymName: false,
 		totalInvested: false,
+		cashInitialBalance: false,
 		consultoras: false,
 		consultorasGoals: false,
 		studentBaseGoals: false,
@@ -164,6 +172,31 @@ export function useSettingsForm({
 		}
 		setSectionSaving("totalInvested", false);
 	}, [totalInvested, router, setSectionSaving]);
+
+	const handleSaveCashInitialBalance = useCallback(async () => {
+		setSectionSaving("cashInitialBalance", true);
+		setMessage(null);
+		const parsed = parseBrlSignedIntegerMask(cashInitialBalance);
+		const isEmpty = cashInitialBalance.replace(/[-−\s]/g, "") === "";
+		if (!isEmpty && parsed == null) {
+			setMessage({
+				type: "err",
+				text: "Informe um valor numérico válido para o saldo inicial.",
+			});
+			setSectionSaving("cashInitialBalance", false);
+			return;
+		}
+		const res = await saveGymSettingsAction({
+			cashInitialBalance: isEmpty ? "" : (parsed ?? undefined),
+		});
+		if (res.ok) {
+			setMessage({ type: "ok", text: "Saldo inicial salvo." });
+			router.refresh();
+		} else {
+			setMessage({ type: "err", text: res.error });
+		}
+		setSectionSaving("cashInitialBalance", false);
+	}, [cashInitialBalance, router, setSectionSaving]);
 
 	const handleSaveStudentBaseGoals = useCallback(async () => {
 		setSectionSaving("studentBaseGoals", true);
@@ -321,8 +354,12 @@ export function useSettingsForm({
 			setTotalInvested,
 			savingName: savingSections.gymName,
 			savingTotalInvested: savingSections.totalInvested,
+			cashInitialBalance,
+			setCashInitialBalance,
+			savingCashInitialBalance: savingSections.cashInitialBalance,
 			handleSaveGymName,
 			handleSaveTotalInvested,
+			handleSaveCashInitialBalance,
 		},
 		consultoras: {
 			rows: consultoras,

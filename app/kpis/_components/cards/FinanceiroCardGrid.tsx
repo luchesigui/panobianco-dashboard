@@ -32,6 +32,11 @@ const CARDS: KpiCard[] = [
 		label: "Geração de caixa",
 		unit: "currency",
 	},
+	{
+		key: "accumulated_result",
+		label: "Resultado acumulado",
+		unit: "currency",
+	},
 	{ key: "invoice_tax_nf", label: "Imposto NF emitido", unit: "currency" },
 	{
 		key: "operational_result_100pct_nf",
@@ -75,6 +80,7 @@ function financeMainDisplay(
 	if (
 		cardKey === "operational_result" ||
 		cardKey === "cash_generation" ||
+		cardKey === "accumulated_result" ||
 		cardKey === "operational_result_100pct_nf"
 	) {
 		return formatCurrencySignedK(current);
@@ -190,6 +196,37 @@ export function FinanceiroCardGrid({ data }: { data: KpiPageData }) {
 					Resultado − dividendos
 				</p>,
 			);
+			const delta = renderDelta(current, previous, vsLabel, {
+				pctAsInteger: true,
+			});
+			deltaBlock = (
+				<div className={styles.kpiSub}>
+					{delta.pill ? (
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{`${delta.pill}${delta.tail}`}
+						</span>
+					) : (
+						<span className={`${styles.kpiDelta} ${delta.pillClass}`}>
+							{delta.tail}
+						</span>
+					)}
+				</div>
+			);
+		} else if (key === "accumulated_result") {
+			if (typeof m.start_label === "string") {
+				metaLines.push(
+					<p key="acc1" className={styles.kpiMetaLine}>
+						Desde {m.start_label}
+					</p>,
+				);
+			}
+			if (typeof m.initial_balance === "number" && m.initial_balance !== 0) {
+				metaLines.push(
+					<p key="acc2" className={styles.kpiDetailLine}>
+						Saldo inicial: {formatCurrencySignedK(m.initial_balance)}
+					</p>,
+				);
+			}
 			const delta = renderDelta(current, previous, vsLabel, {
 				pctAsInteger: true,
 			});

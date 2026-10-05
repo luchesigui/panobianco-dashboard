@@ -39,6 +39,7 @@ export async function saveGymSettingsAction(settings: {
   claudeApiKey?: string;
   evoApiToken?: string;
   totalInvested?: number | string;
+  cashInitialBalance?: number | string;
 }): Promise<ActionResult> {
   const supabase = getServiceSupabase();
 
@@ -358,6 +359,7 @@ export async function loadSettingsAction(): Promise<{
   claudeApiKey: string;
   evoApiToken: string;
   totalInvested: string;
+  cashInitialBalance: string;
 }> {
   const supabase = getServiceSupabase();
 
@@ -376,6 +378,7 @@ export async function loadSettingsAction(): Promise<{
     claudeApiKey: "",
     evoApiToken: "",
     totalInvested: "",
+    cashInitialBalance: "",
   };
   if (!gymId) return defaults;
 
@@ -391,5 +394,6 @@ export async function loadSettingsAction(): Promise<{
     claudeApiKey: map.get("claudeApiKey") ?? "",
     evoApiToken: map.get("evoApiToken") ?? "",
     totalInvested: map.get("totalInvested") ?? "",
+    cashInitialBalance: map.get("cashInitialBalance") ?? "",
   };
 }

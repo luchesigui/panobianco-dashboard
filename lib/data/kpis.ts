@@ -304,6 +304,38 @@ const MONTH_SHORT_PT = [
 	"Dez",
 ];
 
+/** Normaliza dividendos/despesa operacional a partir das linhas expense_* e deriva resultado e geração de caixa. Muta o map. */
+function applyCashGenerationMetrics(map: KpiMap): void {
+	let divSum = map["dividends_total"] ?? 0;
+	let rawExpDivSum = 0;
+	for (const [k, v] of Object.entries(map)) {
+		if (k.startsWith("expense_") && isDividendExpense(k)) {
+			rawExpDivSum += v;
+		}
+	}
+	if (rawExpDivSum > 0) {
+		divSum = Math.max(divSum, rawExpDivSum);
+	}
+	map["dividends_total"] = divSum;
+
+	const expenseKeys = Object.keys(map).filter((k) => k.startsWith("expense_"));
+	if (expenseKeys.length > 0) {
+		map["expenses_total"] = expenseKeys
+			.filter((k) => !isDividendExpense(k))
+			.reduce((acc, k) => acc + (map[k] ?? 0), 0);
+	}
+
+	// operational_result: always computed from revenue_total - expenses_total
+	const rev = map["revenue_total"];
+	const exp = map["expenses_total"];
+	if (rev != null && exp != null) {
+		map["operational_result"] = rev - exp;
+	}
+
+	// cash_generation: operational_result - dividends_total
+	map["cash_generation"] = (map["operational_result"] ?? 0) - divSum;
+}
+
 /** Normalize DB period (date or ISO string) to YYYY-MM-DD for stable equality. */
 function normalizePeriodId(value: unknown): string {
 	if (value == null) return "";
@@ -857,7 +889,7 @@ export async function getKpiPageData(
 				.from("gym_settings")
 				.select("key,value")
 				.eq("gym_id", gym.id)
-				.eq("key", "totalInvested"),
+				.in("key", ["totalInvested", "cashInitialBalance"]),
 			supabase
 				.from("consultoras")
 				.select("name, monthly_goal")
@@ -1108,6 +1140,14 @@ export async function getKpiPageData(
 		configuredTotalInvestedRaw != null
 			? Number(configuredTotalInvestedRaw)
 			: Number.NaN;
+	const configuredCashInitialBalanceRaw = Number(
+		settingsMap.get("cashInitialBalance"),
+	);
+	const configuredCashInitialBalance = Number.isFinite(
+		configuredCashInitialBalanceRaw,
+	)
+		? configuredCashInitialBalanceRaw
+		: 0;
 	const consultorasSalesTarget = (consultorasRes.data ?? []).reduce(
 		(sum, row) => {
 			const v = Number(row.monthly_goal);
@@ -1367,67 +1407,54 @@ export async function getKpiPageData(
 		}
 	}
 
-	// Ensure dividends_total and clean operational expenses for current, previous, and third
-	const sanitizeDividendsAndExpenses = (map: KpiMap) => {
-		let divSum = map["dividends_total"] ?? 0;
-		let rawExpDivSum = 0;
-		for (const [k, v] of Object.entries(map)) {
-			if (k.startsWith("expense_") && isDividendExpense(k)) {
-				rawExpDivSum += v;
+	// dividends_total, expenses_total (operacional), operational_result e cash_generation
+	applyCashGenerationMetrics(current);
+	applyCashGenerationMetrics(previous);
+	applyCashGenerationMetrics(previousPrevious);
+
+	// accumulated_result: saldo inicial + Σ cash_generation desde o 1º mês com receita e despesa
+	{
+		const historicMaps = new Map<string, KpiMap>();
+		for (const row of salesHistoryRes.data ?? []) {
+			if (row.value_numeric == null) continue;
+			const code = defIdToCode.get(row.kpi_definition_id);
+			if (!code) continue;
+			const pid = normalizePeriodId(row.period_id);
+			const map = historicMaps.get(pid) ?? {};
+			map[code] = Number(row.value_numeric);
+			historicMaps.set(pid, map);
+		}
+		for (const map of historicMaps.values()) applyCashGenerationMetrics(map);
+		// Períodos já calculados acima prevalecem sobre o histórico bruto.
+		historicMaps.set(kpiDataPeriod, current);
+		if (previousPeriod) historicMaps.set(previousPeriod, previous);
+
+		const cashPeriods = [...historicMaps.keys()]
+			.filter((pid) => {
+				const map = historicMaps.get(pid);
+				return (
+					pid <= kpiDataPeriod &&
+					map?.revenue_total != null &&
+					map.expenses_total != null
+				);
+			})
+			.sort((a, b) => a.localeCompare(b));
+
+		if (cashPeriods.length > 0) {
+			let running = configuredCashInitialBalance;
+			for (const pid of cashPeriods) {
+				running += historicMaps.get(pid)?.cash_generation ?? 0;
+				if (pid === kpiDataPeriod) current["accumulated_result"] = running;
+				if (previousPeriod && pid === previousPeriod) {
+					previous["accumulated_result"] = running;
+				}
 			}
+			currentMeta["accumulated_result"] = {
+				...(currentMeta["accumulated_result"] ?? {}),
+				start_label: toLabel(cashPeriods[0]),
+				initial_balance: configuredCashInitialBalance,
+			};
 		}
-		if (rawExpDivSum > 0) {
-			divSum = Math.max(divSum, rawExpDivSum);
-		}
-		map["dividends_total"] = divSum;
-
-		const expenseKeys = Object.keys(map).filter((k) => k.startsWith("expense_"));
-		if (expenseKeys.length > 0) {
-			const opExp = expenseKeys
-				.filter((k) => !isDividendExpense(k))
-				.reduce((acc, k) => acc + (map[k] ?? 0), 0);
-			map["expenses_total"] = opExp;
-		}
-	};
-	sanitizeDividendsAndExpenses(current);
-	sanitizeDividendsAndExpenses(previous);
-	sanitizeDividendsAndExpenses(previousPrevious);
-
-	// operational_result: always computed from revenue_total - expenses_total
-	{
-		const rev = current["revenue_total"];
-		const exp = current["expenses_total"];
-		if (rev != null && exp != null) {
-			current["operational_result"] = rev - exp;
-		}
-	}
-	{
-		const rev = previous["revenue_total"];
-		const exp = previous["expenses_total"];
-		if (rev != null && exp != null) {
-			previous["operational_result"] = rev - exp;
-		}
-	}
-	{
-		const rev = previousPrevious["revenue_total"];
-		const exp = previousPrevious["expenses_total"];
-		if (rev != null && exp != null) {
-			previousPrevious["operational_result"] = rev - exp;
-		}
-	}
-
-	// cash_generation: operational_result - dividends_total
-	if (current["operational_result"] != null || current["dividends_total"] != null) {
-		current["cash_generation"] =
-			(current["operational_result"] ?? 0) - (current["dividends_total"] ?? 0);
-	}
-	if (previous["operational_result"] != null || previous["dividends_total"] != null) {
-		previous["cash_generation"] =
-			(previous["operational_result"] ?? 0) - (previous["dividends_total"] ?? 0);
-	}
-	if (previousPrevious["operational_result"] != null || previousPrevious["dividends_total"] != null) {
-		previousPrevious["cash_generation"] =
-			(previousPrevious["operational_result"] ?? 0) - (previousPrevious["dividends_total"] ?? 0);
 	}
 
 	// operational_result_100pct_nf: revenue - expenses (includes royalties) - 13.4% tax on revenue

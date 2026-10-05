@@ -10,7 +10,10 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatBrlIntegerMask } from "../lib/brl-mask";
+import {
+	formatBrlIntegerMask,
+	formatBrlSignedIntegerMask,
+} from "../lib/brl-mask";
 import type { UseSettingsForm } from "../hooks/useSettingsForm";
 
 type Props = {
@@ -87,6 +90,42 @@ export function GymInfoSection({ gymInfo }: Props) {
 					{gymInfo.savingTotalInvested
 						? "Salvando…"
 						: "Salvar investimento total"}
+				</Button>
+
+				<div className="flex flex-col gap-1.5 pt-2 border-t border-[color:var(--border-subtle)]">
+					<Label
+						htmlFor="cash-initial-balance"
+						className="text-xs font-medium text-[color:var(--text-secondary)]"
+					>
+						Saldo inicial (resultado acumulado)
+					</Label>
+					<Input
+						id="cash-initial-balance"
+						inputMode="numeric"
+						value={gymInfo.cashInitialBalance}
+						onChange={(e) =>
+							gymInfo.setCashInitialBalance(
+								formatBrlSignedIntegerMask(e.target.value),
+							)
+						}
+						className="h-10 bg-[color:var(--surface-card)] border-[color:var(--border-subtle)]"
+						placeholder="R$ 0"
+					/>
+					<p className="text-xs text-[color:var(--text-muted)]">
+						Somado à geração de caixa acumulada desde o primeiro mês com
+						dados. Aceita valor negativo (digite &quot;-&quot; antes do
+						número).
+					</p>
+				</div>
+				<Button
+					onClick={() => void gymInfo.handleSaveCashInitialBalance()}
+					disabled={gymInfo.savingCashInitialBalance}
+					variant="outline"
+					className="h-9 px-5 border-[color:var(--border-subtle)] text-[color:var(--text-primary)] hover:bg-[color:var(--surface-muted)]"
+				>
+					{gymInfo.savingCashInitialBalance
+						? "Salvando…"
+						: "Salvar saldo inicial"}
 				</Button>
 			</CardContent>
 		</Card>
