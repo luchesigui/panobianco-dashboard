@@ -90,22 +90,24 @@ export async function runSyncJob(jobId: string): Promise<void> {
 
 				const value = receivable.ammountPaid || receivable.ammount;
 
-				if (
-					receivable.description &&
-					receivable.description.toLowerCase().includes("receita garantida")
-				) {
+				const descLower = (receivable.description ?? "").toLowerCase();
+				if (descLower.includes("receita garantida")) {
 					partialGroups["Receita Garantida"] =
 						(partialGroups["Receita Garantida"] ?? 0) + value;
 					totalFetched++;
 					continue;
 				}
 
-				if (
-					receivable.description &&
-					receivable.description.toLowerCase().includes("wellhub")
-				) {
+				if (descLower.includes("wellhub")) {
 					partialGroups["Receita Wellhub"] =
 						(partialGroups["Receita Wellhub"] ?? 0) + value;
+					totalFetched++;
+					continue;
+				}
+
+				if (descLower.includes("totalpass") || descLower.includes("total pass")) {
+					partialGroups["Total Pass"] =
+						(partialGroups["Total Pass"] ?? 0) + value;
 					totalFetched++;
 					continue;
 				}

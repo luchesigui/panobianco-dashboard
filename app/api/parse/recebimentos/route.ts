@@ -62,30 +62,20 @@ export async function POST(req: Request) {
       const valueRawBaixa = row["Valor de baixa"] ?? row["Valor baixa"] ?? row["Valor"];
       let center = typeof centerRaw === "string" ? centerRaw.trim() : "";
 
-      // Check if any column name resembles a description, and if its value contains "Wellhub" or "Receita Garantida"
-      let rowDescription = "";
-      for (const [k, v] of Object.entries(row)) {
-        const keyLower = k.toLowerCase();
-        if (
-          (keyLower.includes("descri") ||
-            keyLower.includes("detalhe") ||
-            keyLower.includes("hist")) &&
-          typeof v === "string"
-        ) {
-          rowDescription = v;
-          break;
-        }
-      }
+      // Check all textual values of the row for aggregator keywords (Receita Garantida, Wellhub, Totalpass)
+      // This handles cases where the partner is identified in Nome, Descrição, Informações, etc.
+      const allRowText = Object.values(row)
+        .filter((v): v is string => typeof v === "string")
+        .join(" ")
+        .toLowerCase();
 
-      const rowDescLower = rowDescription.toLowerCase();
-
-      if (rowDescLower.includes("receita garantida")) {
+      if (allRowText.includes("receita garantida")) {
         center = "Receita Garantida";
-      } else if (rowDescLower.includes("wellhub")) {
+      } else if (allRowText.includes("wellhub")) {
         center = "Receita Wellhub";
       } else if (
-        rowDescLower.includes("totalpass") ||
-        rowDescLower.includes("total pass")
+        allRowText.includes("totalpass") ||
+        allRowText.includes("total pass")
       ) {
         center = "Total Pass";
       }
