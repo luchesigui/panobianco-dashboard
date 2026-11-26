@@ -9,7 +9,7 @@ import {
 	LineElement,
 	PointElement,
 	Tooltip,
-	type Chart,
+	type Plugin,
 } from "chart.js";
 import { useMemo } from "react";
 import { Line } from "react-chartjs-2";
@@ -26,10 +26,10 @@ ChartJS.register(
 	Tooltip,
 );
 
-function baseGoalLinePlugin(goal: number) {
+function baseGoalLinePlugin(goal: number): Plugin<"line"> {
 	return {
 		id: "retentionBaseGoalLine",
-		afterDraw(chart: Chart) {
+		afterDraw(chart) {
 			const yScale = chart.scales.y;
 			const xScale = chart.scales.x;
 			if (!yScale || !xScale) return;

@@ -4,7 +4,7 @@ import {
   BarElement,
   CategoryScale,
   Chart as ChartJS,
-  type Chart,
+  type Plugin,
   Legend,
   LinearScale,
   Tooltip,
@@ -24,10 +24,10 @@ function salesThresholdForValue(v: number) {
   return MONTHLY_SALES_THRESHOLD.belowPace;
 }
 
-function targetLinePlugin(target: number) {
+function targetLinePlugin(target: number): Plugin<"bar"> {
   return {
     id: "salesTargetLine",
-    afterDraw(chart: Chart) {
+    afterDraw(chart) {
       const yScale = chart.scales.y;
       const xScale = chart.scales.x;
       if (!yScale || !xScale) return;

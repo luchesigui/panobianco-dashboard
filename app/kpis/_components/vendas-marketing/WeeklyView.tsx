@@ -319,10 +319,11 @@ export function WeeklyView({
 }: Props) {
 	const weeks = w.weekHeaders;
 	const n = weeks.length;
+	const currentMonthLabel = primaryPeriodLabel || calendarCurrentMonthLabel;
 	const weekSources = padWeekSourceLabels(
 		weekSourcePeriod,
 		n,
-		calendarCurrentMonthLabel,
+		currentMonthLabel,
 	);
 
 	const mk = w.marketing;
@@ -337,7 +338,6 @@ export function WeeklyView({
 	const cloW = padWeeks(fw.closings, n);
 	const salesW = padWeeks(w.salesWeekly.totals, n);
 
-	const currentMonthLabel = primaryPeriodLabel || calendarCurrentMonthLabel;
 	const monthLabel = comparisonPeriodLabel ?? "mês ant.";
 
 	// Colunas semanais do mês comparativo — mesma origem (semanal) dos valores atuais,
@@ -378,7 +378,7 @@ export function WeeklyView({
 	const parts = monthPeriod.split("-").map(Number);
 	const formattedPeriodLabel = `${mShort[parts[1] - 1]}/${String(parts[0]).slice(-2)}`; // e.g. "Jun/26"
 
-	if (calendarCurrentMonthLabel === formattedPeriodLabel) {
+	if (currentMonthLabel === formattedPeriodLabel) {
 		calendarWeekIdx = weekIdx;
 	}
 
@@ -442,13 +442,13 @@ export function WeeklyView({
 						<tr>
 							<th className={styles.thLabel} />
 							{weeks.map((h, i) => {
-								const colPeriod = weekSources[i] ?? calendarCurrentMonthLabel;
+								const colPeriod = weekSources[i] ?? currentMonthLabel;
 								const suffix =
-									colPeriod !== calendarCurrentMonthLabel
+									colPeriod !== currentMonthLabel
 										? colPeriod.slice(0, 3).toLowerCase()
 										: null;
 								const isSelected = h === activeWeekHeader;
-								const isCalendarCurrent = i === calendarWeekIdx;
+								const isCalendarCurrent = i === calendarWeekIdx && colPeriod === currentMonthLabel;
 								let thClassName = undefined;
 								if (isSelected) {
 									thClassName = styles.currentWeekHeader;

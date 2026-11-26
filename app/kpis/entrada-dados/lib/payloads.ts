@@ -4,6 +4,7 @@ import {
 	computeWeeklyCancellations,
 	recomputeWeeklyTotals,
 } from "@/lib/data/sales-marketing-payload-merge";
+import { parseWeeklyMarketingCount } from "@/lib/data/weekly-marketing-count";
 import { numRowToStrings, parsePtBrNumber, stringsToNumRow } from "./parsers";
 import type {
 	FunnelState,
@@ -169,9 +170,9 @@ export function assembleSmPayload(
 	out.receptionistsPeriodLabel = recLabel.trim() || undefined;
 
 	const n = out.weekly.weekHeaders.length;
-	out.weekly.marketing.reach = stringsToNumRow(weeklyStr.reach);
+	out.weekly.marketing.reach = weeklyStr.reach.map(parseWeeklyMarketingCount);
 	out.weekly.marketing.frequency = stringsToNumRow(weeklyStr.frequency);
-	out.weekly.marketing.views = stringsToNumRow(weeklyStr.views);
+	out.weekly.marketing.views = weeklyStr.views.map(parseWeeklyMarketingCount);
 	out.weekly.marketing.followers = stringsToNumRow(weeklyStr.followers);
 	out.weekly.funnelWeekly.scheduled = stringsToNumRow(weeklyStr.sch);
 	out.weekly.funnelWeekly.attendance = stringsToNumRow(weeklyStr.att);

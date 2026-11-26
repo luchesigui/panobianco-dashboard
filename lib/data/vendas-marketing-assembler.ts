@@ -4,6 +4,7 @@ import {
   createDefaultSmPayload,
   recomputeWeeklyTotals,
 } from "@/lib/data/sales-marketing-payload-merge";
+import { parseWeeklyMarketingCount } from "@/lib/data/weekly-marketing-count";
 
 export type FunilMensalRow = {
   scheduled: number;
@@ -78,9 +79,10 @@ export function assemblePayloadFromNormalized({
   for (const r of marketingSemanal) {
     const i = r.week_num - 1;
     if (i >= 0 && i < W) {
-      reach[i] = r.reach;
+      // Older rows can store the display separator as a decimal point.
+      reach[i] = parseWeeklyMarketingCount(r.reach);
       frequency[i] = r.frequency;
-      views[i] = r.views;
+      views[i] = parseWeeklyMarketingCount(r.views);
       followers[i] = r.followers;
     }
   }

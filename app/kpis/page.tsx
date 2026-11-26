@@ -15,8 +15,6 @@ import { RoiCharts } from "./_components/roi/RoiCharts";
 import { VendasMarketingCharts } from "./_components/vendas-marketing/VendasMarketingCharts";
 import { WeeklySection } from "./_components/vendas-marketing/WeeklySection";
 import { DashboardTabs } from "./_components/DashboardTabs";
-import { clsx } from "clsx";
-import brandStyles from "./kpi-brand.module.css";
 import styles from "./page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -69,7 +67,7 @@ function getDefaultActiveWeekIdx(
 	const parts = monthPeriod.split("-").map(Number);
 	const formattedPeriodLabel = `${mShort[parts[1] - 1]}/${String(parts[0]).slice(-2)}`; // e.g. "Jun/26"
 
-	if (dashboard.calendarCurrentMonthLabel === formattedPeriodLabel) {
+	if (dashboard.primaryPeriodLabel === formattedPeriodLabel) {
 		activeWeekIdx = weekIdx;
 	} else if (dashboard.primaryPayload?.weekly) {
 		const pw = dashboard.primaryPayload.weekly;
@@ -128,14 +126,13 @@ export default async function KpisPage({ searchParams }: Props) {
 				: undefined;
 	const tabParam = typeof sp.tab === "string" ? sp.tab : undefined;
 	const initialTab =
-		tabParam === "semanal" || sp.week
-			? "semanal"
-			: tabParam === "mensal"
-				? "mensal"
-				: "mensal";
+		tabParam === "mensal" ? "mensal" : tabParam === "semanal" || sp.week ? "semanal" : "mensal";
 
 	const data = await getKpiPageData("panobianco-sjc-satelite", periodParam);
 	const smPrimaryShort = data.currentPeriodLabel;
+	const weeklyPeriod = data.salesMarketingDashboard.primaryPeriodId;
+	const weeklyPeriodIndex = data.availablePeriods.indexOf(weeklyPeriod);
+	const useWeeklyPeriod = initialTab === "semanal" && weeklyPeriod !== data.kpiDataPeriod && weeklyPeriodIndex >= 0;
 
 	// Determine active week header
 	const smPayload = data.salesMarketingDashboard.payload;
@@ -165,7 +162,7 @@ export default async function KpisPage({ searchParams }: Props) {
 				dashboard={data.salesMarketingDashboard}
 				weeklyInsights={weeklyInsights}
 				activeWeekHeader={activeWeekHeader}
-				periodParam={periodParam}
+				periodParam={weeklyPeriod}
 			/>
 		</SectionCard>
 	);
@@ -286,9 +283,9 @@ export default async function KpisPage({ searchParams }: Props) {
 				<div className={styles.headerTop}>
 					<DashboardHeader gymName={data.gymName} />
 					<MonthSelector
-						monthLabel={data.currentMonthLabel}
-						prevPeriodId={data.prevPeriodId}
-						nextPeriodId={data.nextPeriodId}
+						monthLabel={initialTab === "semanal" ? data.salesMarketingDashboard.primaryPeriodLongLabel : data.currentMonthLabel}
+						prevPeriodId={useWeeklyPeriod ? data.availablePeriods[weeklyPeriodIndex - 1] : data.prevPeriodId}
+						nextPeriodId={useWeeklyPeriod ? data.availablePeriods[weeklyPeriodIndex + 1] : data.nextPeriodId}
 					/>
 				</div>
 			</header>
